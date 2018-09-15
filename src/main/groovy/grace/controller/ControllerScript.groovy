@@ -1,6 +1,7 @@
 package grace.controller
 
 import grace.route.Route
+import grace.route.Routes
 
 /**
  * 控制器脚本父类
@@ -10,5 +11,13 @@ import grace.route.Route
 abstract class ControllerScript extends Script {
     ControllerScript(Binding binding) {
         super(binding)
+    }
+
+    def methodMissing(String name, Object args) {
+        if (args && args[0] instanceof Closure){
+            Routes.req(name,args[0])
+        } else {
+            throw new NoSuchMethodException()
+        }
     }
 }
