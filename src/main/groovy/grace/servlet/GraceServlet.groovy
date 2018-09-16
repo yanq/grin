@@ -1,10 +1,9 @@
 package grace.servlet
 
-import grace.controller.ControllerScript
 import grace.controller.WebRequest
 import grace.route.Route
 import grace.route.Routes
-
+import org.codehaus.groovy.runtime.GroovyCategorySupport
 import javax.servlet.GenericServlet
 import javax.servlet.ServletException
 import javax.servlet.ServletRequest
@@ -23,10 +22,9 @@ class GraceServlet extends GenericServlet {
             Closure closure = route.closure.clone()
             closure.delegate = webRequest
             closure.setResolveStrategy(Closure.DELEGATE_ONLY)
-            closure.run()
+            GroovyCategorySupport.use(GraceCategory.class, closure)
         } else {
             res.writer.write("No route fond")
         }
-
     }
 }
