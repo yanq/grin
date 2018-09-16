@@ -20,7 +20,8 @@ class GraceServlet extends GenericServlet {
         Route route = Routes.routes.find { it.path == request.requestURI }
         if (route) {
             WebRequest webRequest = new WebRequest(request: request, response: response)
-            Closure closure = route.closure.rehydrate(webRequest, webRequest, webRequest)
+            Closure closure = route.closure.clone()
+            closure.delegate = webRequest
             closure.setResolveStrategy(Closure.DELEGATE_ONLY)
             closure.run()
         } else {
