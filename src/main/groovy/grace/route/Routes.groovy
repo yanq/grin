@@ -57,7 +57,9 @@ class Routes {
             log.error("path {$path} already exists !")
             throw new Exception("path {$path} already exists !")
         } else {
-            log.info("add a route @ $method $path")
+            String ownerName = closure.owner.class.name
+            if (!path.startsWith('/')) path = "/${ownerName.uncapitalize()}/$path" //相对路径处理
+            log.info("add a route @${ownerName} $method $path")
             routes.add(new Route(method: method, path: path, closure: closure))
         }
     }
