@@ -25,6 +25,12 @@ class GraceApp {
         }
     }
 
+    static isGraceAppDir(File root){
+        log.info("check grace app dirs @ ${root.absolutePath}")
+        File appRoot = new File(root, APP_DIR)
+        return ![appRoot, new File(appRoot, APP_CONTROLLERS), new File(appRoot, APP_VIEWS)].find {!it.exists()}
+    }
+
     static boolean isController(String path) {
         return path.contains(APP_DIR) && path.contains(APP_CONTROLLERS)
     }

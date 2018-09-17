@@ -24,7 +24,15 @@ class Server {
         server.start()
     }
 
+    static boolean isGraceApp(){
+        GraceApp.isGraceAppDir(new File('.'))
+    }
+
     public static void main(String[] args) {
-        new Server().start()
+        if (isGraceApp()){
+            new Server().start()
+        }else {
+            throw new Exception("current dir is not a grace app @ ${new File('.').absolutePath}")
+        }
     }
 }
