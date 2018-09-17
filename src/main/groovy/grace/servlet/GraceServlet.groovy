@@ -3,6 +3,8 @@ package grace.servlet
 import grace.controller.WebRequest
 import grace.route.Route
 import grace.route.Routes
+import groovy.transform.CompileStatic
+import groovy.util.logging.Slf4j
 import org.codehaus.groovy.runtime.GroovyCategorySupport
 import javax.servlet.GenericServlet
 import javax.servlet.ServletException
@@ -11,6 +13,7 @@ import javax.servlet.ServletResponse
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
+@Slf4j
 class GraceServlet extends GenericServlet {
     @Override
     void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {
@@ -22,7 +25,13 @@ class GraceServlet extends GenericServlet {
             Closure closure = route.closure.clone()
             closure.delegate = webRequest
             closure.setResolveStrategy(Closure.DELEGATE_ONLY)
-            GroovyCategorySupport.use(GraceCategory.class, closure)
+
+            Object result
+            use(GraceCategory.class) {
+                result = closure()
+            }
+
+            log.info("$route.path returned $result")
         } else {
             res.writer.write("No route fond")
         }
