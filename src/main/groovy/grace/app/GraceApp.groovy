@@ -20,6 +20,7 @@ class GraceApp {
     private static GraceApp instance
     //other
     GroovyScriptEngine scriptEngine
+    boolean refreshing = false
     File root, appDir, controllersDir, viewsDir
     List<File> allDirs
 
@@ -87,7 +88,12 @@ class GraceApp {
      * 刷新应用
      */
     synchronized void refresh(List<String> dirs) {
+        refreshing = true
+        if (!dirs) dirs=[APP_CONTROLLERS] //参数为空时，刷新
+
+        //sleep(10000)
         log.info("refresh app for ${dirs}")
+
         if (dirs.contains(APP_CONTROLLERS)) {
             //refresh routes
             Routes.routes.clear()
@@ -97,6 +103,15 @@ class GraceApp {
                     scriptEngine.run(it.name, '')
                 }
             }
+        }
+        refreshing = false
+    }
+
+    void waitingForRefresh(){
+        if (!refreshing) return
+        while (true){
+            sleep(100)
+            if (!refreshing) return
         }
     }
 

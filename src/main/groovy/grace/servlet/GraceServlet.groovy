@@ -1,11 +1,10 @@
 package grace.servlet
 
+import grace.app.GraceApp
 import grace.controller.WebRequest
 import grace.route.Route
 import grace.route.Routes
-import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
-import org.codehaus.groovy.runtime.GroovyCategorySupport
 import javax.servlet.GenericServlet
 import javax.servlet.ServletException
 import javax.servlet.ServletRequest
@@ -25,6 +24,8 @@ class GraceServlet extends GenericServlet {
             Closure closure = route.closure.clone()
             closure.delegate = webRequest
             closure.setResolveStrategy(Closure.DELEGATE_ONLY)
+
+            GraceApp.instance.waitingForRefresh()
 
             Object result
             use(GraceCategory.class) {
