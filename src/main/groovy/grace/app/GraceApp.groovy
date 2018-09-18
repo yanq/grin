@@ -1,5 +1,6 @@
 package grace.app
 
+import grace.route.Routes
 import groovy.util.logging.Slf4j
 import org.codehaus.groovy.runtime.InvokerHelper
 import java.nio.file.*
@@ -18,6 +19,7 @@ class GraceApp {
     //instance
     private static GraceApp instance
     //other
+    GroovyScriptEngine scriptEngine
     File root,appDir, controllersDir, viewsDir
     List<File> allDirs
 
@@ -32,6 +34,7 @@ class GraceApp {
         controllersDir = new File(appDir, APP_CONTROLLERS)
         viewsDir = new File(appDir, APP_VIEWS)
         allDirs = [appDir, controllersDir, viewsDir]
+        scriptEngine = new GroovyScriptEngine(controllersDir.absolutePath)
     }
 
     /**
@@ -102,13 +105,14 @@ class GraceApp {
                 while (true) {
                     WatchKey key = watchService.take()
                     try {
-                        List<String> names = key.pollEvents()*.context().name
+                        List<String> names =  key.pollEvents()*.context()*.path
+                        log.info("change event :${key.pollEvents()}")
                         if (names.contains(APP_CONTROLLERS)) {
                             //refresh routes
+                            Routes.routes.clear()
                             controllersDir.eachFileRecurse {
                                 if (it.name.endsWith('.groovy')) {
-                                    Class<Script> s = loader.parseClass(it)
-                                    InvokerHelper.runScript(s)
+                                    scriptEngine.run(it.name,'')
                                 }
                             }
                         }
@@ -117,8 +121,8 @@ class GraceApp {
                         e.printStackTrace()
                     } finally {
                         key.reset()
-                        sleep(1000)
                     }
+                    sleep(5000)
                 }
             }
         })
