@@ -10,13 +10,12 @@ import org.codehaus.groovy.control.CompilePhase
 import org.codehaus.groovy.control.SourceUnit
 import org.codehaus.groovy.transform.ASTTransformation
 import org.codehaus.groovy.transform.GroovyASTTransformation
-@Slf4j
 @CompileStatic
 @GroovyASTTransformation(phase = CompilePhase.SEMANTIC_ANALYSIS)
 class GraceAppASTTransformation implements ASTTransformation {
     @Override
     void visit(ASTNode[] nodes, SourceUnit source) {
-        log.debug("add supper class ControllerScript @ ${source.name}")
+        println("add supper class ControllerScript @ ${source?.name}")
         if (source.name.contains(GraceApp.APP_DIR) && source.name.contains(GraceApp.APP_CONTROLLERS)) {
             source.AST.classes[0].setSuperClass(new ClassNode(ControllerScript))
         }
