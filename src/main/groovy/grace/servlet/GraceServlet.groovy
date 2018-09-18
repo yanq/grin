@@ -27,12 +27,13 @@ class GraceServlet extends GenericServlet {
 
             GraceApp.instance.waitingForRefresh()
 
+            long start = System.nanoTime()
             Object result
             use(GraceCategory.class) {
                 result = closure()
             }
 
-            log.info("$route.path returned $result")
+            log.info("$route.path , ${(System.nanoTime()-start)/1000000} ms")
         } else {
             res.writer.write("No route fond")
         }
