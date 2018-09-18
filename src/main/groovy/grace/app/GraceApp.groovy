@@ -100,7 +100,7 @@ class GraceApp {
             controllersDir.eachFileRecurse {
                 if (it.name.endsWith('.groovy')) {
                     log.info("run controller script ${it.absolutePath}")
-                    scriptEngine.run(it.name, '')
+                    scriptEngine.run(it.absolutePath.substring(controllersDir.absolutePath.length()+1), '')
                 }
             }
         }
