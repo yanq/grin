@@ -32,6 +32,7 @@ class GraceServer {
         log.info("start app @ ${GraceApp.instance.root.absolutePath}")
         if (GraceApp.instance.isAppDir()) {
             GraceApp.instance.startFileWatcher()
+            GraceApp.instance.refresh()
             startUndertowServer()
         } else {
             throw new Exception("It is not a grace app dir @ ${GraceApp.instance.root.absolutePath}")
