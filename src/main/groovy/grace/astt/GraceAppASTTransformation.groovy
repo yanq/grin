@@ -16,7 +16,7 @@ class GraceAppASTTransformation implements ASTTransformation {
     @Override
     void visit(ASTNode[] nodes, SourceUnit source) {
         println("ASTTransformation @ ${source.name} -- $nodes")
-        if (GraceApp.isController(source.name)){
+        if (source.name.contains(GraceApp.APP_DIR) && source.name.contains(GraceApp.APP_CONTROLLERS)) {
             source.AST.classes[0].setSuperClass(new ClassNode(ControllerScript))
         }
     }
