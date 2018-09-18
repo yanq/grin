@@ -20,7 +20,7 @@ class GraceApp {
     private static GraceApp instance
     //other
     GroovyScriptEngine scriptEngine
-    File root,appDir, controllersDir, viewsDir
+    File root, appDir, controllersDir, viewsDir
     List<File> allDirs
 
     /**
@@ -84,6 +84,23 @@ class GraceApp {
     }
 
     /**
+     * 刷新应用
+     */
+    synchronized void refresh(List<String> dirs) {
+        log.info("refresh app for ${dirs}")
+        if (dirs.contains(APP_CONTROLLERS)) {
+            //refresh routes
+            Routes.routes.clear()
+            controllersDir.eachFileRecurse {
+                if (it.name.endsWith('.groovy')) {
+                    log.info("run controller script ${it.absolutePath}")
+                    scriptEngine.run(it.name, '')
+                }
+            }
+        }
+    }
+
+    /**
      * 判断是否是控制器
      * @param path
      * @return
@@ -105,24 +122,14 @@ class GraceApp {
                 while (true) {
                     WatchKey key = watchService.take()
                     try {
-                        List<String> names =  key.pollEvents()*.context()*.path
-                        log.info("change event :${key.pollEvents()}")
-                        if (names.contains(APP_CONTROLLERS)) {
-                            //refresh routes
-                            Routes.routes.clear()
-                            controllersDir.eachFileRecurse {
-                                if (it.name.endsWith('.groovy')) {
-                                    scriptEngine.run(it.name,'')
-                                }
-                            }
-                        }
+                        List<String> names = key.pollEvents()*.context()*.path
+                        refresh(names)
                     } catch (Exception e) {
                         log.warn("file change deal fail")
                         e.printStackTrace()
                     } finally {
                         key.reset()
                     }
-                    sleep(5000)
                 }
             }
         })
