@@ -2,7 +2,9 @@ package grace.app
 
 import grace.route.Routes
 import groovy.util.logging.Slf4j
-import org.codehaus.groovy.runtime.InvokerHelper
+import org.thymeleaf.TemplateEngine
+import org.thymeleaf.templateresolver.FileTemplateResolver
+
 import java.nio.file.*
 import static java.nio.file.StandardWatchEventKinds.*
 
@@ -20,6 +22,7 @@ class GraceApp {
     private static GraceApp instance
     //other
     GroovyScriptEngine scriptEngine
+    TemplateEngine templateEngine
     boolean refreshing = false
     File root, appDir, controllersDir, viewsDir
     List<File> allDirs
@@ -44,6 +47,23 @@ class GraceApp {
         if (scriptEngine) return scriptEngine
         scriptEngine = new GroovyScriptEngine(controllersDir.absolutePath, new File(root, 'src/main/groovy').absolutePath, new File(root, 'src/main/java').absolutePath)
         return scriptEngine
+    }
+
+    /**
+     * template engine by thymeleaf
+     * 默认是缓存的。
+     * @return
+     */
+    TemplateEngine getTemplateEngine(){
+        if (templateEngine) return templateEngine
+        templateEngine = new TemplateEngine()
+        FileTemplateResolver resolver = new FileTemplateResolver()
+        resolver.setPrefix(viewsDir.absolutePath)
+        resolver.setSuffix('.html')
+        resolver.setCharacterEncoding('utf-8')
+        resolver.setCacheable(false) //todo 开发期间不缓存
+        templateEngine.setTemplateResolver(resolver)
+        return templateEngine
     }
 
     /**

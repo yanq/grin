@@ -80,4 +80,8 @@ trait RequestBase {
             return new SimpleDateFormat(format).parse(value.toString())
         }
     }
+
+    Map toMap(){
+        return [request:request,response:response,session:session,context:context,params:params,headers:headers]
+    }
 }

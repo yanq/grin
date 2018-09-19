@@ -2,8 +2,8 @@ package grace.controller
 
 import grace.controller.traits.HTMLSupport
 import grace.controller.traits.JSONSupport
+import grace.controller.traits.Render
 import groovy.transform.CompileStatic
-
 import javax.servlet.RequestDispatcher
 import javax.servlet.ServletException
 
@@ -12,7 +12,7 @@ import javax.servlet.ServletException
  * 包装请求，提供方便变量和方法使用数据
  */
 @CompileStatic
-class WebRequest implements JSONSupport, HTMLSupport {
+class WebRequest implements JSONSupport, HTMLSupport, Render {
 
     /**
      * forward
