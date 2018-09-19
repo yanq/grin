@@ -35,7 +35,7 @@ class GraceServlet extends GenericServlet {
 
             log.info("$route.path , ${(System.nanoTime()-start)/1000000} ms")
         } else {
-            res.writer.write("No route fond")
+            res.writer.write("No route fond for ${request.requestURI}")
         }
     }
 }

@@ -35,8 +35,15 @@ class GraceApp {
         controllersDir = new File(appDir, APP_CONTROLLERS)
         viewsDir = new File(appDir, APP_VIEWS)
         allDirs = [appDir, controllersDir, viewsDir]
-        scriptEngine = new GroovyScriptEngine(controllersDir.absolutePath,new File(root,'src/main/groovy').absolutePath,new File(root,'src/main/java').absolutePath)
-        //scriptEngine = new GroovyScriptEngine(controllersDir.absolutePath,'D:\\IdeaProjects\\grace-dev\\grace-web\\src\\main\\groovy') 增加这么一个路径，内存增加了 20m
+    }
+
+    /**
+     * GSE 延时加载
+     */
+    GroovyScriptEngine getScriptEngine() {
+        if (scriptEngine) return scriptEngine
+        scriptEngine = new GroovyScriptEngine(controllersDir.absolutePath, new File(root, 'src/main/groovy').absolutePath, new File(root, 'src/main/java').absolutePath)
+        return scriptEngine
     }
 
     /**
@@ -90,7 +97,7 @@ class GraceApp {
      */
     synchronized void refresh(List<String> dirs) {
         refreshing = true
-        if (!dirs) dirs=[APP_CONTROLLERS] //参数为空时，刷新
+        if (!dirs) dirs = [APP_CONTROLLERS] //参数为空时，刷新
 
         //sleep(10000)
         log.info("refresh app for ${dirs}")
@@ -101,16 +108,16 @@ class GraceApp {
             controllersDir.eachFileRecurse {
                 if (it.name.endsWith('.groovy')) {
                     log.info("run controller script ${it.absolutePath}")
-                    scriptEngine.run(it.absolutePath.substring(controllersDir.absolutePath.length()+1), '')
+                    scriptEngine.run(it.absolutePath.substring(controllersDir.absolutePath.length() + 1), '')
                 }
             }
         }
         refreshing = false
     }
 
-    void waitingForRefresh(){
+    void waitingForRefresh() {
         if (!refreshing) return
-        while (true){
+        while (true) {
             sleep(100)
             if (!refreshing) return
         }
