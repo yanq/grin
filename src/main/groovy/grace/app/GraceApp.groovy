@@ -35,7 +35,8 @@ class GraceApp {
         controllersDir = new File(appDir, APP_CONTROLLERS)
         viewsDir = new File(appDir, APP_VIEWS)
         allDirs = [appDir, controllersDir, viewsDir]
-        scriptEngine = new GroovyScriptEngine(controllersDir.absolutePath)
+        scriptEngine = new GroovyScriptEngine(controllersDir.absolutePath,new File(root,'src/main/groovy').absolutePath,new File(root,'src/main/java').absolutePath)
+        //scriptEngine = new GroovyScriptEngine(controllersDir.absolutePath,'D:\\IdeaProjects\\grace-dev\\grace-web\\src\\main\\groovy') 增加这么一个路径，内存增加了 20m
     }
 
     /**
