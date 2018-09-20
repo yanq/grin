@@ -141,6 +141,8 @@ class GraceApp {
                     scriptEngine.run(it.absolutePath.substring(interceptorsDir.absolutePath.length() + 1), '')
                 }
             }
+            //sort
+            Routes.sort()
         }
         refreshing = false
     }

@@ -57,7 +57,7 @@ class GraceServlet extends GenericServlet {
                 after(clearedURI, webRequest) //似乎返回结果也没啥意义
             }
 
-            log.info("$clearedURI , ${(System.nanoTime() - start) / 1000000} ms")
+            log.info("$clearedURI ($route.path) , ${(System.nanoTime() - start) / 1000000} ms")
         } else {
             res.writer.write("No route fond for ${request.requestURI}")
         }

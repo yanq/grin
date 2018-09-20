@@ -1,6 +1,5 @@
 package grace.controller
 
-import grace.route.Route
 import grace.route.Routes
 
 /**
@@ -13,6 +12,12 @@ abstract class ControllerScript extends Script {
         super(binding)
     }
 
+    /**
+     * 通过 '/aaa'{} 模式添加路由
+     * @param name
+     * @param args
+     * @return
+     */
     def methodMissing(String name, Object args) {
         if (args && args[0] instanceof Closure){
             Routes.req(name,args[0])

@@ -104,9 +104,28 @@ class Routes {
         }
     }
 
+    /**
+     * 清空
+     * @return
+     */
     static clear() {
         routes.clear()
         beforeInterceptors.clear()
         afterInterceptors.clear()
+    }
+
+    /**
+     * 排序
+     */
+    static sort() {
+        //简单排序，确切的靠前
+        routes.sort {
+            String path = it.path
+            if (path.count('*')) return 'zz' * path.count('*') + path
+            if (path.count('@')) return 'z' * path.count('@') + path
+            return path
+        }
+        beforeInterceptors.sort { it.order }
+        afterInterceptors.sort { it.order }
     }
 }
