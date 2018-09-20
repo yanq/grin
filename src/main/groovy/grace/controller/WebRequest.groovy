@@ -4,6 +4,7 @@ import grace.controller.traits.HTMLSupport
 import grace.controller.traits.JSONSupport
 import grace.controller.traits.Render
 import groovy.transform.CompileStatic
+import groovy.util.logging.Slf4j
 import javax.servlet.RequestDispatcher
 import javax.servlet.ServletException
 
@@ -11,6 +12,7 @@ import javax.servlet.ServletException
  * web 请求
  * 包装请求，提供方便变量和方法使用数据
  */
+@Slf4j
 @CompileStatic
 class WebRequest implements JSONSupport, HTMLSupport, Render {
 

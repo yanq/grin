@@ -18,13 +18,14 @@ class GraceApp {
     public static final String APP_DIR = 'grace-app'
     public static final String APP_CONTROLLERS = 'controllers'
     public static final String APP_VIEWS = 'views'
+    public static final String APP_INTERCEPTORS = 'interceptors'
     //instance
     private static GraceApp instance
     //other
     GroovyScriptEngine scriptEngine
     TemplateEngine templateEngine
     boolean refreshing = false
-    File root, appDir, controllersDir, viewsDir
+    File root, appDir, controllersDir, viewsDir, interceptorsDir
     List<File> allDirs
 
     /**
@@ -37,7 +38,8 @@ class GraceApp {
         appDir = new File(appRoot, APP_DIR)
         controllersDir = new File(appDir, APP_CONTROLLERS)
         viewsDir = new File(appDir, APP_VIEWS)
-        allDirs = [appDir, controllersDir, viewsDir]
+        interceptorsDir = new File(appDir, APP_INTERCEPTORS)
+        allDirs = [appDir, controllersDir, viewsDir, interceptorsDir]
     }
 
     /**
@@ -45,7 +47,7 @@ class GraceApp {
      */
     GroovyScriptEngine getScriptEngine() {
         if (scriptEngine) return scriptEngine
-        scriptEngine = new GroovyScriptEngine(controllersDir.absolutePath, new File(root, 'src/main/groovy').absolutePath, new File(root, 'src/main/java').absolutePath)
+        scriptEngine = new GroovyScriptEngine(controllersDir.absolutePath,interceptorsDir.absolutePath)
         return scriptEngine
     }
 
@@ -54,7 +56,7 @@ class GraceApp {
      * 默认是缓存的。
      * @return
      */
-    TemplateEngine getTemplateEngine(){
+    TemplateEngine getTemplateEngine() {
         if (templateEngine) return templateEngine
         templateEngine = new TemplateEngine()
         FileTemplateResolver resolver = new FileTemplateResolver()
@@ -122,13 +124,21 @@ class GraceApp {
         //sleep(10000)
         log.info("refresh app for ${dirs}")
 
-        if (dirs.contains(APP_CONTROLLERS)) {
+        if (dirs.contains(APP_CONTROLLERS) || dirs.contains(APP_INTERCEPTORS)) {
             //refresh routes
-            Routes.routes.clear()
+            Routes.clear()
+            //控制器
             controllersDir.eachFileRecurse {
                 if (it.name.endsWith('.groovy')) {
                     log.info("run controller script ${it.absolutePath}")
                     scriptEngine.run(it.absolutePath.substring(controllersDir.absolutePath.length() + 1), '')
+                }
+            }
+            //拦截器
+            interceptorsDir.eachFileRecurse {
+                if (it.name.endsWith('.groovy')) {
+                    log.info("run interceptor script ${it.absolutePath}")
+                    scriptEngine.run(it.absolutePath.substring(interceptorsDir.absolutePath.length() + 1), '')
                 }
             }
         }

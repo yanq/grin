@@ -1,6 +1,7 @@
 package grace.route
 
 import grace.controller.WebRequest
+import grace.util.GraceUtil
 import groovy.util.logging.Slf4j
 
 /**
@@ -19,6 +20,8 @@ class Routes {
     static final String METHOD_TRACE = "TRACE"
 
     static List<Route> routes = [] //路由列表
+    static List<Interceptor> beforeInterceptors = [] //前置拦截器
+    static List<Interceptor> afterInterceptors = [] //后置拦截器
 
     //all method
     static req(String path, @DelegatesTo(WebRequest) Closure closure) {
@@ -45,6 +48,19 @@ class Routes {
         addRoute(METHOD_DELETE, path, closure)
     }
 
+    //interceptors
+    static before(@DelegatesTo(WebRequest) Closure<Boolean> closure) { before('/' + GraceUtil.classToName(closure.owner.class) + '/**', closure) }
+
+    static before(String path, @DelegatesTo(WebRequest) Closure<Boolean> closure) { before(path, Interceptor.ORDER_NORMAL, closure) }
+
+    static before(String path, int order, @DelegatesTo(WebRequest) Closure<Boolean> closure) { addInterceptor(path, order, closure, true) }
+
+    static after(@DelegatesTo(WebRequest) Closure<Boolean> closure) { after('/' + GraceUtil.classToName(closure.owner.class) + '/**', closure) }
+
+    static after(String path, @DelegatesTo(WebRequest) Closure<Boolean> closure) { after(path, Interceptor.ORDER_NORMAL, closure) }
+
+    static after(String path, int order, @DelegatesTo(WebRequest) Closure<Boolean> closure) { addInterceptor(path, order, closure, false) }
+
     /**
      * 添加到路由表
      * 如果重复，会异常爆出，方便随时发现问题
@@ -53,14 +69,44 @@ class Routes {
      * @return
      */
     private static addRoute(String method, String path, Closure closure) {
+        Class ownerClass = closure.owner.class
+        if (!path.startsWith('/')) path = "/${GraceUtil.classToName(ownerClass)}/$path"
+
         if (routes.find { it.path == path }) {
-            log.error("path {$path} already exists !")
-            throw new Exception("path {$path} already exists !")
+            log.error("route path {$path} already exists !")
+            throw new Exception("route path {$path} already exists !")
         } else {
-            String ownerName = closure.owner.class.simpleName
-            if (!path.startsWith('/')) path = "/${ownerName.uncapitalize()}/$path" //相对路径处理
-            log.info("add a route @ ${ownerName} $method $path")
+            log.info("add a route @ ${ownerClass.simpleName} $method $path")
             routes.add(new Route(method: method, path: path, closure: closure))
         }
+    }
+
+    /**
+     * 添加拦截器
+     * @param path
+     * @param order
+     * @param closure
+     * @param before
+     * @return
+     */
+    private static addInterceptor(String path, int order, Closure closure, boolean before) {
+        Class ownerClass = closure.owner.class
+        if (!path.startsWith('/')) path = "/${GraceUtil.classToName(ownerClass)}/$path"
+
+        List<Interceptor> target = before ? beforeInterceptors : afterInterceptors
+
+        if (target.find { it.path == path }) {
+            log.error("interceptor path {$path} already exists !")
+            throw new Exception("interceptor path {$path} already exists !")
+        } else {
+            target.add(new Interceptor(path: path, order: order, closure: closure))
+            log.info("add a interceptor @ ${ownerClass.simpleName} $path")
+        }
+    }
+
+    static clear() {
+        routes.clear()
+        beforeInterceptors.clear()
+        afterInterceptors.clear()
     }
 }
