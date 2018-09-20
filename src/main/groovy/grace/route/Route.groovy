@@ -39,7 +39,7 @@ class Route {
         Matcher matcher = pattern.matcher(uri)
         if (matcher.matches()) {
             vars.each {
-                result[it.substring(1)] = [matcher[0][result.size() + 1]]
+                result[it.substring(1)] = matcher[0][result.size() + 1]
             }
         }
 

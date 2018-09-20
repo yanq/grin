@@ -33,15 +33,16 @@ class GraceServlet extends GenericServlet {
             response.setCharacterEncoding('utf-8')
             response.setContentType('text/html;charset=UTF-8')
 
-            //路径参数
-            request.getParameterMap().putAll(route.getPathParams(clearedURI))
-
             //初始化闭包
-            Closure closure = route.closure.clone()
             WebRequest webRequest = new WebRequest(request: request, response: response)
-            webRequest.controllerName = GraceUtil.classToName(closure.owner.class)
+            Closure closure = route.closure.clone()
             closure.delegate = webRequest
             closure.setResolveStrategy(Closure.DELEGATE_ONLY)
+            webRequest.controllerName = GraceUtil.classToName(closure.owner.class)
+
+            //路径参数
+            def pathParas = route.getPathParams(clearedURI)
+            if (pathParas) webRequest.params.putAll(pathParas)
 
             //处理
             long start = System.nanoTime()
@@ -56,7 +57,7 @@ class GraceServlet extends GenericServlet {
                 after(clearedURI, webRequest) //似乎返回结果也没啥意义
             }
 
-            log.info("$route.path , ${(System.nanoTime() - start) / 1000000} ms")
+            log.info("$clearedURI , ${(System.nanoTime() - start) / 1000000} ms")
         } else {
             res.writer.write("No route fond for ${request.requestURI}")
         }
