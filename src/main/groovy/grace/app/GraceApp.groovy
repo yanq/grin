@@ -14,6 +14,8 @@ import static java.nio.file.StandardWatchEventKinds.*
  */
 @Slf4j
 class GraceApp {
+    //元数据
+    public static final String VERSION = '0.1.1'
     //目录结构
     public static final String APP_DIR = 'grace-app'
     public static final String APP_CONTROLLERS = 'controllers'
@@ -22,6 +24,7 @@ class GraceApp {
     //instance
     private static GraceApp instance
     //other
+    String env = 'dev' // dev,prod
     GroovyScriptEngine scriptEngine
     TemplateEngine templateEngine
     boolean refreshing = false
@@ -94,7 +97,7 @@ class GraceApp {
      * @return
      */
     void initDirs() {
-        log.info("init grace app dirs @ ${appRoot.absolutePath}")
+        log.info("init grace app dirs @ ${root.absolutePath}")
         allDirs.each {
             if (it.exists()) {
                 log.info("${it.name} exists")

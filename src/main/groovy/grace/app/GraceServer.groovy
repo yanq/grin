@@ -23,7 +23,8 @@ class GraceServer {
     }
 
     /**
-     * 启动 GraceApp
+     * 启动 GraceApp ,dev
+     * 监控目录，即时编译，适用于开发阶段
      * 目录是一个完整的 grace app 结构。
      * @param root
      */
@@ -37,6 +38,15 @@ class GraceServer {
         } else {
             throw new Exception("It is not a grace app dir @ ${GraceApp.instance.root.absolutePath}")
         }
+    }
+
+    /**
+     * 启动 GraceApp ，prod
+     * 产品部署,优化的性能
+     */
+    void startDeploy() {
+        //todo 实现
+        print('coming soon'.center(30,'-'))
     }
 
     /**
