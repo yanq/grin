@@ -6,15 +6,23 @@ class ClassUtil {
      * @param c
      * @return
      */
-    static String propertyName(Class c){return c.simpleName.uncapitalize()}
+    static String propertyName(Class c) { return c.simpleName.uncapitalize() }
+
+    static String propertyName(String name) {
+        return name.substring(name.lastIndexOf('.') > 0 ? name.lastIndexOf('.') + 1 : 0).uncapitalize()
+    }
 
     /**
      * 获取包名
      * @param aClass
      * @return
      */
-    static String packageName(Class aClass){
-        aClass.name.substring(0,aClass.name.lastIndexOf('.'))
+    static String packageName(Class aClass) {
+        packageName(aClass.name)
+    }
+
+    static String packageName(String name) {
+        name.substring(0, name.lastIndexOf('.') > 0 ? name.lastIndexOf('.') : name.length())
     }
 
     /**
@@ -22,8 +30,12 @@ class ClassUtil {
      * @param aClass
      * @return
      */
-    static String packagePath(Class aClass){
-        packageName(aClass).split('\\.').join(File.separator)
+    static String packagePath(Class aClass) {
+        packagePath(aClass.name)
+    }
+
+    static String packagePath(String name) {
+        packageName(name).split('\\.').join(File.separator)
     }
 
     /**
@@ -31,7 +43,20 @@ class ClassUtil {
      * @param aClass
      * @return
      */
-    static String classPath(Class aClass){
-        aClass.name.split('\\.').join(File.separator)
+    static String classPath(Class aClass) {
+        classPath(aClass.name)
+    }
+
+    static String classPath(String name) {
+        name.split('\\.').join(File.separator)
+    }
+
+    /**
+     * 是否是 Java/Groovy 类
+     * @param file
+     * @return
+     */
+    static boolean isJavaClass(File file) {
+        return file.name.endsWith(".java") || file.name.endsWith(".groovy")
     }
 }
