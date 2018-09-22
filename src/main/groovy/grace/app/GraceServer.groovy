@@ -74,6 +74,9 @@ class GraceServer {
      * @param args
      */
     public static void main(String[] args) {
-        new GraceServer().start()
+        File root
+        if (args) root = new File(args[0])
+
+        new GraceServer().startApp(root)
     }
 }
