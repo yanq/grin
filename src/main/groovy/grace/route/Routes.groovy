@@ -1,7 +1,7 @@
 package grace.route
 
 import grace.controller.WebRequest
-import grace.util.GraceUtil
+import grace.util.ClassUtil
 import groovy.util.logging.Slf4j
 
 /**
@@ -49,13 +49,13 @@ class Routes {
     }
 
     //interceptors
-    static before(@DelegatesTo(WebRequest) Closure<Boolean> closure) { before('/' + GraceUtil.classToName(closure.owner.class) + '/**', closure) }
+    static before(@DelegatesTo(WebRequest) Closure<Boolean> closure) { before('/' + ClassUtil.propertyName(closure.owner.class) + '/**', closure) }
 
     static before(String path, @DelegatesTo(WebRequest) Closure<Boolean> closure) { before(path, Interceptor.ORDER_NORMAL, closure) }
 
     static before(String path, int order, @DelegatesTo(WebRequest) Closure<Boolean> closure) { addInterceptor(path, order, closure, true) }
 
-    static after(@DelegatesTo(WebRequest) Closure<Boolean> closure) { after('/' + GraceUtil.classToName(closure.owner.class) + '/**', closure) }
+    static after(@DelegatesTo(WebRequest) Closure<Boolean> closure) { after('/' + ClassUtil.propertyName(closure.owner.class) + '/**', closure) }
 
     static after(String path, @DelegatesTo(WebRequest) Closure<Boolean> closure) { after(path, Interceptor.ORDER_NORMAL, closure) }
 
@@ -70,7 +70,7 @@ class Routes {
      */
     private static addRoute(String method, String path, Closure closure) {
         Class ownerClass = closure.owner.class
-        if (!path.startsWith('/')) path = "/${GraceUtil.classToName(ownerClass)}/$path"
+        if (!path.startsWith('/')) path = "/${ClassUtil.propertyName(ownerClass)}/$path"
 
         if (routes.find { it.path == path }) {
             log.error("route path {$path} already exists !")
@@ -91,7 +91,7 @@ class Routes {
      */
     private static addInterceptor(String path, int order, Closure closure, boolean before) {
         Class ownerClass = closure.owner.class
-        if (!path.startsWith('/')) path = "/${GraceUtil.classToName(ownerClass)}/$path"
+        if (!path.startsWith('/')) path = "/${ClassUtil.propertyName(ownerClass)}/$path"
 
         List<Interceptor> target = before ? beforeInterceptors : afterInterceptors
 
