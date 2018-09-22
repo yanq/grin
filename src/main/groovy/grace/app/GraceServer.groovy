@@ -13,6 +13,9 @@ import io.undertow.servlet.api.DeploymentManager
  */
 @Slf4j
 class GraceServer {
+    String host = 'localhost'
+    String context = '/'
+    int port = 8080
 
     /**
      * 最简化启动，只启动部署了 GraceServlet 的 Undertow server。
@@ -34,6 +37,7 @@ class GraceServer {
         if (GraceApp.instance.isAppDir()) {
             GraceApp.instance.startFileWatcher()
             GraceApp.instance.refresh()
+            //todo set params from config
             startUndertowServer()
         } else {
             throw new Exception("It is not a grace app dir @ ${GraceApp.instance.root.absolutePath}")
@@ -55,7 +59,7 @@ class GraceServer {
     private void startUndertowServer() {
         DeploymentInfo servletBuilder = Servlets.deployment()
                 .setClassLoader(GraceServer.class.getClassLoader())
-                .setContextPath("/")
+                .setContextPath(context)
                 .setDeploymentName("grace.war")
                 .addServlets(Servlets.servlet("GraceServlet", GraceServlet.class).addMapping("/*"))
 
@@ -63,10 +67,12 @@ class GraceServer {
         manager.deploy()
 
         Undertow server = Undertow.builder()
-                .addHttpListener(8080, "localhost")
+                .addHttpListener(port, host)
                 .setHandler(manager.start())
                 .build()
         server.start()
+
+        log.info("start server @ http://${host}:${port}${context}")
     }
 
     /**
