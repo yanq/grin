@@ -22,7 +22,7 @@ class GraceServer {
      * 用于但 controller 文件启动。
      */
     void start() {
-        startUndertowServer()
+        startUndertowServer(buildDeploymentInfo())
     }
 
     /**
@@ -42,7 +42,10 @@ class GraceServer {
             if (app.config.server.port) this.port = app.config.server.port
             if (app.config.server.host) this.host = app.config.server.host
             if (app.config.server.context) this.context = app.config.server.context
-            startUndertowServer()
+
+            def d = buildDeploymentInfo()
+            app.init(d) //内部处理
+            startUndertowServer(d)
         } else {
             throw new Exception("It is not a grace app dir @ ${GraceApp.instance.root.absolutePath}")
         }
@@ -54,20 +57,28 @@ class GraceServer {
      */
     void startDeploy() {
         //todo 实现
-        print('coming soon'.center(30,'-'))
+        print('coming soon'.center(30, '-'))
     }
 
     /**
-     * start undertow server
+     * 构建 deploy info
+     * @return
      */
-    private void startUndertowServer() {
+    private DeploymentInfo buildDeploymentInfo() {
         DeploymentInfo servletBuilder = Servlets.deployment()
                 .setClassLoader(GraceServer.class.getClassLoader())
                 .setContextPath(context)
                 .setDeploymentName("grace.war")
                 .addServlets(Servlets.servlet("GraceServlet", GraceServlet.class).addMapping("/*"))
+        return servletBuilder
+    }
 
-        DeploymentManager manager = Servlets.defaultContainer().addDeployment(servletBuilder);
+    /**
+     * start undertow server
+     */
+    private void startUndertowServer(DeploymentInfo deploymentInfo) {
+
+        DeploymentManager manager = Servlets.defaultContainer().addDeployment(deploymentInfo);
         manager.deploy()
 
         Undertow server = Undertow.builder()

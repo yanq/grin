@@ -2,6 +2,7 @@ package grace.app
 
 import grace.route.Routes
 import groovy.util.logging.Slf4j
+import io.undertow.servlet.api.DeploymentInfo
 import org.thymeleaf.TemplateEngine
 import org.thymeleaf.templateresolver.FileTemplateResolver
 
@@ -22,6 +23,7 @@ class GraceApp {
     public static final String APP_VIEWS = 'views'
     public static final String APP_INTERCEPTORS = 'interceptors'
     public static final String APP_CONFIG = 'conf'
+    public static final String APP_INIT = 'init'
     //instance
     private static GraceApp instance
     //config
@@ -32,7 +34,7 @@ class GraceApp {
     TemplateEngine templateEngine
     //dirs
     boolean refreshing = false
-    File root, appDir, controllersDir, viewsDir, interceptorsDir,configDir
+    File root, appDir, controllersDir, viewsDir, interceptorsDir,configDir,initDir
     List<File> allDirs
 
     /**
@@ -48,10 +50,22 @@ class GraceApp {
         viewsDir = new File(appDir, APP_VIEWS)
         interceptorsDir = new File(appDir, APP_INTERCEPTORS)
         configDir = new File(appDir,APP_CONFIG)
-        allDirs = [appDir, controllersDir, viewsDir, interceptorsDir,configDir]
+        initDir = new File(appDir,APP_INIT)
+        allDirs = [appDir, controllersDir, viewsDir, interceptorsDir,configDir,initDir]
         //config
         environment = env
         config = new ConfigSlurper(environment).parse(new File(configDir,'config.groovy').text)
+    }
+
+    /**
+     * 初始化阶段整合其他 servlet 等。由 undertow 提供的类来实现。
+     * @param deploymentInfo
+     */
+    void init(DeploymentInfo deploymentInfo){
+        def bootstrap = new File(initDir,'BootStrap.groovy')
+        if (bootstrap.exists()){
+            new GroovyClassLoader().parseClass(bootstrap).newInstance().init(deploymentInfo)
+        }
     }
 
     /**
