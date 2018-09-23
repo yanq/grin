@@ -33,11 +33,15 @@ class GraceServer {
      */
     void startApp(File root) {
         GraceApp.setRoot(root)
-        log.info("start app @ ${GraceApp.instance.root.absolutePath}")
-        if (GraceApp.instance.isAppDir()) {
-            GraceApp.instance.startFileWatcher()
-            GraceApp.instance.refresh()
-            //todo set params from config
+        def app = GraceApp.instance
+        log.info("start app @ ${app.root.absolutePath}")
+        if (app.isAppDir()) {
+            app.startFileWatcher()
+            app.refresh()
+            //config
+            if (app.config.server.port) this.port = app.config.server.port
+            if (app.config.server.host) this.host = app.config.server.host
+            if (app.config.server.context) this.context = app.config.server.context
             startUndertowServer()
         } else {
             throw new Exception("It is not a grace app dir @ ${GraceApp.instance.root.absolutePath}")

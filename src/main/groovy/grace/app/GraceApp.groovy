@@ -21,28 +21,37 @@ class GraceApp {
     public static final String APP_CONTROLLERS = 'controllers'
     public static final String APP_VIEWS = 'views'
     public static final String APP_INTERCEPTORS = 'interceptors'
+    public static final String APP_CONFIG = 'conf'
     //instance
     private static GraceApp instance
-    //other
-    String env = 'dev' // dev,prod
+    //config
+    ConfigObject config
+    String environment = 'dev' // dev,prod
+    //engines for script,template,..
     GroovyScriptEngine scriptEngine
     TemplateEngine templateEngine
+    //dirs
     boolean refreshing = false
-    File root, appDir, controllersDir, viewsDir, interceptorsDir
+    File root, appDir, controllersDir, viewsDir, interceptorsDir,configDir
     List<File> allDirs
 
     /**
      * 构造并初始化
      * @param appRoot
      */
-    private GraceApp(File appRoot) {
+    private GraceApp(File appRoot,String env = 'dev') {
+        //init dirs
         if (!appRoot) appRoot = new File('.')
         root = appRoot
         appDir = new File(appRoot, APP_DIR)
         controllersDir = new File(appDir, APP_CONTROLLERS)
         viewsDir = new File(appDir, APP_VIEWS)
         interceptorsDir = new File(appDir, APP_INTERCEPTORS)
-        allDirs = [appDir, controllersDir, viewsDir, interceptorsDir]
+        configDir = new File(appDir,APP_CONFIG)
+        allDirs = [appDir, controllersDir, viewsDir, interceptorsDir,configDir]
+        //config
+        environment = env
+        config = new ConfigSlurper(environment).parse(new File(configDir,'config.groovy').text)
     }
 
     /**

@@ -59,7 +59,8 @@ class GraceServlet extends GenericServlet {
 
             log.info("$clearedURI ($route.path) , ${(System.nanoTime() - start) / 1000000} ms")
         } else {
-            res.writer.write("No route fond for ${request.requestURI}")
+            response.setStatus(404)
+            res.writer.write("No page found for ${request.requestURI}")
         }
     }
 
