@@ -25,7 +25,7 @@ class GraceServlet extends GenericServlet {
         //等待刷新，如果系统在刷新中
         GraceApp.instance.waitingForRefresh()
 
-        String clearedURI = RegexUtil.clearRequestURI(requestURI)
+        String clearedURI = RegexUtil.toURI(requestURI,request.getContextPath())
         Route route = Routes.routes.find { it.matches(clearedURI) }
         if (route) {
             //设置默认编码
