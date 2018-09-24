@@ -7,7 +7,7 @@ apply plugin: 'groovy'
 sourceCompatibility = 1.8
 
 repositories {
-    maven{ url 'http://maven.aliyun.com/nexus/content/groups/public/'}
+    maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
     mavenCentral()
 }
 
@@ -15,7 +15,8 @@ dependencies {
     compile 'org.codehaus.groovy:groovy-all:2.5.1'
     compile 'io.undertow:undertow-servlet:2.0.13.Final'
     compile 'javax.servlet:javax.servlet-api:4.0.1'
-    compile 'org.thymeleaf:thymeleaf:3.0.9.RELEASE'
+    compile 'org.thymeleaf:thymeleaf:3.0.9.RELEASE'    
+    compile 'com.alibaba:druid:1.1.10'    
     compile 'org.slf4j:slf4j-api:1.7.22'
     runtime 'ch.qos.logback:logback-classic:1.2.1'
 

@@ -1,11 +1,13 @@
 package grace.app
 
+import com.alibaba.druid.pool.DruidDataSource
 import grace.route.Routes
 import groovy.util.logging.Slf4j
 import io.undertow.servlet.api.DeploymentInfo
 import org.thymeleaf.TemplateEngine
 import org.thymeleaf.templateresolver.FileTemplateResolver
 
+import javax.sql.DataSource
 import java.nio.file.*
 import static java.nio.file.StandardWatchEventKinds.*
 
@@ -29,6 +31,8 @@ class GraceApp {
     //config
     ConfigObject config
     String environment = 'dev' // dev,prod
+    //datastore
+    DataSource dataSource
     //engines for script,template,..
     GroovyScriptEngine scriptEngine
     TemplateEngine templateEngine
@@ -66,6 +70,16 @@ class GraceApp {
         if (bootstrap.exists()){
             new GroovyClassLoader().parseClass(bootstrap).newInstance().init(deploymentInfo)
         }
+    }
+
+    /**
+     * 数据源
+     * @return
+     */
+    DataSource getDataSource(){
+        if (dataSource) return dataSource
+        dataSource = new DruidDataSource(config.dataSource)
+        return dataSource
     }
 
     /**
