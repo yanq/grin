@@ -10,23 +10,23 @@ import groovy.transform.CompileStatic
 trait Entity<D> {
     //static Class<T> tClass = this.class
     static Map mapping = [table:'',clommons:[:]]
-    Sql sql //一个示例默认持有一个 sql，懒加载
+    Sql internalSql //一个示例默认持有一个 sql，懒加载
 
     /**
      * sql
      * @return
      */
-    Sql getSql(){
-        if (sql) return sql
-        sql = newSql()
-        return sql
+    Sql getInternalSql(){
+        if (internalSql) return sql
+        internalSql = newSql()
+        return internalSql
     }
 
     /**
      * new sql
      * @return
      */
-    static Sql newSql() {
+    static Sql getSql() {
         return new Sql(GraceApp.instance.dataSource)
     }
 
