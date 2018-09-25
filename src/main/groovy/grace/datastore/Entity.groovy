@@ -15,18 +15,7 @@ trait Entity<D> {
         EntityApiImpl.get(this, id)
     }
 
-    /**
-     * 表名
-     * @return
-     */
-    static String getTableName() {
-        hasProperty('mapping') ? this['mapping'].table : DBUtil.toDbName(this.simpleName)
+    D save() {
+        EntityApiImpl.save(this)
     }
-
-    /**
-     * 绑定数据
-     * 从普通的 map 或者 result
-     * @param data
-     */
-    static bindData(Map data) {}
 }

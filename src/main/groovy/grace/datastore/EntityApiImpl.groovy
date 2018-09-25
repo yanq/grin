@@ -8,7 +8,10 @@ import groovy.sql.GroovyRowResult
  */
 class EntityApiImpl {
     public static final String MAPPING = 'mapping' //mapping 定义实体类与表之间的映射关系,table,columns
-    public static final List<String> excludeProperties = ['$staticClassInfo', '__$stMC', 'metaClass', '$staticClassInfo$', '$callSiteArray']
+    public static final String TRANSIENTS = 'transients' //不持久化的类属性
+    // 系统级忽略的内容
+    public static final List<String> excludeProperties = [MAPPING, TRANSIENTS, '$staticClassInfo', '__$stMC', 'metaClass',
+                                                          '$staticClassInfo$', '$callSiteArray']
 
     /**
      * get
@@ -21,6 +24,34 @@ class EntityApiImpl {
         String table = findTableName(target)
         def result = DB.sql.firstRow("select * from ${table} where id=?", id)
         return bindResultToEntity(result, target)
+    }
+
+    /**
+     * save
+     * @param entity
+     */
+    static save(Object entity) {
+        if (entity.hasProperty('id')) { //to update
+
+        } else { //to insert
+            Map columnMap = columnMap(entity.class)
+            List ps = findPropertiesToPersist(entity.class)
+            Map kvs = [:]
+            ps.each {
+                String name = it
+                if (columnMap.containsKey(it)) {
+                    kvs << [(columnMap[it]): entity[it]]
+                } else {
+                    kvs << [(DBUtil.toDbName(it)): entity[name]]
+                }
+            }
+            def sql = "insert into ${findTableName(entity.class)} (${kvs.keySet().join(',')}) values (?${',?' * (kvs.size() - 1)})".toString()
+            def result = DB.sql.executeInsert(sql, kvs.values().toList())
+        }
+    }
+
+    static List<String> findPropertiesToPersist(Class target) {
+        target.declaredFields*.name - excludeProperties - (target[TRANSIENTS] ?: [])
     }
 
     /**
