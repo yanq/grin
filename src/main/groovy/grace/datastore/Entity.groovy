@@ -2,8 +2,7 @@ package grace.datastore
 /**
  * 提供实体类的基本功能
  */
-trait Entity<T> {
-    static Map mapping = [table: '', clommons: [:]]
+trait Entity<D> {
 
     /**
      * get
@@ -13,6 +12,21 @@ trait Entity<T> {
      * @return
      */
     static get(Serializable id) {
-        return DB.sql.firstRow("select * from book where id=${id}")
+        EntityApiImpl.get(this, id)
     }
+
+    /**
+     * 表名
+     * @return
+     */
+    static String getTableName() {
+        hasProperty('mapping') ? this['mapping'].table : DBUtil.toDbName(this.simpleName)
+    }
+
+    /**
+     * 绑定数据
+     * 从普通的 map 或者 result
+     * @param data
+     */
+    static bindData(Map data) {}
 }
