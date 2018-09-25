@@ -38,14 +38,14 @@ class GraceApp {
     TemplateEngine templateEngine
     //dirs
     boolean refreshing = false
-    File root, appDir, controllersDir, viewsDir, interceptorsDir,configDir,initDir
+    File root, appDir, controllersDir, viewsDir, interceptorsDir, configDir, initDir
     List<File> allDirs
 
     /**
      * 构造并初始化
      * @param appRoot
      */
-    private GraceApp(File appRoot,String env = 'dev') {
+    GraceApp(File appRoot = null, String env = 'dev') {
         //init dirs
         if (!appRoot) appRoot = new File('.')
         root = appRoot
@@ -53,21 +53,21 @@ class GraceApp {
         controllersDir = new File(appDir, APP_CONTROLLERS)
         viewsDir = new File(appDir, APP_VIEWS)
         interceptorsDir = new File(appDir, APP_INTERCEPTORS)
-        configDir = new File(appDir,APP_CONFIG)
-        initDir = new File(appDir,APP_INIT)
-        allDirs = [appDir, controllersDir, viewsDir, interceptorsDir,configDir,initDir]
+        configDir = new File(appDir, APP_CONFIG)
+        initDir = new File(appDir, APP_INIT)
+        allDirs = [appDir, controllersDir, viewsDir, interceptorsDir, configDir, initDir]
         //config
         environment = env
-        config = new ConfigSlurper(environment).parse(new File(configDir,'config.groovy').text)
+        config = new ConfigSlurper(environment).parse(new File(configDir, 'config.groovy').text)
     }
 
     /**
      * 初始化阶段整合其他 servlet 等。由 undertow 提供的类来实现。
      * @param deploymentInfo
      */
-    void init(DeploymentInfo deploymentInfo){
-        def bootstrap = new File(initDir,'BootStrap.groovy')
-        if (bootstrap.exists()){
+    void init(DeploymentInfo deploymentInfo) {
+        def bootstrap = new File(initDir, 'BootStrap.groovy')
+        if (bootstrap.exists()) {
             new GroovyClassLoader().parseClass(bootstrap).newInstance().init(deploymentInfo)
         }
     }
@@ -76,7 +76,7 @@ class GraceApp {
      * 数据源
      * @return
      */
-    DataSource getDataSource(){
+    DataSource getDataSource() {
         if (dataSource) return dataSource
         dataSource = new DruidDataSource(config.dataSource)
         return dataSource
@@ -87,7 +87,7 @@ class GraceApp {
      */
     GroovyScriptEngine getScriptEngine() {
         if (scriptEngine) return scriptEngine
-        scriptEngine = new GroovyScriptEngine(controllersDir.absolutePath,interceptorsDir.absolutePath)
+        scriptEngine = new GroovyScriptEngine(controllersDir.absolutePath, interceptorsDir.absolutePath)
         return scriptEngine
     }
 

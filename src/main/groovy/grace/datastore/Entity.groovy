@@ -1,34 +1,9 @@
 package grace.datastore
-
-import grace.app.GraceApp
-import groovy.sql.Sql
-import groovy.transform.CompileStatic
-
 /**
  * 提供实体类的基本功能
  */
-trait Entity<D> {
-    //static Class<T> tClass = this.class
-    static Map mapping = [table:'',clommons:[:]]
-    Sql internalSql //一个示例默认持有一个 sql，懒加载
-
-    /**
-     * sql
-     * @return
-     */
-    Sql getInternalSql(){
-        if (internalSql) return sql
-        internalSql = newSql()
-        return internalSql
-    }
-
-    /**
-     * new sql
-     * @return
-     */
-    static Sql getSql() {
-        return new Sql(GraceApp.instance.dataSource)
-    }
+trait Entity<T> {
+    static Map mapping = [table: '', clommons: [:]]
 
     /**
      * get
@@ -37,7 +12,7 @@ trait Entity<D> {
      * @param id
      * @return
      */
-    static get(Serializable id){
-        println this.declaredFields
+    static get(Serializable id) {
+        return DB.sql.firstRow("select * from book where id=${id}")
     }
 }
