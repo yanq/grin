@@ -29,10 +29,14 @@ class EntityApiImpl {
         return entity
     }
 
-    static list(Class target) {
+    static list(Class target, Map params) {
+        int offset = params?.offset ?: 0
+        int max = params?.max ?: 0
         Sql sql = DB.sql
         List list = []
-        List rows = sql.rows("select * from ${findTableName(target)}".toString())
+        //todo groovy sql 这里有一个 bug，计数错了，如此修正一下
+        offset = offset > 0 ? offset + 1 : offset
+        List rows = sql.rows("select * from ${findTableName(target)}".toString(), offset, max)
         rows.each { row ->
             list << bindResultToEntity(row, target)
         }

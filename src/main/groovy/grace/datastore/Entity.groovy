@@ -15,8 +15,8 @@ trait Entity<D> {
         EntityApiImpl.get(this, id)
     }
 
-    static list() {
-        EntityApiImpl.list(this)
+    static list(Map params = null) {
+        EntityApiImpl.list(this,params)
     }
 
     static count() {
