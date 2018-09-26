@@ -2,6 +2,7 @@ package grace.app
 
 import com.alibaba.druid.filter.Filter
 import com.alibaba.druid.filter.logging.Slf4jLogFilter
+import com.alibaba.druid.filter.stat.StatFilter
 import com.alibaba.druid.pool.DruidDataSource
 import grace.route.Routes
 import groovy.util.logging.Slf4j
@@ -85,7 +86,7 @@ class GraceApp {
         dataSource = new DruidDataSource(config.dataSource)
         if (config.logSql){
             Filter sqlLog = new Slf4jLogFilter(statementExecutableSqlLogEnable: true)
-            dataSource.setProxyFilters([sqlLog])
+            dataSource.setProxyFilters([sqlLog,new StatFilter()])
         }
         return dataSource
     }

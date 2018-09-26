@@ -10,8 +10,7 @@ class EntityApiImpl {
     public static final String MAPPING = 'mapping' //mapping 定义实体类与表之间的映射关系,table,columns
     public static final String TRANSIENTS = 'transients' //不持久化的类属性
     // 系统级忽略的内容
-    public static final List<String> excludeProperties = [MAPPING, TRANSIENTS, '$staticClassInfo', '__$stMC', 'metaClass',
-                                                          '$staticClassInfo$', '$callSiteArray']
+    public static final List<String> excludeProperties = [MAPPING, TRANSIENTS, '$staticClassInfo', '__$stMC', 'metaClass', '$staticClassInfo$', '$callSiteArray']
 
     /**
      * get
@@ -31,22 +30,32 @@ class EntityApiImpl {
      * @param entity
      */
     static save(Object entity) {
-        if (entity.hasProperty('id')) { //to update
-
-        } else { //to insert
-            Map columnMap = columnMap(entity.class)
-            List ps = findPropertiesToPersist(entity.class)
-            Map kvs = [:]
-            ps.each {
-                String name = it
-                if (columnMap.containsKey(it)) {
-                    kvs << [(columnMap[it]): entity[it]]
-                } else {
-                    kvs << [(DBUtil.toDbName(it)): entity[name]]
-                }
+        //kvs
+        Map columnMap = columnMap(entity.class)
+        List ps = findPropertiesToPersist(entity.class)
+        Map kvs = [:]
+        ps.each {
+            String name = it
+            if (columnMap.containsKey(it)) {
+                kvs << [(columnMap[it]): entity[it]]
+            } else {
+                kvs << [(DBUtil.toDbName(it)): entity[name]]
             }
-            def sql = "insert into ${findTableName(entity.class)} (${kvs.keySet().join(',')}) values (?${',?' * (kvs.size() - 1)})".toString()
+        }
+        kvs.remove('id')
+
+        String table = findTableName(entity.class)
+        if (entity.hasProperty('id') && entity['id']) { //to update
+            def sets = kvs.keySet().collect { "${it} = ?" }.join(',').toString()
+            def sql = "update ${table} set ${sets} where id = ?".toString()
+            def params = kvs.values().toList() << entity.id
+            DB.sql.executeUpdate(sql, params)
+            return entity
+        } else { //to insert
+            def sql = "insert into ${table} (${kvs.keySet().join(',')}) values (?${',?' * (kvs.size() - 1)})".toString()
             def result = DB.sql.executeInsert(sql, kvs.values().toList())
+            entity.id = result[0][0]
+            return entity
         }
     }
 
