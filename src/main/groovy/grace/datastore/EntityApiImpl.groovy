@@ -1,6 +1,7 @@
 package grace.datastore
 
 import groovy.sql.GroovyRowResult
+import groovy.sql.Sql
 
 /**
  * 实体 api 实现
@@ -20,9 +21,23 @@ class EntityApiImpl {
      * @return
      */
     static get(Class target, Serializable id) {
+        Sql sql = DB.sql
         String table = findTableName(target)
-        def result = DB.sql.firstRow("select * from ${table} where id=?", id)
-        return bindResultToEntity(result, target)
+        def result = sql.firstRow("select * from ${table} where id=?", id)
+        def entity = bindResultToEntity(result, target)
+        sql.close()
+        return entity
+    }
+
+    static list(Class target) {
+        Sql sql = DB.sql
+        List list = []
+        List rows = sql.rows("select * from ${findTableName(target)}".toString())
+        rows.each { row ->
+            list << bindResultToEntity(row, target)
+        }
+        sql.close()
+        return list
     }
 
     /**
@@ -30,6 +45,7 @@ class EntityApiImpl {
      * @param entity
      */
     static save(Object entity) {
+        Sql sql = DB.sql
         //kvs
         Map columnMap = columnMap(entity.class)
         List ps = findPropertiesToPersist(entity.class)
@@ -47,16 +63,17 @@ class EntityApiImpl {
         String table = findTableName(entity.class)
         if (entity.hasProperty('id') && entity['id']) { //to update
             def sets = kvs.keySet().collect { "${it} = ?" }.join(',').toString()
-            def sql = "update ${table} set ${sets} where id = ?".toString()
+            def sqlString = "update ${table} set ${sets} where id = ?".toString()
             def params = kvs.values().toList() << entity.id
-            DB.sql.executeUpdate(sql, params)
-            return entity
+            sql.executeUpdate(sqlString, params)
         } else { //to insert
-            def sql = "insert into ${table} (${kvs.keySet().join(',')}) values (?${',?' * (kvs.size() - 1)})".toString()
-            def result = DB.sql.executeInsert(sql, kvs.values().toList())
+            def sqlString = "insert into ${table} (${kvs.keySet().join(',')}) values (?${',?' * (kvs.size() - 1)})".toString()
+            def result = sql.executeInsert(sqlString, kvs.values().toList())
             entity.id = result[0][0]
-            return entity
         }
+
+        sql.close()
+        return entity
     }
 
     static List<String> findPropertiesToPersist(Class target) {

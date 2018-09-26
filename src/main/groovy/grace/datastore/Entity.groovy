@@ -15,6 +15,14 @@ trait Entity<D> {
         EntityApiImpl.get(this, id)
     }
 
+    static list() {
+        EntityApiImpl.list(this)
+    }
+
+    static count() {
+
+    }
+
     D save() {
         EntityApiImpl.save(this)
     }
