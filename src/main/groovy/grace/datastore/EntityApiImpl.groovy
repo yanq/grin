@@ -31,7 +31,7 @@ class EntityApiImpl {
 
     static list(Class target, Map params) {
         int offset = params?.offset ?: 0
-        int max = params?.max ?: 0
+        int max = params?.max ?: 100
         Sql sql = DB.sql
         List list = []
         List rows = sql.rows("select * from ${findTableName(target)} ${DBUtil.limitString(offset,max)}".toString())
