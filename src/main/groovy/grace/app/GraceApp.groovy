@@ -1,14 +1,18 @@
 package grace.app
 
+import com.alibaba.druid.filter.Filter
+import com.alibaba.druid.filter.logging.Slf4jLogFilter
 import com.alibaba.druid.pool.DruidDataSource
 import grace.route.Routes
 import groovy.util.logging.Slf4j
 import io.undertow.servlet.api.DeploymentInfo
 import org.thymeleaf.TemplateEngine
 import org.thymeleaf.templateresolver.FileTemplateResolver
-
 import javax.sql.DataSource
-import java.nio.file.*
+import java.nio.file.FileSystems
+import java.nio.file.Paths
+import java.nio.file.WatchKey
+import java.nio.file.WatchService
 import static java.nio.file.StandardWatchEventKinds.*
 
 /**
@@ -79,6 +83,10 @@ class GraceApp {
     DataSource getDataSource() {
         if (dataSource) return dataSource
         dataSource = new DruidDataSource(config.dataSource)
+        if (config.logSql){
+            Filter sqlLog = new Slf4jLogFilter(statementExecutableSqlLogEnable: true)
+            dataSource.setProxyFilters([sqlLog])
+        }
         return dataSource
     }
 
