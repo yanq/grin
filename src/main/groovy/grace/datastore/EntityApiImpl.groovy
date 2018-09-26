@@ -34,9 +34,7 @@ class EntityApiImpl {
         int max = params?.max ?: 0
         Sql sql = DB.sql
         List list = []
-        //todo groovy sql 这里有一个 bug，计数错了，如此修正一下
-        offset = offset > 0 ? offset + 1 : offset
-        List rows = sql.rows("select * from ${findTableName(target)}".toString(), offset, max)
+        List rows = sql.rows("select * from ${findTableName(target)} ${DBUtil.limitString(offset,max)}".toString())
         rows.each { row ->
             list << bindResultToEntity(row, target)
         }

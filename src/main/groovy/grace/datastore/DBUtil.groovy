@@ -1,5 +1,7 @@
 package grace.datastore
 
+import grace.app.GraceApp
+
 class DBUtil {
     /**
      * 将属性名称编程数据库风格名称
@@ -25,4 +27,11 @@ class DBUtil {
      * @return
      */
     static String toPropName(String dataName) {}
+
+    static String limitString(int offset, int max) {
+        String driver = GraceApp.instance.config.dataSource.driverClassName
+        if (driver.contains('mysql')) return "limit ${offset},${max}"
+        if (driver.contains('postgresql')) return "limit ${offset},${max}"
+        throw new Exception("limit not support for ${driver}")
+    }
 }
