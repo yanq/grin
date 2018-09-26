@@ -31,7 +31,7 @@ class DBUtil {
     static String limitString(int offset, int max) {
         String driver = GraceApp.instance.config.dataSource.driverClassName
         if (driver.contains('mysql')) return "limit ${offset},${max}"
-        if (driver.contains('postgresql')) return "limit ${max} offset ${offset}"
-        throw new Exception("limit not support for ${driver}")
+        //if (driver.contains('postgresql')) pg,h2 都如此，默认吧
+        return "limit ${max} offset ${offset}"
     }
 }
