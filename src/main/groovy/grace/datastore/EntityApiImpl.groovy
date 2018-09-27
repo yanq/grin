@@ -37,7 +37,7 @@ class EntityApiImpl {
         int max = params?.max ?: DEFAULT_MAX_ROWS
         Sql sql = DB.sql
         List list = []
-        List rows = sql.rows("select * from ${findTableName(target)} ${DBUtil.limitString(offset, max)}".toString())
+        List rows = sql.rows("select * from ${findTableName(target)} ${params ? DBUtil.limitString(offset, max) :''}".toString())
         rows.each { row ->
             list << bindResultToEntity(row, target)
         }
@@ -160,7 +160,7 @@ class EntityApiImpl {
                 int offset = pageParams?.offset ?: 0
                 int max = pageParams?.max ?: DEFAULT_MAX_ROWS
                 List list = []
-                List rows = sql.rows("select * from ${findTableName(entityClass)} ${whereSql ? 'where ' + whereSql : ''} ${DBUtil.limitString(offset, max)}".toString())
+                List rows = sql.rows("select * from ${findTableName(entityClass)} ${whereSql ? 'where ' + whereSql : ''} ${pageParams ? DBUtil.limitString(offset, max) :''}".toString())
                 rows.each { row ->
                     list << bindResultToEntity(row, entityClass)
                 }
