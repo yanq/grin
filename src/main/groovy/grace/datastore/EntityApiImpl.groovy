@@ -8,10 +8,13 @@ import groovy.sql.Sql
  * 实现具体的操作，get save，解析实体类等。
  */
 class EntityApiImpl {
+    //保留变量
     public static final String MAPPING = 'mapping' //mapping 定义实体类与表之间的映射关系,table,columns
     public static final String TRANSIENTS = 'transients' //不持久化的类属性
     // 系统级忽略的内容
     public static final List<String> excludeProperties = [MAPPING, TRANSIENTS, '$staticClassInfo', '__$stMC', 'metaClass', '$staticClassInfo$', '$callSiteArray']
+    //other
+    public static final int DEFAULT_MAX_ROWS = 100
 
     /**
      * get
@@ -31,7 +34,7 @@ class EntityApiImpl {
 
     static list(Class target, Map params) {
         int offset = params?.offset ?: 0
-        int max = params?.max ?: 100
+        int max = params?.max ?: DEFAULT_MAX_ROWS
         Sql sql = DB.sql
         List list = []
         List rows = sql.rows("select * from ${findTableName(target)} ${DBUtil.limitString(offset, max)}".toString())
@@ -43,7 +46,7 @@ class EntityApiImpl {
     }
 
     static int count(Class target) {
-        return DB.withSql { sql -> sql.firstRow("SELECT COUNT(*) as num FROM ${findTableName(target)}".toString()).num }
+        return DB.withSql { sql -> sql.firstRow("select count(*) as num from ${findTableName(target)}".toString()).num }
     }
 
     /**
@@ -84,7 +87,7 @@ class EntityApiImpl {
 
 
     static boolean delete(Object entity) {
-        return DB.withSql { sql -> sql.execute "DELETE FROM ${findTableName(entity.class)} WHERE id = ?".toString(), [entity.id] }
+        return DB.withSql { sql -> sql.execute "delete from ${findTableName(entity.class)} where id = ?".toString(), [entity.id] }
     }
 
     /**
@@ -152,10 +155,22 @@ class EntityApiImpl {
             return null
         }
 
-        List list(Map pageParams) {}
+        List list(Map pageParams) {
+            return DB.withSql { Sql sql ->
+                int offset = pageParams?.offset ?: 0
+                int max = pageParams?.max ?: DEFAULT_MAX_ROWS
+                List list = []
+                List rows = sql.rows("select * from ${findTableName(entityClass)} ${whereSql ? 'where ' + whereSql : ''} ${DBUtil.limitString(offset, max)}".toString())
+                rows.each { row ->
+                    list << bindResultToEntity(row, entityClass)
+                }
+                sql.close()
+                return list
+            }
+        }
 
         int count() {
-            DB.withSql { sql -> sql.firstRow("select count(*) as num from ${findTableName(entityClass)} where ${whereSql}".toString(), params).num }
+            DB.withSql { sql -> sql.firstRow("select count(*) as num from ${findTableName(entityClass)} ${whereSql ? 'where ' + whereSql : ''}".toString(), params).num }
         }
     }
 }
