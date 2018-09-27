@@ -137,4 +137,25 @@ class EntityApiImpl {
         }
         return entity
     }
+
+    /**
+     * where 查询
+     */
+    static class Where {
+        String whereSql
+        List params
+        Class entityClass
+
+        def get() {
+            List list = list([offset: 0, max: 1])
+            if (list) return list[0]
+            return null
+        }
+
+        List list(Map pageParams) {}
+
+        int count() {
+            DB.withSql { sql -> sql.firstRow("select count(*) as num from ${findTableName(entityClass)} where ${whereSql}".toString(), params).num }
+        }
+    }
 }

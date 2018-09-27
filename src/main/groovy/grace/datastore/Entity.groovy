@@ -48,4 +48,11 @@ trait Entity<D> {
         EntityApiImpl.delete(this)
     }
 
+    /**
+     * where 自定义条件查询
+     * @param sql
+     */
+    static EntityApiImpl.Where where(String sql, List params = []) {
+        new EntityApiImpl.Where(whereSql: sql, params: params, entityClass: this)
+    }
 }
