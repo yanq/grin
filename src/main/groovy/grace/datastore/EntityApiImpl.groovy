@@ -2,6 +2,7 @@ package grace.datastore
 
 import groovy.sql.GroovyRowResult
 import groovy.sql.Sql
+import java.lang.reflect.Modifier
 
 /**
  * 实体 api 实现
@@ -9,14 +10,12 @@ import groovy.sql.Sql
  */
 class EntityApiImpl {
     //保留变量
-    public static final String MAPPING = 'mapping'
-    //mapping 定义实体类与表之间的映射关系,table,columns
-    public static final String TRANSIENTS = 'transients'
-    //不持久化的类属性
-    public static final String CONSTRAINTS = 'constraints'
-    //不持久化的类属性
+    public static final String MAPPING = 'mapping' //mapping 定义实体类与表之间的映射关系,table,columns
+    public static final String TRANSIENTS = 'transients' //不持久化的类属性
+    public static final String CONSTRAINTS = 'constraints' //不持久化的类属性
+    public static final String CONSTRAINT_MAP = 'constraintMap' //不持久化的类属性
     // 系统级忽略的内容
-    public static final List<String> excludeProperties = [MAPPING, TRANSIENTS, '$staticClassInfo', '__$stMC', 'metaClass', '$staticClassInfo$', '$callSiteArray']
+    public static final List<String> excludeProperties = ['metaClass']
     //other
     public static final int DEFAULT_MAX_ROWS = 100
 
@@ -100,7 +99,7 @@ class EntityApiImpl {
      * @return
      */
     static List<String> findPropertiesToPersist(Class target) {
-        target.declaredFields*.name - excludeProperties - (target[TRANSIENTS] ?: [])
+        target.declaredFields.findAll { !Modifier.isStatic(it.modifiers) }*.name - excludeProperties - (target.hasProperty(TRANSIENTS) ? target[TRANSIENTS] : [])
     }
 
     /**
@@ -132,7 +131,7 @@ class EntityApiImpl {
 
         def entity = target.newInstance()
         def columnMap = columnMap(target)
-        List<String> properties = target.declaredFields*.name - excludeProperties
+        List<String> properties = findPropertiesToPersist(target)
         properties.each {
             String key = it
             if (columnMap.containsKey(key)) {
@@ -176,12 +175,22 @@ class EntityApiImpl {
         }
     }
 
-    //validate
+    /**
+     * 验证约束
+     * @param entity
+     * @return
+     */
     static boolean validate(Object entity) {
-        Map constraints = ConstraintsBuilder.buildFromEntityClass(entity.class)
-
-        println(constraints.title.size)
+        println('')
     }
 
+    /**
+     * 获取约束表
+     * @param entityClass
+     * @return
+     */
+    static getConstraintMap(Class entityClass) {
+        ConstraintsBuilder.buildFromEntityClass(entityClass)
+    }
 
 }

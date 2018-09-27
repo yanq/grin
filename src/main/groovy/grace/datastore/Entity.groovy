@@ -55,4 +55,12 @@ trait Entity<D> {
     static EntityApiImpl.Where where(String sql, List params = []) {
         new EntityApiImpl.Where(whereSql: sql, params: params, entityClass: this)
     }
+
+    /**
+     * 约束 Map
+     * @return
+     */
+    static Map getConstraintMap() {
+        EntityApiImpl.getConstraintMap(this)
+    }
 }
