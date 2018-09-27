@@ -9,8 +9,12 @@ import groovy.sql.Sql
  */
 class EntityApiImpl {
     //保留变量
-    public static final String MAPPING = 'mapping' //mapping 定义实体类与表之间的映射关系,table,columns
-    public static final String TRANSIENTS = 'transients' //不持久化的类属性
+    public static final String MAPPING = 'mapping'
+    //mapping 定义实体类与表之间的映射关系,table,columns
+    public static final String TRANSIENTS = 'transients'
+    //不持久化的类属性
+    public static final String CONSTRAINTS = 'constraints'
+    //不持久化的类属性
     // 系统级忽略的内容
     public static final List<String> excludeProperties = [MAPPING, TRANSIENTS, '$staticClassInfo', '__$stMC', 'metaClass', '$staticClassInfo$', '$callSiteArray']
     //other
@@ -68,12 +72,14 @@ class EntityApiImpl {
         kvs.remove('id')
 
         String table = findTableName(entity.class)
-        if (entity.hasProperty('id') && entity['id']) { //to update
+        if (entity.hasProperty('id') && entity['id']) {
+            //to update
             def sets = kvs.keySet().collect { "${it} = ?" }.join(',').toString()
             def sqlString = "update ${table} set ${sets} where id = ?".toString()
             def params = kvs.values().toList() << entity.id
             sql.executeUpdate(sqlString, params)
-        } else { //to insert
+        } else {
+            //to insert
             def sqlString = "insert into ${table} (${kvs.keySet().join(',')}) values (?${',?' * (kvs.size() - 1)})".toString()
             def result = sql.executeInsert(sqlString, kvs.values().toList())
             entity.id = result[0][0]
@@ -169,4 +175,13 @@ class EntityApiImpl {
             DB.withSql { sql -> sql.firstRow("select count(*) as num from ${findTableName(entityClass)} ${whereSql ? 'where ' + whereSql : ''}".toString(), params).num }
         }
     }
+
+    //validate
+    static boolean validate(Object entity) {
+        Map constraints = ConstraintsBuilder.buildFromEntityClass(entity.class)
+
+        println(constraints.title.size)
+    }
+
+
 }
