@@ -34,12 +34,16 @@ class EntityApiImpl {
         int max = params?.max ?: 100
         Sql sql = DB.sql
         List list = []
-        List rows = sql.rows("select * from ${findTableName(target)} ${DBUtil.limitString(offset,max)}".toString())
+        List rows = sql.rows("select * from ${findTableName(target)} ${DBUtil.limitString(offset, max)}".toString())
         rows.each { row ->
             list << bindResultToEntity(row, target)
         }
         sql.close()
         return list
+    }
+
+    static int count(Class target) {
+        return DB.withSql { sql -> sql.firstRow("SELECT COUNT(*) as num FROM ${findTableName(target)}".toString()).num }
     }
 
     /**
@@ -78,6 +82,16 @@ class EntityApiImpl {
         return entity
     }
 
+
+    static boolean delete(Object entity) {
+        return DB.withSql { sql -> sql.execute "DELETE FROM ${findTableName(entity.class)} WHERE id = ?".toString(), [entity.id] }
+    }
+
+    /**
+     * 获取持久化属性列表
+     * @param target
+     * @return
+     */
     static List<String> findPropertiesToPersist(Class target) {
         target.declaredFields*.name - excludeProperties - (target[TRANSIENTS] ?: [])
     }

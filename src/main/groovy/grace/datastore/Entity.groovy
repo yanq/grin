@@ -15,15 +15,37 @@ trait Entity<D> {
         EntityApiImpl.get(this, id)
     }
 
+    /**
+     * 列表
+     * @param params
+     * @return
+     */
     static list(Map params = null) {
-        EntityApiImpl.list(this,params)
+        EntityApiImpl.list(this, params)
     }
 
-    static count() {
-
+    /**
+     * 计数
+     * @return
+     */
+    static int count() {
+        EntityApiImpl.count(this)
     }
 
+    /**
+     * 保存，更新或者插入
+     * @return
+     */
     D save() {
         EntityApiImpl.save(this)
     }
+
+    /**
+     * 删除
+     * @return
+     */
+    boolean delete() {
+        EntityApiImpl.delete(this)
+    }
+
 }
