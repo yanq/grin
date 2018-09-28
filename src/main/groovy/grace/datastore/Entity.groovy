@@ -3,6 +3,7 @@ package grace.datastore
  * 提供实体类的基本功能
  */
 trait Entity<D> {
+    List errors = []
 
     /**
      * get
@@ -62,5 +63,13 @@ trait Entity<D> {
      */
     static Map getConstraintMap() {
         EntityApiImpl.getConstraintMap(this)
+    }
+
+    /**
+     * 验证约束
+     * @return
+     */
+    boolean validate() {
+        EntityApiImpl.validate(this)
     }
 }

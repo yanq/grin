@@ -46,7 +46,7 @@ class ConstraintsBuilder {
      * @param entityClass
      * @return
      */
-    static Map buildFromEntityClass(Class entityClass){
+    static Map<String,Map> buildFromEntityClass(Class entityClass){
         ConstraintsBuilder builder = new ConstraintsBuilder(entityClass: entityClass)
         builder.build()
         return builder.constraints

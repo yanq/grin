@@ -2,12 +2,14 @@ package grace.datastore
 
 import groovy.sql.GroovyRowResult
 import groovy.sql.Sql
+import groovy.util.logging.Slf4j
 import java.lang.reflect.Modifier
 
 /**
  * 实体 api 实现
  * 实现具体的操作，get save，解析实体类等。
  */
+@Slf4j
 class EntityApiImpl {
     //保留变量
     public static final String MAPPING = 'mapping' //mapping 定义实体类与表之间的映射关系,table,columns
@@ -99,7 +101,8 @@ class EntityApiImpl {
      * @return
      */
     static List<String> findPropertiesToPersist(Class target) {
-        target.declaredFields.findAll { !Modifier.isStatic(it.modifiers) }*.name - excludeProperties - (target.hasProperty(TRANSIENTS) ? target[TRANSIENTS] : [])
+        List fields = target.declaredFields.findAll { !Modifier.isStatic(it.modifiers) }*.name
+        fields - excludeProperties - (target.hasProperty(TRANSIENTS) ? target[TRANSIENTS] : [])
     }
 
     /**
@@ -180,16 +183,50 @@ class EntityApiImpl {
      * @param entity
      * @return
      */
-    static boolean validate(Object entity) {
-        println('')
+    static boolean validate(Entity entity) {
+        if (!entity.hasProperty('id')) throw new Exception("该类没有 id 属性，差评")
+
+        entity.errors = []
+        getConstraintMap(entity.class).each {
+            def propConstraints = it
+            def value = entity[propConstraints.key]
+            Map constraintsToValidate = propConstraints.value
+
+            //comment
+            constraintsToValidate.remove('comment')
+
+            //null 处理
+
+            if (null == value) {
+                if (!constraintsToValidate.nullable) entity.errors << [propConstraints.key, 'nullable']
+                return
+            }
+            constraintsToValidate.remove('nullable')
+
+            //blank
+            if ('' == value) {
+                if (!constraintsToValidate.blank) entity.errors << [propConstraints.key, 'blank']
+                return
+            }
+            constraintsToValidate.remove('blank')
+
+            constraintsToValidate.each {
+                if (!Validator.validate(value, it)) {
+                    entity.errors << [propConstraints.key, it.key]
+                }
+            }
+        }
+
+        entity.errors ? false : true
     }
 
     /**
      * 获取约束表
+     * todo 缓存一下更好
      * @param entityClass
      * @return
      */
-    static getConstraintMap(Class entityClass) {
+    static Map<String, Map> getConstraintMap(Class entityClass) {
         ConstraintsBuilder.buildFromEntityClass(entityClass)
     }
 
