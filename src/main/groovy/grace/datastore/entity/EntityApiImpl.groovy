@@ -1,5 +1,7 @@
-package grace.datastore
+package grace.datastore.entity
 
+import grace.datastore.DB
+import grace.datastore.DBUtil
 import groovy.sql.GroovyRowResult
 import groovy.sql.Sql
 import groovy.util.logging.Slf4j

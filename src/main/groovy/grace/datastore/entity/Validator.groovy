@@ -1,4 +1,4 @@
-package grace.datastore
+package grace.datastore.entity
 
 import groovy.util.logging.Slf4j
 

@@ -1,4 +1,4 @@
-package grace.datastore
+package grace.datastore.entity
 /**
  * 提供实体类的基本功能
  */

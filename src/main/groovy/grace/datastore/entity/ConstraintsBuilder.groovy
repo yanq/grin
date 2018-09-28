@@ -1,5 +1,4 @@
-package grace.datastore
-
+package grace.datastore.entity
 /**
  * 约束组装成 map，方便使用
  */
