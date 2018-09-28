@@ -1,7 +1,7 @@
 package grace.servlet
 
 import grace.app.GraceApp
-import grace.controller.traits.WebRequest
+import grace.controller.request.WebRequest
 import grace.controller.route.Route
 import grace.controller.route.Routes
 import grace.util.ClassUtil

@@ -4,6 +4,7 @@ import groovy.transform.CompileStatic
 import javax.servlet.ServletContext
 import javax.servlet.ServletRequest
 import javax.servlet.http.HttpSession
+
 @CompileStatic
 class GraceCategory {
     public static Object get(ServletContext context, String key) {
