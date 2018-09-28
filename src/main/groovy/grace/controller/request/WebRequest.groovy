@@ -1,8 +1,5 @@
-package grace.controller
+package grace.controller.request
 
-import grace.controller.traits.HTMLSupport
-import grace.controller.traits.JSONSupport
-import grace.controller.traits.Render
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import javax.servlet.RequestDispatcher
@@ -14,7 +11,7 @@ import javax.servlet.ServletException
  */
 @Slf4j
 @CompileStatic
-class WebRequest implements JSONSupport, HTMLSupport, Render {
+class WebRequest implements JSON, HTML, Render {
 
     /**
      * forward

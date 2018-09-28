@@ -1,11 +1,11 @@
-package grace.controller.traits
+package grace.controller.request
 
 import groovy.xml.MarkupBuilder
 
 /**
  * html 支持
  */
-trait HTMLSupport {
+trait HTML {
     MarkupBuilder html
 
     /**

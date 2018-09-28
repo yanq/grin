@@ -1,11 +1,11 @@
-package grace.controller.traits
+package grace.controller.request
 
 import groovy.json.StreamingJsonBuilder
 
 /**
  * Json 支持
  */
-trait JSONSupport extends RequestBase {
+trait JSON extends RequestBase {
     StreamingJsonBuilder json
 
     /**

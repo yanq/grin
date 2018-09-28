@@ -1,6 +1,6 @@
 package grace.route
 
-import grace.controller.WebRequest
+import grace.controller.traits.WebRequest
 import grace.util.ClassUtil
 import groovy.util.logging.Slf4j
 

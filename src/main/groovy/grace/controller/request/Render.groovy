@@ -1,4 +1,4 @@
-package grace.controller.traits
+package grace.controller.request
 
 import grace.app.GraceApp
 import org.thymeleaf.context.Context

@@ -1,4 +1,4 @@
-package grace.controller.traits
+package grace.controller.request
 
 import javax.servlet.ServletContext
 import javax.servlet.http.HttpServletRequest
