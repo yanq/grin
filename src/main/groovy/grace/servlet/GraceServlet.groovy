@@ -2,8 +2,8 @@ package grace.servlet
 
 import grace.app.GraceApp
 import grace.controller.traits.WebRequest
-import grace.route.Route
-import grace.route.Routes
+import grace.controller.route.Route
+import grace.controller.route.Routes
 import grace.util.ClassUtil
 import grace.util.RegexUtil
 import groovy.util.logging.Slf4j

@@ -5,7 +5,7 @@ import com.alibaba.druid.filter.logging.Slf4jLogFilter
 import com.alibaba.druid.filter.stat.StatFilter
 import com.alibaba.druid.pool.DruidDataSource
 import com.alibaba.druid.sql.SQLUtils
-import grace.route.Routes
+import grace.controller.route.Routes
 import groovy.util.logging.Slf4j
 import io.undertow.servlet.api.DeploymentInfo
 import org.thymeleaf.TemplateEngine

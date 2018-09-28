@@ -1,6 +1,6 @@
 package grace.controller
 
-import grace.route.Routes
+import grace.controller.route.Routes
 
 /**
  * 控制器脚本父类
