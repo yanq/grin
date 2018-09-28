@@ -186,33 +186,32 @@ class EntityApiImpl {
     static boolean validate(Entity entity) {
         if (!entity.hasProperty('id')) throw new Exception("该类没有 id 属性，差评")
 
-        entity.errors = []
+        entity.errors = [] //置空
         getConstraintMap(entity.class).each {
-            def propConstraints = it
-            def value = entity[propConstraints.key]
-            Map constraintsToValidate = propConstraints.value
+            def propertyConstraints = it
+            def value = entity[propertyConstraints.key]
+            Map constraintsToValidate = propertyConstraints.value
 
             //comment
             constraintsToValidate.remove('comment')
 
             //null 处理
-
             if (null == value) {
-                if (!constraintsToValidate.nullable) entity.errors << [propConstraints.key, 'nullable']
+                if (!constraintsToValidate.nullable) entity.errors << [propertyConstraints.key, 'nullable']
                 return
             }
             constraintsToValidate.remove('nullable')
 
             //blank
             if ('' == value) {
-                if (!constraintsToValidate.blank) entity.errors << [propConstraints.key, 'blank']
+                if (!constraintsToValidate.blank) entity.errors << [propertyConstraints.key, 'blank']
                 return
             }
             constraintsToValidate.remove('blank')
 
             constraintsToValidate.each {
                 if (!Validator.validate(value, it)) {
-                    entity.errors << [propConstraints.key, it.key]
+                    entity.errors << [propertyConstraints.key, it.key]
                 }
             }
         }
