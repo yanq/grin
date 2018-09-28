@@ -14,7 +14,7 @@ import groovy.util.logging.Slf4j
 class Generator {
     static final TEMPLATE_DIR = 'templates'
     static final CONTROLLER_TEMPLATE = 'Controller.groovy'
-    static StreamingTemplateEngine templateEngine = new StreamingTemplateEngine()
+    static final templateEngine = new StreamingTemplateEngine()
 
     /**
      * 控制器处理
@@ -64,13 +64,7 @@ class Generator {
         File targetDir = new File(GraceApp.instance.controllersDir, ClassUtil.packagePath(className))
         if (!targetDir.exists()) targetDir.mkdirs()
         File target = new File(GraceApp.instance.controllersDir, ClassUtil.classPath(className) + '.groovy')
-        if (target.exists()) {
-            log.warn("file exists,do nothing! @ $target.absolutePath ")
-        } else {
-            Template template = templateEngine.createTemplate(templateFile)
-            target << template.make().toString().getBytes('utf-8')
-            log.info("generate controller @ $target.absolutePath")
-        }
+        generate(templateEngine, target)
     }
 
     /**
@@ -80,5 +74,22 @@ class Generator {
      */
     static generateController(File temFile, Class aClass) {
 
+    }
+
+    /**
+     * 生成文件
+     * @param templateFile
+     * @param targetFile
+     * @param binding
+     * @return
+     */
+    static generate(File templateFile, File targetFile, Map binding = [:]) {
+        if (targetFile.exists()) {
+            log.warn("file exists,do nothing! @ $targetFile.absolutePath ")
+        } else {
+            Template template = templateEngine.createTemplate(templateFile)
+            targetFile << template.make(binding).toString().getBytes('utf-8')
+            log.info("generate file @ $targetFile.absolutePath")
+        }
     }
 }
