@@ -32,6 +32,9 @@ class GraceApp {
     public static final String APP_INTERCEPTORS = 'interceptors'
     public static final String APP_CONFIG = 'conf'
     public static final String APP_INIT = 'init'
+    //env
+    public static final String ENV_PROD = 'prod'
+    public static final String ENV_DEV = 'dev'
     //instance
     private static GraceApp instance
     //config
@@ -51,7 +54,7 @@ class GraceApp {
      * 构造并初始化
      * @param appRoot
      */
-    GraceApp(File appRoot = null, String env = 'dev') {
+    GraceApp(File appRoot = null, String env = ENV_DEV) {
         //init dirs
         if (!appRoot) appRoot = new File('.')
         root = appRoot
@@ -65,6 +68,33 @@ class GraceApp {
         //config
         environment = env
         config = new ConfigSlurper(environment).parse(new File(configDir, 'config.groovy').text)
+    }
+
+    /**
+     * 设置根路径，并初始化。重复会有异常。
+     * @param root
+     * @return
+     */
+    static synchronized setRootAndEnv(File root, String env = ENV_DEV) {
+        if (instance) throw new Exception("Grace app has inited")
+        instance = new GraceApp(root, env)
+    }
+
+    /**
+     * 获取单例
+     * @return
+     */
+    static getInstance() {
+        if (instance) return instance
+        instance = new GraceApp()
+        return instance
+    }
+
+    /**
+     * 是否开发环境
+     */
+    boolean isDev(){
+        ENV_DEV == environment
     }
 
     /**
@@ -85,10 +115,10 @@ class GraceApp {
     DataSource getDataSource() {
         if (dataSource) return dataSource
         dataSource = new DruidDataSource(config.dataSource)
-        if (config.logSql){
+        if (config.logSql) {
             Filter sqlLog = new Slf4jLogFilter(statementExecutableSqlLogEnable: true)
-            sqlLog.setStatementSqlFormatOption(new SQLUtils.FormatOption(true,false))
-            dataSource.setProxyFilters([sqlLog,new StatFilter()])
+            sqlLog.setStatementSqlFormatOption(new SQLUtils.FormatOption(true, false))
+            dataSource.setProxyFilters([sqlLog, new StatFilter()])
         }
         return dataSource
     }
@@ -117,26 +147,6 @@ class GraceApp {
         resolver.setCacheable(false) //todo 开发期间不缓存
         templateEngine.setTemplateResolver(resolver)
         return templateEngine
-    }
-
-    /**
-     * 设置根路径，并初始化。重复会有异常。
-     * @param root
-     * @return
-     */
-    static setRoot(File root) {
-        if (instance) throw new Exception("Grace app has inited")
-        instance = new GraceApp(root)
-    }
-
-    /**
-     * 获取单例
-     * @return
-     */
-    static getInstance() {
-        if (instance) return instance
-        instance = new GraceApp()
-        return instance
     }
 
     /**
@@ -198,6 +208,10 @@ class GraceApp {
         refreshing = false
     }
 
+    /**
+     * 等待刷新完成
+     * 用于 servlet 中，避免更新过程中可能出现的不确定性
+     */
     void waitingForRefresh() {
         if (!refreshing) return
         while (true) {
@@ -215,6 +229,9 @@ class GraceApp {
         return path.startsWith(controllersDir.absolutePath)
     }
 
+    /**
+     * 启动文件监控，变化更新
+     */
     void startFileWatcher() {
         log.info("start watch ${appDir.absolutePath}")
 

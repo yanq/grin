@@ -31,23 +31,23 @@ class GraceMain {
         String cmd = args ? args[0] : ''
 
         //not support
-        if (!cmds.containsKey(cmd)){
+        if (!cmds.containsKey(cmd)) {
             usage()
             return
         }
 
         //run
-        if (cmd=='run'){
+        if (cmd == 'run') {
             def server = new GraceServer()
-            if (args.contains('prod')){
-                server.startDeploy()
-            }else {
+            if (args.contains('prod')) {
+                server.startApp(null, GraceApp.ENV_PROD)
+            } else {
                 server.startApp()
             }
         }
 
         //init
-        if (cmd == 'init'){
+        if (cmd == 'init') {
             GraceApp.instance.initDirs()
         }
     }

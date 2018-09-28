@@ -26,13 +26,14 @@ class GraceServer {
     }
 
     /**
-     * 启动 GraceApp ,dev
+     * 启动 GraceApp
+     * todo 对产品部署环境优化
      * 监控目录，即时编译，适用于开发阶段
      * 目录是一个完整的 grace app 结构。
      * @param root
      */
-    void startApp(File root) {
-        GraceApp.setRoot(root)
+    void startApp(File root,String env = GraceApp.ENV_DEV) {
+        GraceApp.setRootAndEnv(root,env)
         def app = GraceApp.instance
         log.info("start app @ ${app.root.absolutePath}")
         if (app.isAppDir()) {
@@ -52,15 +53,6 @@ class GraceServer {
     }
 
     /**
-     * 启动 GraceApp ，prod
-     * 产品部署,优化的性能
-     */
-    void startDeploy() {
-        //todo 实现
-        print('coming soon'.center(30, '-'))
-    }
-
-    /**
      * 构建 deploy info
      * @return
      */
@@ -74,6 +66,7 @@ class GraceServer {
     }
 
     /**
+     * 启动 server
      * start undertow server
      */
     private void startUndertowServer(DeploymentInfo deploymentInfo) {
