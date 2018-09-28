@@ -13,7 +13,7 @@ trait Entity<D> {
      * @return
      */
     static get(Serializable id) {
-        EntityApiImpl.get(this, id)
+        EntityImpl.get(this, id)
     }
 
     /**
@@ -22,7 +22,7 @@ trait Entity<D> {
      * @return
      */
     static list(Map params = null) {
-        EntityApiImpl.list(this, params)
+        EntityImpl.list(this, params)
     }
 
     /**
@@ -30,7 +30,7 @@ trait Entity<D> {
      * @return
      */
     static int count() {
-        EntityApiImpl.count(this)
+        EntityImpl.count(this)
     }
 
     /**
@@ -38,7 +38,7 @@ trait Entity<D> {
      * @return
      */
     D save() {
-        EntityApiImpl.save(this)
+        EntityImpl.save(this)
     }
 
     /**
@@ -46,15 +46,15 @@ trait Entity<D> {
      * @return
      */
     boolean delete() {
-        EntityApiImpl.delete(this)
+        EntityImpl.delete(this)
     }
 
     /**
      * where 自定义条件查询
      * @param sql
      */
-    static EntityApiImpl.Where where(String sql, List params = []) {
-        new EntityApiImpl.Where(whereSql: sql, params: params, entityClass: this)
+    static EntityImpl.Where where(String sql, List params = []) {
+        new EntityImpl.Where(whereSql: sql, params: params, entityClass: this)
     }
 
     /**
@@ -62,7 +62,7 @@ trait Entity<D> {
      * @return
      */
     static Map getConstraintMap() {
-        EntityApiImpl.getConstraintMap(this)
+        EntityImpl.getConstraintMap(this)
     }
 
     /**
@@ -70,6 +70,6 @@ trait Entity<D> {
      * @return
      */
     boolean validate() {
-        EntityApiImpl.validate(this)
+        EntityImpl.validate(this)
     }
 }

@@ -2,7 +2,7 @@ package grace.datastore.entity
 /**
  * 约束组装成 map，方便使用
  */
-class ConstraintsBuilder {
+class Constraints {
     Class entityClass
     Map constraints = [:] // like : [title:[conditions:[blank:true, size:1..5], comment:字符串长度要处于 1 到 5 之间]]
 
@@ -11,7 +11,7 @@ class ConstraintsBuilder {
      * @return
      */
     def build() {
-        Closure c = entityClass[EntityApiImpl.CONSTRAINTS]
+        Closure c = entityClass[EntityImpl.CONSTRAINTS]
         if (c) {
             c = c.clone()
             c.delegate = this
@@ -45,8 +45,8 @@ class ConstraintsBuilder {
      * @param entityClass
      * @return
      */
-    static Map<String,Map> buildFromEntityClass(Class entityClass){
-        ConstraintsBuilder builder = new ConstraintsBuilder(entityClass: entityClass)
+    static Map<String,Map> buildToMapFromEntityClass(Class entityClass){
+        Constraints builder = new Constraints(entityClass: entityClass)
         builder.build()
         return builder.constraints
     }

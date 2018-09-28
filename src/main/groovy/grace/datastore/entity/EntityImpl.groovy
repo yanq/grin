@@ -12,7 +12,7 @@ import java.lang.reflect.Modifier
  * 实现具体的操作，get save，解析实体类等。
  */
 @Slf4j
-class EntityApiImpl {
+class EntityImpl {
     //保留变量
     public static final String MAPPING = 'mapping' //mapping 定义实体类与表之间的映射关系,table,columns
     public static final String TRANSIENTS = 'transients' //不持久化的类属性
@@ -228,7 +228,7 @@ class EntityApiImpl {
      * @return
      */
     static Map<String, Map> getConstraintMap(Class entityClass) {
-        ConstraintsBuilder.buildFromEntityClass(entityClass)
+        Constraints.buildToMapFromEntityClass(entityClass)
     }
 
 }
