@@ -40,9 +40,15 @@ trait FileRender extends RequestBase {
      * asset
      * 需要路由定义配合 /asset/@file
      */
-    void asset(){
-        File asset = new File(GraceApp.instance.assetDir,params.file)
-        render(asset)
+    void asset() {
+        File assetFile
+        if (app.isDev()) {
+            assetFile = new File(app.assetDir, params.file)
+        }else {
+            assetFile = new File(app.assetBuildDir,params.file)
+        }
+
+        render(assetFile)
     }
 
 }

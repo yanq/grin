@@ -2,6 +2,10 @@ package grace.controller.request
 
 import grace.app.GraceApp
 
+/**
+ * grace 表达式
+ * 提供一些方法，处理一些东西。如 asset。
+ */
 class GraceEx {
     /**
      * 处理 application.js
@@ -46,6 +50,8 @@ class GraceEx {
             }
 
             return result
+        }else {
+            return "<script type=\"text/javascript\" src=\"/assets/${js}\" ></script>"
         }
     }
 
@@ -91,6 +97,8 @@ class GraceEx {
             }
 
             return result
+        }else {
+            return "<link rel=\"stylesheet\" href=\"/assets/${css}\"/>"
         }
     }
 }

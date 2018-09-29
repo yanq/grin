@@ -48,7 +48,7 @@ class GraceApp {
     TemplateEngine templateEngine
     //dirs
     boolean refreshing = false
-    File root, appDir, controllersDir, viewsDir, interceptorsDir, configDir, initDir,assetDir
+    File root, appDir, controllersDir, viewsDir, interceptorsDir, configDir, initDir,assetDir,assetBuildDir
     List<File> allDirs
 
     /**
@@ -66,6 +66,7 @@ class GraceApp {
         configDir = new File(appDir, APP_CONFIG)
         initDir = new File(appDir, APP_INIT)
         assetDir = new File(appDir, APP_ASSETS)
+        assetBuildDir = new File(root, 'build/assets')
         allDirs = [appDir, controllersDir, viewsDir, interceptorsDir, configDir, initDir,assetDir]
         //config
         environment = env

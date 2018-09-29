@@ -1,5 +1,7 @@
 package grace.controller.request
 
+import grace.app.GraceApp
+
 import javax.servlet.RequestDispatcher
 import javax.servlet.ServletContext
 import javax.servlet.ServletException
@@ -12,6 +14,7 @@ import java.text.SimpleDateFormat
  * 基本变量
  */
 trait RequestBase {
+    GraceApp app = GraceApp.instance
     HttpServletRequest request
     HttpServletResponse response
     Params params
