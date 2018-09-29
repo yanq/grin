@@ -9,7 +9,7 @@ import groovy.util.logging.Slf4j
  */
 @Slf4j
 @CompileStatic
-class WebRequest implements JSON, HTML, Render {
+class WebRequest implements JSON, HTML, Render,FileRender {
     @Lazy
     GraceEx g = new GraceEx()
 }
