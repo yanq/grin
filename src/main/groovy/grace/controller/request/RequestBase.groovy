@@ -1,6 +1,8 @@
 package grace.controller.request
 
+import javax.servlet.RequestDispatcher
 import javax.servlet.ServletContext
+import javax.servlet.ServletException
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 import javax.servlet.http.HttpSession
@@ -14,6 +16,21 @@ trait RequestBase {
     HttpServletResponse response
     Params params
     Map<String, String> headers
+
+    /**
+     * forward
+     */
+    void forward(String path) throws ServletException, IOException {
+        RequestDispatcher dispatcher = request.getRequestDispatcher(path);
+        dispatcher.forward(request, response);
+    }
+
+    /**
+     * redirect
+     */
+    void redirect(String location) throws IOException {
+        response.sendRedirect(location);
+    }
 
     /**
      * session
