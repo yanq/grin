@@ -18,7 +18,7 @@ class FileUtil {
      * @param cacheTime
      */
     static void serveFile(HttpServletRequest request, HttpServletResponse response, File file, int cacheTime = 0) {
-        if (!file.exists()) {
+        if (!file.exists() || file.isDirectory()) {
             deal404(response)
             return
         }
