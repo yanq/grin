@@ -32,6 +32,7 @@ class GraceApp {
     public static final String APP_INTERCEPTORS = 'interceptors'
     public static final String APP_CONFIG = 'conf'
     public static final String APP_INIT = 'init'
+    public static final String APP_ASSETS = 'assets'
     //env
     public static final String ENV_PROD = 'prod'
     public static final String ENV_DEV = 'dev'
@@ -47,7 +48,7 @@ class GraceApp {
     TemplateEngine templateEngine
     //dirs
     boolean refreshing = false
-    File root, appDir, controllersDir, viewsDir, interceptorsDir, configDir, initDir
+    File root, appDir, controllersDir, viewsDir, interceptorsDir, configDir, initDir,assetDir
     List<File> allDirs
 
     /**
@@ -64,7 +65,8 @@ class GraceApp {
         interceptorsDir = new File(appDir, APP_INTERCEPTORS)
         configDir = new File(appDir, APP_CONFIG)
         initDir = new File(appDir, APP_INIT)
-        allDirs = [appDir, controllersDir, viewsDir, interceptorsDir, configDir, initDir]
+        assetDir = new File(appDir, APP_ASSETS)
+        allDirs = [appDir, controllersDir, viewsDir, interceptorsDir, configDir, initDir,assetDir]
         //config
         environment = env
         config = new ConfigSlurper(environment).parse(new File(configDir, 'config.groovy').text)

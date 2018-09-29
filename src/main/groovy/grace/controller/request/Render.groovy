@@ -18,6 +18,14 @@ trait Render extends RequestBase {
     }
 
     /**
+     * 用以托底，render 任何对象
+     * @param o
+     */
+    void render(Object o) {
+        response.getWriter().write(o.toString())
+    }
+
+    /**
      * view and model
      * 默认 thymeleaf 渲染
      * @param view

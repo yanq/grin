@@ -12,6 +12,7 @@ import javax.servlet.ServletException
 @Slf4j
 @CompileStatic
 class WebRequest implements JSON, HTML, Render {
+    GraceEx g = new GraceEx()
 
     /**
      * forward
