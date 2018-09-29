@@ -81,6 +81,10 @@ trait RequestBase {
         }
     }
 
+    /**
+     * 转成 Map ，方便其他地方注入使用，如注入到模板绑定中
+     * @return
+     */
     Map toMap(){
         return [request:request,response:response,session:session,context:context,params:params,headers:headers]
     }

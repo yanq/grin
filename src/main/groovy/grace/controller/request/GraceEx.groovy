@@ -4,6 +4,7 @@ import grace.app.GraceApp
 
 class GraceEx {
     /**
+     * 处理 application.js
      * 解析文件中的指令，并产生 js 链接
      * todo 缓存以优化
      * @param js
@@ -27,7 +28,8 @@ class GraceEx {
                     if (tree.isDirectory()) {
                         tree.eachFileRecurse {
                             String path = it.canonicalPath
-                            if (!required.contains(path) && path != jsPath) required.add(path) //注意不包含本尊
+                            if (path.endsWith('.js') && !required.contains(path) && path != jsPath) required.add(path)
+                            //注意不包含本尊
                         }
                     }
                 }
@@ -39,8 +41,53 @@ class GraceEx {
 
             String result = ""
             required.each {
-                String uri = it.substring(app.assetDir.canonicalPath.size()+1).replaceAll("\\\\","/")
+                String uri = it.substring(app.assetDir.canonicalPath.size() + 1).replaceAll("\\\\", "/")
                 result += "<script type=\"text/javascript\" src=\"/assets/${uri}\" ></script>"
+            }
+
+            return result
+        }
+    }
+
+    /**
+     * 解析 application.css
+     * @param css
+     * @return
+     */
+    def assetCss(String css) {
+        def app = GraceApp.instance
+        if (app.isDev()) {
+            File cssDir = new File(app.assetDir, 'stylesheets')
+            File cssFile = new File(cssDir, css)
+            if (!cssFile.exists()) return ''
+
+            String cssPath = cssFile.canonicalPath
+            List<String> required = []
+            cssFile.eachLine {
+                if (it.startsWith('*= require ')) {
+                    required.add(new File(cssDir, it.substring(11).trim() + '.css').canonicalPath)
+                }
+                if (it.startsWith('*= require_tree ')) {
+                    def dir = it.substring(16).trim()
+                    File tree = new File(cssDir, dir)
+                    if (tree.isDirectory()) {
+                        tree.eachFileRecurse {
+                            String path = it.canonicalPath
+                            if (path.endsWith('.css') && !required.contains(path) && path != cssPath) required.add(path)
+                            //注意不包含本尊
+                        }
+                    }
+                }
+                if (it.startsWith('*= require_self')) { //得放到此时此地，如果前面有了，要去掉
+                    if (required.contains(cssPath)) required.remove(cssPath)
+                    required.add(cssPath)
+                }
+            }
+
+            String result = ""
+            required.each {
+                String uri = it.substring(app.assetDir.canonicalPath.size() + 1).replaceAll("\\\\", "/")
+                result += "<link rel=\"stylesheet\" href=\"/assets/${uri}\"/>"
             }
 
             return result
