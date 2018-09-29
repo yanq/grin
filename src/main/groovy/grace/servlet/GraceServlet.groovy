@@ -57,7 +57,7 @@ class GraceServlet extends GenericServlet {
                 after(clearedURI, webRequest) //似乎返回结果也没啥意义
             }
 
-            log.info("${response.status} $clearedURI ($route.path) , ${(System.nanoTime() - start) / 1000000} ms")
+            log.info("${response.status} $clearedURI ($route.path) , ${(System.nanoTime() - start) / 1000000}ms")
         } else {
             response.setStatus(404)
             res.writer.write("No page found for ${request.requestURI}")
