@@ -32,8 +32,8 @@ class GraceServer {
      * 目录是一个完整的 grace app 结构。
      * @param root
      */
-    void startApp(File root,String env = GraceApp.ENV_DEV) {
-        GraceApp.setRootAndEnv(root,env)
+    void startApp(File root, String env = GraceApp.ENV_DEV) {
+        GraceApp.setRootAndEnv(root, env)
         def app = GraceApp.instance
         log.info("start app @ ${app.root.absolutePath}")
         if (app.isAppDir()) {
@@ -75,6 +75,7 @@ class GraceServer {
         manager.deploy()
 
         Undertow server = Undertow.builder()
+                .setIoThreads(2).setWorkerThreads(5)
                 .addHttpListener(port, host)
                 .setHandler(manager.start())
                 .build()
