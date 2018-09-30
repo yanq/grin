@@ -27,6 +27,7 @@ class GraceApp {
     public static final String VERSION = '0.1.1'
     //目录结构
     public static final String APP_DIR = 'grace-app'
+    public static final String APP_DOMAINS = 'domains'
     public static final String APP_CONTROLLERS = 'controllers'
     public static final String APP_VIEWS = 'views'
     public static final String APP_INTERCEPTORS = 'interceptors'
@@ -48,7 +49,7 @@ class GraceApp {
     TemplateEngine templateEngine
     //dirs
     boolean refreshing = false
-    File root, appDir, controllersDir, viewsDir, interceptorsDir, configDir, initDir,assetDir,assetBuildDir
+    File root, appDir, domainsDir, controllersDir, viewsDir, interceptorsDir, configDir, initDir, assetDir, assetBuildDir
     List<File> allDirs
 
     /**
@@ -60,6 +61,7 @@ class GraceApp {
         if (!appRoot) appRoot = new File('.')
         root = appRoot
         appDir = new File(appRoot, APP_DIR)
+        domainsDir = new File(appDir, APP_DOMAINS)
         controllersDir = new File(appDir, APP_CONTROLLERS)
         viewsDir = new File(appDir, APP_VIEWS)
         interceptorsDir = new File(appDir, APP_INTERCEPTORS)
@@ -67,7 +69,7 @@ class GraceApp {
         initDir = new File(appDir, APP_INIT)
         assetDir = new File(appDir, APP_ASSETS)
         assetBuildDir = new File(root, 'build/assets')
-        allDirs = [appDir, controllersDir, viewsDir, interceptorsDir, configDir, initDir,assetDir]
+        allDirs = [appDir, domainsDir, controllersDir, viewsDir, interceptorsDir, configDir, initDir, assetDir]
         //config
         environment = env
         config = new ConfigSlurper(environment).parse(new File(configDir, 'config.groovy').text)
@@ -96,7 +98,7 @@ class GraceApp {
     /**
      * 是否开发环境
      */
-    boolean isDev(){
+    boolean isDev() {
         ENV_DEV == environment
     }
 
