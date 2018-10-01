@@ -1,4 +1,4 @@
 # grace
-a groovy web framework。
+a groovy web framework.
 
 coming soon ~
