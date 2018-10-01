@@ -9,9 +9,10 @@ import grace.generate.Generator
 class GraceMain {
     //支持的命令
     static cmds = [
-            'init': ['init grace dirs'],
-            'run' : ['run [dev|prod]?', 'run grace server'],
-            'create-domain': ['create domain class']
+            'init'         : ['init grace dirs'],
+            'run'          : ['run [dev|prod]?', 'run grace server'],
+            'create-domain': ['create domain class'],
+            'create-controller': ['create controller class']
     ]
     /**
      * 用法提示
@@ -24,6 +25,13 @@ class GraceMain {
             println "$it.key ${it.value.join('  ')}"
         }
         println 'Enjoy it!'
+    }
+
+    static warmAndExit(boolean expression, String title) {
+        if (!expression) {
+            println(title)
+            System.exit(0)
+        }
     }
 
     /**
@@ -55,8 +63,15 @@ class GraceMain {
         }
 
         //create domain
-        if (cmd == 'create-domain'){
+        if (cmd == 'create-domain') {
+            warmAndExit args.size() > 1, "缺少类名"
             Generator.createDomain(args[1])
+        }
+
+        //create controller
+        if (cmd == 'create-controller') {
+            warmAndExit args.size() > 1, "缺少类名"
+            Generator.createController(args[1])
         }
     }
 }
