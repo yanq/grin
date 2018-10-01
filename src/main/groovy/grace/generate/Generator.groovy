@@ -21,7 +21,7 @@ class Generator {
     static createDomain(String className) {
         File template = new File(templateDir, 'domain')
         File target = new File(GraceApp.instance.domainsDir, ClassUtil.classPath(className) + '.groovy')
-        generate(template, target, [packageName: ClassUtil.packageName(className), simpleName: ClassUtil.simpleName(className)])
+        generate(template, target, [className: className])
     }
 
     /**
