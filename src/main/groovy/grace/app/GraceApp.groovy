@@ -261,6 +261,7 @@ class GraceApp {
                 }
             }
         })
+        watcher.setName('grace app file watch service')
         watcher.setDaemon(true)
         watcher.start()
     }
