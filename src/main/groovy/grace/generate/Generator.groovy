@@ -17,6 +17,16 @@ class Generator {
     static final templateEngine = new StreamingTemplateEngine()
 
     /**
+     * 创建 领域类
+     * @param className
+     */
+    static createDomain(String className){
+        File template = new File(GraceApp.instance.appDir,TEMPLATE_DIR+'/domain.groovy')
+        File target = new File(GraceApp.instance.domainsDir,ClassUtil.classPath(className)+'.groovy')
+        generate(template,target,[packageName:ClassUtil.packageName(className),simpleName:ClassUtil.simpleName(className)])
+    }
+
+    /**
      * 控制器处理
      * @param className
      * @return
@@ -84,6 +94,7 @@ class Generator {
      * @return
      */
     static generate(File templateFile, File targetFile, Map binding = [:]) {
+        if (!targetFile.parentFile.exists()) targetFile.parentFile.mkdirs()
         if (targetFile.exists()) {
             log.warn("file exists,do nothing! @ $targetFile.absolutePath ")
         } else {

@@ -1,6 +1,20 @@
 package grace.util
 
 class ClassUtil {
+
+    /**
+     * 获取类名称
+     * @param aClass
+     * @return
+     */
+    static String simpleName(Class aClass) {
+        simpleName(aClass.name)
+    }
+
+    static String simpleName(String name) {
+        name.substring(name.lastIndexOf('.') > 0 ? name.lastIndexOf('.') + 1 : 0)
+    }
+
     /**
      * 获取 class 的默认变量名称
      * @param c
