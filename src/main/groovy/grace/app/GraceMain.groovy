@@ -12,7 +12,8 @@ class GraceMain {
             'init'         : ['init grace dirs'],
             'run'          : ['run [dev|prod]?', 'run grace server'],
             'create-domain': ['create domain class'],
-            'create-controller': ['create controller class']
+            'create-controller': ['create controller class'],
+            'generate-all': ['generate controller and views from domain class']
     ]
     /**
      * 用法提示
@@ -70,6 +71,12 @@ class GraceMain {
 
         //create controller
         if (cmd == 'create-controller') {
+            warmAndExit args.size() > 1, "缺少类名"
+            Generator.createController(args[1])
+        }
+
+        //generate all
+        if (cmd == 'generate-all') {
             warmAndExit args.size() > 1, "缺少类名"
             Generator.createController(args[1])
         }

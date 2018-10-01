@@ -36,7 +36,7 @@ class ClassUtil {
     }
 
     static String packageName(String name) {
-        name.substring(0, name.lastIndexOf('.') > 0 ? name.lastIndexOf('.') : name.length())
+        name.substring(0, name.lastIndexOf('.') > 0 ? name.lastIndexOf('.') : 0)
     }
 
     /**

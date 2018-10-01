@@ -43,35 +43,9 @@ class Generator {
      * @return
      */
     static generateAll(String className) {
-        // Class aClass
-        //
-        // //find class
-        // try {
-        //     aClass = Class.forName(className)
-        // } catch (Exception e) {
-        //     log.info("class ${className} is not exist,to generate it")
-        // }
-        //
-        // //find template
-        // File appDir = GraceApp.instance.appDir
-        // File templateDir = new File(appDir, TEMPLATE_DIR)
-        // File controllerTemplate = new File(templateDir, CONTROLLER_TEMPLATE)
-        // if (!appDir.exists()) {
-        //     log.error("GraceApp dir ${appDir.absolutePath} not exists ！")
-        //     return
-        // }
-        // if (!templateDir.exists()) templateDir.mkdir()
-        // if (!controllerTemplate.exists()) {
-        //     log.error("template ${controllerTemplate.absolutePath} not exists ！")
-        //     return
-        // }
-        //
-        // //生成或者创建
-        // if (aClass) {
-        //     generateController(controllerTemplate, aClass)
-        // } else {
-        //     createController(controllerTemplate, className)
-        // }
+        Class aClass= Class.forName(className)
+
+
     }
 
     /**
