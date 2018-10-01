@@ -78,7 +78,7 @@ class GraceMain {
         //generate all
         if (cmd == 'generate-all') {
             warmAndExit args.size() > 1, "缺少类名"
-            Generator.createController(args[1])
+            Generator.generateAll(args[1])
         }
     }
 }

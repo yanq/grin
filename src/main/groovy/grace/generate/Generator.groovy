@@ -33,7 +33,7 @@ class Generator {
      */
     static createController(String className) {
         File template = new File(templateDir, 'controller')
-        File target = new File(GraceApp.instance.controllersDir, ClassUtil.classPath(className) + '.groovy')
+        File target = new File(controllersDir, ClassUtil.classPath(className) + '.groovy')
         generate(template, target, [className: className])
     }
 
@@ -43,9 +43,20 @@ class Generator {
      * @return
      */
     static generateAll(String className) {
-        Class aClass= Class.forName(className)
+        Class entityClass = Class.forName(className)
 
+        //生成增删改查的控制器和视图
+        File template = new File(templateDir, 'curdcontroller')
+        File target = new File(controllersDir, ClassUtil.classPath(className) + '.groovy')
+        generate(template, target, [entityClass: entityClass])
 
+        //List files = ['index.html', 'show.html', 'create.html', 'edit.html']
+        List files = ['index.html']
+        files.each {
+            File viewTemplate = new File(templateDir, it)
+            File viewTarget = new File(viewsDir, "${ClassUtil.propertyName(className)}/${it}")
+            generate(viewTemplate, viewTarget, [entityClass: entityClass])
+        }
     }
 
     /**
@@ -72,5 +83,17 @@ class Generator {
      */
     static File getTemplateDir() {
         new File(GraceApp.instance.appDir, 'templates')
+    }
+
+    /**
+     * 获取视图目录
+     * @return
+     */
+    static File getViewsDir() {
+        GraceApp.instance.viewsDir
+    }
+
+    static File getControllersDir() {
+        GraceApp.instance.controllersDir
     }
 }
