@@ -93,7 +93,7 @@ class Routes {
      */
     private static addInterceptor(String path, int order, Closure closure, boolean before) {
         Class ownerClass = closure.owner.class
-        if (!path.startsWith('/')) path = "/${ClassUtil.propertyName(ownerClass)}/$path"
+        if (!path.startsWith('/')) path = "/${ClassUtil.propertyName(ownerClass)}${path ? '/' + path : '/**'}"
 
         List<Interceptor> target = before ? beforeInterceptors : afterInterceptors
 

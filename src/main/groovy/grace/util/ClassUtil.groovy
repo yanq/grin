@@ -20,10 +20,11 @@ class ClassUtil {
      * @param c
      * @return
      */
-    static String propertyName(Class c) { return c.simpleName.uncapitalize() }
+    static String propertyName(Class c) { reduce c.simpleName.uncapitalize() }
 
     static String propertyName(String name) {
-        return name.substring(name.lastIndexOf('.') > 0 ? name.lastIndexOf('.') + 1 : 0).uncapitalize()
+        String result = name.substring(name.lastIndexOf('.') > 0 ? name.lastIndexOf('.') + 1 : 0).uncapitalize()
+        reduce(result)
     }
 
     /**
@@ -72,5 +73,15 @@ class ClassUtil {
      */
     static boolean isJavaClass(File file) {
         return file.name.endsWith(".java") || file.name.endsWith(".groovy")
+    }
+
+    /**
+     * 去掉必要的后缀
+     * 如 Controller，Interceptor
+     * @param name
+     * @return
+     */
+    static String reduce(String name) {
+        name.replaceAll("Controller", '').replaceAll('Interceptor','')
     }
 }

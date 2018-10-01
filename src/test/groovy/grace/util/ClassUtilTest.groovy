@@ -8,10 +8,9 @@ class ClassUtilTest extends GroovyTestCase {
         println ClassUtil.packagePath(String)
         println ClassUtil.classPath(String)
 
-        println ClassUtil.simpleName("Hello")
-        println ClassUtil.propertyName("Hello")
-        println ClassUtil.packageName("Hello")
-        println ClassUtil.packagePath("Hello")
-        println ClassUtil.classPath("Hello")
+
+        println ClassUtil.propertyName("HelloController")
+        println ClassUtil.propertyName("HController")
+        println ClassUtil.propertyName("Controller")
     }
 }

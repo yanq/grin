@@ -33,7 +33,7 @@ class Generator {
      */
     static createController(String className) {
         File template = new File(templateDir, 'controller')
-        File target = new File(controllersDir, ClassUtil.classPath(className) + '.groovy')
+        File target = new File(controllersDir, ClassUtil.classPath(className) + 'Controller.groovy')
         generate(template, target, [className: className])
     }
 
@@ -47,7 +47,7 @@ class Generator {
 
         //生成增删改查的控制器和视图
         File template = new File(templateDir, 'curdcontroller')
-        File target = new File(controllersDir, ClassUtil.classPath(className) + '.groovy')
+        File target = new File(controllersDir, ClassUtil.classPath(className) + 'Controller.groovy')
         generate(template, target, [entityClass: entityClass])
 
         //List files = ['index.html', 'show.html', 'create.html', 'edit.html']
