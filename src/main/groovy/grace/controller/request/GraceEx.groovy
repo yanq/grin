@@ -46,10 +46,10 @@ class GraceEx {
             String result = ""
             required.each {
                 String uri = it.substring(app.assetDir.canonicalPath.size() + 1).replaceAll("\\\\", "/")
-                result += "<script type=\"text/javascript\" src=\"/assets/${uri}\" ></script>"
+                result += "<script type=\"text/javascript\" src=\"/assets/${uri}\" ></script>\n        "
             }
 
-            return result
+            return result.trim()
         }else {
             return "<script type=\"text/javascript\" src=\"/assets/${js}\" ></script>"
         }
@@ -93,10 +93,10 @@ class GraceEx {
             String result = ""
             required.each {
                 String uri = it.substring(app.assetDir.canonicalPath.size() + 1).replaceAll("\\\\", "/")
-                result += "<link rel=\"stylesheet\" href=\"/assets/${uri}\"/>"
+                result += "<link rel=\"stylesheet\" href=\"/assets/${uri}\"/>\n        "
             }
 
-            return result
+            return result.trim()
         }else {
             return "<link rel=\"stylesheet\" href=\"/assets/${css}\"/>"
         }
