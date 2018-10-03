@@ -146,7 +146,7 @@ class GraceApp {
         if (templateEngine) return templateEngine
         templateEngine = new TemplateEngine()
         FileTemplateResolver resolver = new FileTemplateResolver()
-        resolver.setPrefix(viewsDir.absolutePath)
+        resolver.setPrefix(viewsDir.canonicalPath)
         resolver.setSuffix('.html')
         resolver.setCharacterEncoding('utf-8')
         resolver.setCacheable(false) //todo 开发期间不缓存
@@ -261,7 +261,7 @@ class GraceApp {
                 }
             }
         })
-        watcher.setName('grace app file watch service')
+        watcher.setName('GraceApp file watch service')
         watcher.setDaemon(true)
         watcher.start()
     }

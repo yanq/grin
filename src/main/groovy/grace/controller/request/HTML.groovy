@@ -5,7 +5,7 @@ import groovy.xml.MarkupBuilder
 /**
  * html 支持
  */
-trait HTML {
+trait HTML extends RequestBase {
     MarkupBuilder html
 
     /**
