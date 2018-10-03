@@ -35,7 +35,7 @@ class GraceServer {
     void startApp(File root, String env = GraceApp.ENV_DEV) {
         GraceApp.setRootAndEnv(root, env)
         def app = GraceApp.instance
-        log.info("start app @ ${app.root.absolutePath}")
+        log.info("start app @ ${app.root.absolutePath} ${app.environment}")
         if (app.isAppDir()) {
             app.startFileWatcher()
             app.refresh()

@@ -183,14 +183,10 @@ class GraceApp {
     /**
      * 刷新应用
      */
-    synchronized void refresh(List<String> dirs) {
+    synchronized void refresh(List<String> dirs = null) {
         refreshing = true
-        if (!dirs) dirs = [APP_CONTROLLERS] //参数为空时，刷新
-
-        //sleep(10000)
-        log.info("refresh app for ${dirs}")
-
-        if (dirs.contains(APP_CONTROLLERS) || dirs.contains(APP_INTERCEPTORS)) {
+        log.info("refresh request @ ${dirs ?: 'start'}")
+        if (dirs == null || dirs?.find {it.endsWith('.groovy')}) {
             //refresh routes
             Routes.clear()
             //控制器
@@ -242,7 +238,12 @@ class GraceApp {
 
         GroovyClassLoader loader = new GroovyClassLoader()
         WatchService watchService = FileSystems.getDefault().newWatchService()
+
+        //目录极其子目录，监控只有一级
         Paths.get(appDir.absolutePath).register(watchService, ENTRY_CREATE, ENTRY_MODIFY, ENTRY_DELETE)
+        appDir.absoluteFile.eachFileRecurse {
+            if (it.isDirectory()) Paths.get(it.absolutePath).register(watchService, ENTRY_CREATE, ENTRY_MODIFY, ENTRY_DELETE)
+        }
 
         Thread watcher = new Thread(new Runnable() {
             @Override
