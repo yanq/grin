@@ -63,6 +63,9 @@ class Routes {
 
     static after(String path, int order, @DelegatesTo(WebRequest) Closure<Boolean> closure) { addInterceptor(path, order, closure, false) }
 
+    //asset
+    static assets(String path){get("$path/@file"){asset()}}
+
     /**
      * 添加到路由表
      * 如果重复，会异常爆出，方便随时发现问题
