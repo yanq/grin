@@ -1,12 +1,14 @@
 package grace.controller.request
 
 import grace.app.GraceApp
+import grace.controller.route.Routes
 
 /**
  * grace 表达式
  * 提供一些方法，处理一些东西。如 asset。
  */
 class GraceEx {
+    def assetsPath = Routes.ASSETS_PATH
     /**
      * 处理 application.js
      * 解析文件中的指令，并产生 js 链接
@@ -46,12 +48,12 @@ class GraceEx {
             String result = ""
             required.each {
                 String uri = it.substring(app.assetDir.canonicalPath.size() + 1).replaceAll("\\\\", "/")
-                result += "<script type=\"text/javascript\" src=\"/assets/${uri}\" ></script>\n        "
+                result += "<script type=\"text/javascript\" src=\"${assetsPath}/${uri}\" ></script>\n        "
             }
 
             return result.trim()
         }else {
-            return "<script type=\"text/javascript\" src=\"/assets/${js}\" ></script>"
+            return "<script type=\"text/javascript\" src=\"${assetsPath}/${js}\" ></script>"
         }
     }
 
@@ -93,12 +95,12 @@ class GraceEx {
             String result = ""
             required.each {
                 String uri = it.substring(app.assetDir.canonicalPath.size() + 1).replaceAll("\\\\", "/")
-                result += "<link rel=\"stylesheet\" href=\"/assets/${uri}\"/>\n        "
+                result += "<link rel=\"stylesheet\" href=\"${assetsPath}/${uri}\"/>\n        "
             }
 
             return result.trim()
         }else {
-            return "<link rel=\"stylesheet\" href=\"/assets/${css}\"/>"
+            return "<link rel=\"stylesheet\" href=\"${assetsPath}/${css}\"/>"
         }
     }
 }

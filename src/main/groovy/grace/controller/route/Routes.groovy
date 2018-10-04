@@ -20,7 +20,9 @@ class Routes {
     static final String METHOD_POST = "POST"
     static final String METHOD_PUT = "PUT"
     static final String METHOD_TRACE = "TRACE"
-
+    //assets path
+    static String ASSETS_PATH = '/assets'
+    //status
     static List<Route> routes = [] //路由列表
     static List<Interceptor> beforeInterceptors = [] //前置拦截器
     static List<Interceptor> afterInterceptors = [] //后置拦截器
@@ -51,20 +53,46 @@ class Routes {
     }
 
     //interceptors
-    static before(@DelegatesTo(WebRequest) Closure<Boolean> closure) { before('/' + ClassUtil.propertyName(closure.owner.class) + '/**', closure) }
+    static before(@DelegatesTo(WebRequest) Closure<Boolean> closure) {
+        before('/' + ClassUtil.propertyName(closure.owner.class) + '/**', closure)
+    }
 
-    static before(String path, @DelegatesTo(WebRequest) Closure<Boolean> closure) { before(path, Interceptor.ORDER_NORMAL, closure) }
+    static before(String path, @DelegatesTo(WebRequest) Closure<Boolean> closure) {
+        before(path, Interceptor.ORDER_NORMAL, closure)
+    }
 
-    static before(String path, int order, @DelegatesTo(WebRequest) Closure<Boolean> closure) { addInterceptor(path, order, closure, true) }
+    static before(String path, int order, @DelegatesTo(WebRequest) Closure<Boolean> closure) {
+        addInterceptor(path, order, closure, true)
+    }
 
-    static after(@DelegatesTo(WebRequest) Closure<Boolean> closure) { after('/' + ClassUtil.propertyName(closure.owner.class) + '/**', closure) }
+    static after(@DelegatesTo(WebRequest) Closure<Boolean> closure) {
+        after('/' + ClassUtil.propertyName(closure.owner.class) + '/**', closure)
+    }
 
-    static after(String path, @DelegatesTo(WebRequest) Closure<Boolean> closure) { after(path, Interceptor.ORDER_NORMAL, closure) }
+    static after(String path, @DelegatesTo(WebRequest) Closure<Boolean> closure) {
+        after(path, Interceptor.ORDER_NORMAL, closure)
+    }
 
-    static after(String path, int order, @DelegatesTo(WebRequest) Closure<Boolean> closure) { addInterceptor(path, order, closure, false) }
+    static after(String path, int order, @DelegatesTo(WebRequest) Closure<Boolean> closure) {
+        addInterceptor(path, order, closure, false)
+    }
 
-    //asset
-    static assets(String path){get("$path/@file"){asset()}}
+    /**
+     * asset
+     * @param path
+     * @return
+     */
+    static assets(String path) {
+        def assetPath = "$path/@file"
+        if (routes.find { it.path == assetPath }) {
+            log.error("assets path {$path} already exists !")
+            throw new Exception("assets path {$path} already exists !")
+        } else {
+            log.info("config assets path @ $path")
+            ASSETS_PATH = path
+            routes.add(new Route(method: METHOD_GET, path: assetPath, closure: { asset() }))
+        }
+    }
 
     /**
      * 添加到路由表
