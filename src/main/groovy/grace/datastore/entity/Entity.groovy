@@ -77,7 +77,7 @@ trait Entity<D> {
      * 属性列表
      * @return
      */
-    List<String> getProps(){
-        EntityImpl.findPropertiesToPersist(this.class)
+    static List<String> getProps(){
+        EntityImpl.findPropertiesToPersist(this)
     }
 }
