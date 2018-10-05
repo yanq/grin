@@ -4,7 +4,7 @@ package grace.datastore.entity
  */
 class Constraints {
     Class entityClass
-    Map constraints = [:] // like : [title:[conditions:[blank:true, size:1..5], comment:字符串长度要处于 1 到 5 之间]]
+    Map<String,Map> constraints = [:] // like : [title:[conditions:[blank:true, size:1..5], comment:字符串长度要处于 1 到 5 之间]]
 
     /**
      * 构建
@@ -27,7 +27,9 @@ class Constraints {
      * @return
      */
     private buildConstraint(String name, Map conditions) {
-        [comment: { String comment -> constraints << [(name): conditions << [comment: comment]] }]
+        constraints << [(name): conditions]
+        constraints[(name)].comment = { String comment -> constraints[(name)].comment = comment }
+        return constraints[(name)]
     }
 
     /**
@@ -48,6 +50,9 @@ class Constraints {
     static Map<String,Map> buildToMapFromEntityClass(Class entityClass){
         Constraints builder = new Constraints(entityClass: entityClass)
         builder.build()
+        builder.constraints.each {
+            if (it.value.comment instanceof Closure) it.value.comment = ''
+        }
         return builder.constraints
     }
 }

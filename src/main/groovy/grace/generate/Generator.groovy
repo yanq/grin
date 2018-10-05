@@ -66,15 +66,27 @@ class Generator {
      * @param binding
      * @return
      */
+    static generate(String templateFile, File targetFile, Map binding = [:]) {
+        generate(getTemplateFile(templateFile), targetFile, binding)
+    }
+
     static generate(File templateFile, File targetFile, Map binding = [:]) {
         if (!targetFile.parentFile.exists()) targetFile.parentFile.mkdirs()
         if (targetFile.exists()) {
             log.warn("file exists,do nothing! @ $targetFile.canonicalPath ")
         } else {
-            Template template = templateEngine.createTemplate(templateFile)
-            targetFile << template.make(binding).toString().getBytes('utf-8')
+            targetFile << generate(templateFile, binding).getBytes('utf-8')
             log.info("generate file @ $targetFile.canonicalPath")
         }
+    }
+
+    static String generate(String templateFile, Map binding = [:]) {
+        generate(getTemplateFile(templateFile), binding)
+    }
+
+    static String generate(File templateFile, Map binding = [:]) {
+        Template template = templateEngine.createTemplate(templateFile)
+        template.make(binding).toString()
     }
 
     /**
@@ -86,6 +98,14 @@ class Generator {
     }
 
     /**
+     * 获取模板文件
+     * @return
+     */
+    static File getTemplateFile(String fileName) {
+        new File(templateDir, fileName)
+    }
+
+    /**
      * 获取视图目录
      * @return
      */
@@ -93,6 +113,10 @@ class Generator {
         GraceApp.instance.viewsDir
     }
 
+    /**
+     * 获取控制器目录
+     * @return
+     */
     static File getControllersDir() {
         GraceApp.instance.controllersDir
     }
