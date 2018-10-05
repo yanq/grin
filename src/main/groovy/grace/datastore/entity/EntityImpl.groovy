@@ -16,12 +16,9 @@ class EntityImpl {
     //保留变量
     public static final String MAPPING = 'mapping' //mapping 定义实体类与表之间的映射关系,table,columns
     public static final String TRANSIENTS = 'transients' //不持久化的类属性
-    public static final String CONSTRAINTS = 'constraints' //不持久化的类属性
-    public static final String CONSTRAINT_MAP = 'constraintMap' //不持久化的类属性
+    public static final String CONSTRAINTS = 'constraints' //约束
     // 系统级忽略的内容
-    public static final List<String> excludeProperties = ['metaClass']
-    //other
-    public static final int DEFAULT_MAX_ROWS = 100
+    public static final List<String> excludeProperties = ['metaClass','grace_datastore_entity_Entity__errors']
 
     /**
      * get

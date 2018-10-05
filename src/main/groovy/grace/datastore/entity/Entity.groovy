@@ -72,4 +72,12 @@ trait Entity<D> {
     boolean validate() {
         EntityImpl.validate(this)
     }
+
+    /**
+     * 属性列表
+     * @return
+     */
+    List<String> getProps(){
+        EntityImpl.findPropertiesToPersist(this.class)
+    }
 }

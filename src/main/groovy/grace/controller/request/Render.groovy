@@ -41,4 +41,8 @@ trait Render extends RequestBase {
 
         GraceApp.instance.templateEngine.process(path, ctx, response.getWriter())
     }
+
+    void notFound(){
+        response.status = 404
+    }
 }
