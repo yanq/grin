@@ -96,10 +96,28 @@ trait RequestBase {
      * 参数类，并提供一些方便的转换方法。异常需要自己处理
      */
     static class Params extends HashMap<String, Object> {
-        Date date(String key, String format = 'yyyy-MM-dd') {
+        List<String> dateFormats = ['EEE MMM dd HH:mm:ss z yyyy', 'yyyy-MM-dd',"yyyy-MM-dd HH:mm"]
+        Locale locale = Locale.ENGLISH
+
+        void addDateFormat(String format) { dateFormats << format }
+
+        Date date(String key, String format = null) {
             def value = super.get(key)
             if (value instanceof Date) return value
-            return new SimpleDateFormat(format).parse(value.toString())
+            if (value.toString().contains('月')) locale = Locale.SIMPLIFIED_CHINESE
+            if (format) {
+                return new SimpleDateFormat(format, locale).parse(value.toString())
+            }
+
+            def date = null
+            dateFormats.each {
+                try {
+                    date = new SimpleDateFormat(it, locale).parse(value.toString())
+                } catch (Exception e) {
+                }
+                if (date) return date
+            }
+            return date
         }
     }
 

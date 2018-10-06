@@ -1,4 +1,7 @@
 package grace.datastore.entity
+
+import grace.controller.request.RequestBase
+
 /**
  * 提供实体类的基本功能
  */
@@ -79,5 +82,14 @@ trait Entity<D> {
      */
     static List<String> getProps(){
         EntityImpl.findPropertiesToPersist(this)
+    }
+
+    /**
+     * 绑定参数
+     * @param params
+     * @return
+     */
+    static bind(RequestBase.Params params){
+        EntityImpl.bind(this,params)
     }
 }

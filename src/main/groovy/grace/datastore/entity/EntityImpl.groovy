@@ -1,5 +1,6 @@
 package grace.datastore.entity
 
+import grace.controller.request.RequestBase
 import grace.datastore.DB
 import grace.datastore.DBUtil
 import groovy.sql.GroovyRowResult
@@ -18,7 +19,7 @@ class EntityImpl {
     public static final String TRANSIENTS = 'transients' //不持久化的类属性
     public static final String CONSTRAINTS = 'constraints' //约束
     // 系统级忽略的内容
-    public static final List<String> excludeProperties = ['metaClass','grace_datastore_entity_Entity__errors']
+    public static final List<String> excludeProperties = ['metaClass', 'grace_datastore_entity_Entity__errors']
 
     /**
      * get
@@ -226,6 +227,41 @@ class EntityImpl {
      */
     static Map<String, Map> getConstraintMap(Class entityClass) {
         Constraints.buildToMapFromEntityClass(entityClass)
+    }
+
+    /**
+     * 绑定参数
+     * @param entityClass
+     * @param params
+     * @return
+     */
+    static bind(Class entityClass, RequestBase.Params params) {
+        def entity = entityClass.newInstance()
+        List props = findPropertiesToPersist(entityClass) - 'id'
+        props.each {
+            Class propClass = entityClass.getDeclaredField(it)?.type
+            if (params[it]) {
+                switch (propClass) {
+                    case Integer:
+                        entity[it] = params[it].toString().toInteger()
+                        break
+                    case Long:
+                        entity[it] = params[it].toString().toLong()
+                        break
+                    case Float:
+                        entity[it] = params[it].toString().toFloat()
+                        break
+                    case Double:
+                        entity[it] = params[it].toString().toDouble()
+                        break
+                    case Date:
+                        entity[it] = params.date(it)
+                        break
+                    default: entity[it] = params[it]
+                }
+            }
+        }
+        return entity
     }
 
 }
