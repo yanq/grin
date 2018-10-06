@@ -10,7 +10,7 @@ class FormGenerator extends Generator {
     static types = [(String.name): 'text', (Long.name): 'number', (Integer.name): 'number', (Date.name): 'datetime']
 
     static String generateForm(Class entityClass) {
-        List<String> props = EntityImpl.findPropertiesToPersist(entityClass)
+        List<String> props = EntityImpl.findPropertiesToPersist(entityClass) - 'id'
         Map constraints = EntityImpl.getConstraintMap(entityClass)
 
         String result = ""
