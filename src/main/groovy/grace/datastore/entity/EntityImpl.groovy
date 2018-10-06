@@ -1,6 +1,6 @@
 package grace.datastore.entity
 
-import grace.controller.request.RequestBase
+import grace.controller.request.Params
 import grace.datastore.DB
 import grace.datastore.DBUtil
 import groovy.sql.GroovyRowResult
@@ -235,7 +235,7 @@ class EntityImpl {
      * @param params
      * @return
      */
-    static bind(Class entityClass, RequestBase.Params params) {
+    static bind(Class entityClass, Params params) {
         def entity = entityClass.newInstance()
         List props = findPropertiesToPersist(entityClass) - 'id'
         props.each {
