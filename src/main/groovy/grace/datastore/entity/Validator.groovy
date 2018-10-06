@@ -8,7 +8,7 @@ import groovy.util.logging.Slf4j
  */
 @Slf4j
 class Validator {
-    static constraintKeys = ['size']
+    static constraintKeys = ['size','inList']
 
     /**
      * 验证约束
@@ -25,9 +25,21 @@ class Validator {
         switch (constraint.key) {
             case 'size':
                 return validateSize(value, constraint.value)
+            case 'inList':
+                return validateInList(value, constraint.value)
         }
 
         return false
+    }
+
+    /**
+     * in list
+     * @param value
+     * @param list
+     * @return
+     */
+    static boolean validateInList(Object value, List list) {
+        list.contains(value)
     }
 
     /**
