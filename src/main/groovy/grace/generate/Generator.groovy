@@ -51,8 +51,7 @@ class Generator {
         File target = new File(controllersDir, ClassUtil.classPath(className) + 'Controller.groovy')
         generate(template, target, [entityName:entityName,entityClass: entityClass])
 
-        //List files = ['index.html', 'show.html', 'create.html', 'edit.html']
-        List files = ['index.html']
+        List files = ['index.html', 'show.html', 'create.html', 'edit.html']
         files.each {
             File viewTemplate = new File(templateDir, it)
             File viewTarget = new File(viewsDir, "${entityName}/${it}")
