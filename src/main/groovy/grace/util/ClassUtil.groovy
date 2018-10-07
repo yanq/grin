@@ -85,7 +85,16 @@ class ClassUtil {
         name.replaceAll("Controller", '').replaceAll('Interceptor', '')
     }
 
+    /**
+     * 生成 map，方便使用
+     * @param entityClass
+     * @return
+     */
     static Map toMap(Class entityClass) {
         [entityClass: entityClass, simpleName: simpleName(entityClass), propertyName: propertyName(entityClass), packageName: packageName(entityClass)]
+    }
+
+    static Map toMap(String className) {
+        [className: className, simpleName: simpleName(className), propertyName: propertyName(className), packageName: packageName(className)]
     }
 }
