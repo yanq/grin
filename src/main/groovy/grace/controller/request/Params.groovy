@@ -8,7 +8,7 @@ import java.text.SimpleDateFormat
  */
 @CompileStatic
 class Params extends HashMap<String, Object> {
-    List<String> dateFormats = ['EEE MMM dd HH:mm:ss z yyyy', 'yyyy-MM-dd', "yyyy-MM-dd HH:mm"]
+    List<String> dateFormats = ['EEE MMM dd HH:mm:ss z yyyy', "yyyy-MM-dd HH:mm:ss.SSS", "yyyy-MM-dd HH:mm", 'yyyy-MM-dd']
     Locale l = Locale.ENGLISH
 
     void addDateFormat(String format) { dateFormats << format }
@@ -25,10 +25,10 @@ class Params extends HashMap<String, Object> {
         Date date = null
         for (int i = 0; i < dateFormats.size(); i++) {
             try {
-                def dateFormat = new SimpleDateFormat(dateFormats[i],l)
+                def dateFormat = new SimpleDateFormat(dateFormats[i], l)
                 date = dateFormat.parse(value.toString())
             } catch (Exception e) {
-                e.printStackTrace()
+                // e.printStackTrace()
             }
             if (date) return date
         }

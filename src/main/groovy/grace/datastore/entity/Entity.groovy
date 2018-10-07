@@ -85,11 +85,20 @@ trait Entity<D> {
     }
 
     /**
-     * 绑定参数
+     * 绑定参数,实例
      * @param params
      * @return
      */
-    static bind(Params params){
+    D bind(Params params){
+        EntityImpl.bind(this,params)
+    }
+
+    /**
+     * 从参数产生实例
+     * @param params
+     * @return
+     */
+    static from(Params params){
         EntityImpl.bind(this,params)
     }
 }

@@ -237,6 +237,12 @@ class EntityImpl {
      */
     static bind(Class entityClass, Params params) {
         def entity = entityClass.newInstance()
+        bind(entity, params)
+        return entity
+    }
+
+    static bind(Object entity, Params params) {
+        Class entityClass = entity.class
         List props = findPropertiesToPersist(entityClass) - 'id'
         props.each {
             Class propClass = entityClass.getDeclaredField(it)?.type
@@ -263,5 +269,4 @@ class EntityImpl {
         }
         return entity
     }
-
 }
