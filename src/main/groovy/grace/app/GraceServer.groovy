@@ -7,6 +7,8 @@ import io.undertow.servlet.Servlets
 import io.undertow.servlet.api.DeploymentInfo
 import io.undertow.servlet.api.DeploymentManager
 
+import javax.servlet.MultipartConfigElement
+
 /**
  * Server
  * 启动服务器
@@ -16,6 +18,11 @@ class GraceServer {
     String host = 'localhost'
     String context = '/'
     int port = 8080
+    //fileUpload,默认大小不限制，磁盘存储
+    String location = ''
+    long maxFileSize = -1L
+    long maxRequestSize = -1L
+    int fileSizeThreshold = 0
 
     /**
      * 最简化启动，只启动部署了 GraceServlet 的 Undertow server。
@@ -43,6 +50,10 @@ class GraceServer {
             if (app.config.server.port) this.port = app.config.server.port
             if (app.config.server.host) this.host = app.config.server.host
             if (app.config.server.context) this.context = app.config.server.context
+            if (app.config.fileUpload.location) this.location = app.config.fileUpload.location
+            if (app.config.fileUpload.maxFileSize) this.maxFileSize = app.config.fileUpload.maxFileSize
+            if (app.config.fileUpload.maxRequestSize) this.maxRequestSize = app.config.fileUpload.maxRequestSize
+            if (app.config.fileUpload.fileSizeThreshold) this.fileSizeThreshold = app.config.fileUpload.fileSizeThreshold
 
             def d = buildDeploymentInfo()
             app.init(d) //内部处理
@@ -59,6 +70,7 @@ class GraceServer {
     private DeploymentInfo buildDeploymentInfo() {
         DeploymentInfo servletBuilder = Servlets.deployment()
                 .setClassLoader(GraceServer.class.getClassLoader())
+                .setDefaultMultipartConfig(new MultipartConfigElement(location, maxFileSize, maxRequestSize, fileSizeThreshold))
                 .setContextPath(context)
                 .setDeploymentName("grace.war")
                 .addServlets(Servlets.servlet("GraceServlet", GraceServlet.class).addMapping("/*"))
