@@ -44,18 +44,18 @@ class Generator {
      */
     static generateAll(String className) {
         Class entityClass = Class.forName(className)
-        String entityName = ClassUtil.propertyName(className)
+        String propName = ClassUtil.propertyName(className)
 
         //生成增删改查的控制器和视图
         File template = new File(templateDir, 'curdcontroller')
         File target = new File(controllersDir, ClassUtil.classPath(className) + 'Controller.groovy')
-        generate(template, target, [entityName:entityName,entityClass: entityClass])
+        generate(template, target, ClassUtil.toMap(entityClass))
 
         List files = ['index.html', 'show.html', 'create.html', 'edit.html']
         files.each {
             File viewTemplate = new File(templateDir, it)
-            File viewTarget = new File(viewsDir, "${entityName}/${it}")
-            generate(viewTemplate, viewTarget, [entityName:entityName,entityClass: entityClass])
+            File viewTarget = new File(viewsDir, "${propName}/${it}")
+            generate(viewTemplate, viewTarget, ClassUtil.toMap(entityClass))
         }
     }
 

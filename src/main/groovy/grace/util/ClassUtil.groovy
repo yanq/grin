@@ -82,6 +82,10 @@ class ClassUtil {
      * @return
      */
     static String reduce(String name) {
-        name.replaceAll("Controller", '').replaceAll('Interceptor','')
+        name.replaceAll("Controller", '').replaceAll('Interceptor', '')
+    }
+
+    static Map toMap(Class entityClass) {
+        [entityClass: entityClass, simpleName: simpleName(entityClass), propertyName: propertyName(entityClass), packageName: packageName(entityClass)]
     }
 }
