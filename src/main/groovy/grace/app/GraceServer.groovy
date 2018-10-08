@@ -42,7 +42,7 @@ class GraceServer {
     void startApp(File root = null, String env = GraceApp.ENV_DEV) {
         if (root) GraceApp.setRootAndEnv(root, env)
         def app = GraceApp.instance
-        log.info("start app @ ${app.root.absolutePath} ${app.environment}")
+        log.info("start app @ ${app.projectDir.absolutePath} ${app.environment}")
         if (app.isAppDir()) {
             app.startFileWatcher()
             app.refresh()
@@ -59,7 +59,7 @@ class GraceServer {
             app.init(d) //内部处理
             startUndertowServer(d)
         } else {
-            throw new Exception("It is not a grace app dir @ ${GraceApp.instance.root.absolutePath}")
+            throw new Exception("It is not a grace app dir @ ${GraceApp.instance.projectDir.absolutePath}")
         }
     }
 

@@ -49,7 +49,7 @@ class GraceApp {
     TemplateEngine templateEngine
     //dirs
     boolean refreshing = false
-    File root, appDir, domainsDir, controllersDir, viewsDir, interceptorsDir, configDir, initDir, assetDir, assetBuildDir
+    File projectDir, appDir, domainsDir, controllersDir, viewsDir, interceptorsDir, configDir, initDir, assetDir, assetBuildDir
     List<File> allDirs
 
     /**
@@ -59,7 +59,7 @@ class GraceApp {
     GraceApp(File appRoot = null, String env = ENV_DEV) {
         //init dirs
         if (!appRoot) appRoot = new File('.')
-        root = appRoot
+        projectDir = appRoot
         appDir = new File(appRoot, APP_DIR)
         domainsDir = new File(appDir, APP_DOMAINS)
         controllersDir = new File(appDir, APP_CONTROLLERS)
@@ -68,7 +68,7 @@ class GraceApp {
         configDir = new File(appDir, APP_CONFIG)
         initDir = new File(appDir, APP_INIT)
         assetDir = new File(appDir, APP_ASSETS)
-        assetBuildDir = new File(root, 'build/assets')
+        assetBuildDir = new File(projectDir, 'build/assets')
         allDirs = [appDir, domainsDir, controllersDir, viewsDir, interceptorsDir, configDir, initDir, assetDir]
         //config
         environment = env
@@ -160,7 +160,7 @@ class GraceApp {
      * @return
      */
     void initDirs() {
-        log.info("init grace app dirs @ ${root.absolutePath}")
+        log.info("init grace app dirs @ ${projectDir.absolutePath}")
         allDirs.each {
             if (it.exists()) {
                 log.info("${it.name} exists")
@@ -176,7 +176,7 @@ class GraceApp {
      * @return
      */
     boolean isAppDir() {
-        log.info("check grace app dirs @ ${root.absolutePath}")
+        log.info("check grace app dirs @ ${projectDir.absolutePath}")
         return !allDirs.find { !it.exists() }
     }
 
