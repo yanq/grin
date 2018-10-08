@@ -60,7 +60,7 @@ class GraceApp {
         //init dirs
         if (!appRoot) appRoot = new File('.')
         projectDir = appRoot
-        appDir = new File(appRoot, APP_DIR)
+        appDir = new File(projectDir, APP_DIR)
         domainsDir = new File(appDir, APP_DOMAINS)
         controllersDir = new File(appDir, APP_CONTROLLERS)
         viewsDir = new File(appDir, APP_VIEWS)
@@ -72,7 +72,6 @@ class GraceApp {
         allDirs = [appDir, domainsDir, controllersDir, viewsDir, interceptorsDir, configDir, initDir, assetDir]
         //config
         environment = env
-        config = new ConfigSlurper(environment).parse(new File(configDir, 'config.groovy').text)
     }
 
     /**
@@ -100,6 +99,78 @@ class GraceApp {
      */
     boolean isDev() {
         ENV_DEV == environment
+    }
+
+    /**
+     * 初始化项目目录结构
+     * @param root
+     * @return
+     */
+    void initDirs() {
+        log.info("init grace app dirs @ ${projectDir.absolutePath}")
+        allDirs.each {
+            if (it.exists()) {
+                log.info("${it.name} exists")
+            } else {
+                it.mkdirs()
+                log.info("${it.name} mkdirs")
+            }
+        }
+    }
+
+    /**
+     * 检查是否是 grace app
+     * @return
+     */
+    boolean isAppDir() {
+        log.info("check grace app dirs @ ${projectDir.absolutePath}")
+        return !allDirs.find { !it.exists() }
+    }
+
+    /**
+     * 刷新应用
+     */
+    synchronized void refresh(List<String> dirs = null) {
+        refreshing = true
+        log.info("refresh request @ ${dirs ?: 'start'}")
+
+        //重载配置
+        config = new ConfigSlurper(environment).parse(new File(configDir, 'config.groovy').text)
+
+        //重载控制器，拦截器
+        if (dirs == null || dirs?.find {it.endsWith('.groovy')}) {
+            //refresh routes
+            Routes.clear()
+            //控制器
+            controllersDir.eachFileRecurse {
+                if (it.name.endsWith('.groovy')) {
+                    log.info("run controller script ${it.absolutePath}")
+                    scriptEngine.run(it.absolutePath.substring(controllersDir.absolutePath.length() + 1), '')
+                }
+            }
+            //拦截器
+            interceptorsDir.eachFileRecurse {
+                if (it.name.endsWith('.groovy')) {
+                    log.info("run interceptor script ${it.absolutePath}")
+                    scriptEngine.run(it.absolutePath.substring(interceptorsDir.absolutePath.length() + 1), '')
+                }
+            }
+            //sort
+            Routes.sort()
+        }
+        refreshing = false
+    }
+
+    /**
+     * 等待刷新完成
+     * 用于 servlet 中，避免更新过程中可能出现的不确定性
+     */
+    void waitingForRefresh() {
+        if (!refreshing) return
+        while (true) {
+            sleep(100)
+            if (!refreshing) return
+        }
     }
 
     /**
@@ -152,82 +223,6 @@ class GraceApp {
         resolver.setCacheable(false) //todo 开发期间不缓存
         templateEngine.setTemplateResolver(resolver)
         return templateEngine
-    }
-
-    /**
-     * 初始化项目目录结构
-     * @param root
-     * @return
-     */
-    void initDirs() {
-        log.info("init grace app dirs @ ${projectDir.absolutePath}")
-        allDirs.each {
-            if (it.exists()) {
-                log.info("${it.name} exists")
-            } else {
-                it.mkdirs()
-                log.info("${it.name} mkdirs")
-            }
-        }
-    }
-
-    /**
-     * 检查是否是 grace app
-     * @return
-     */
-    boolean isAppDir() {
-        log.info("check grace app dirs @ ${projectDir.absolutePath}")
-        return !allDirs.find { !it.exists() }
-    }
-
-    /**
-     * 刷新应用
-     */
-    synchronized void refresh(List<String> dirs = null) {
-        refreshing = true
-        log.info("refresh request @ ${dirs ?: 'start'}")
-        if (dirs == null || dirs?.find {it.endsWith('.groovy')}) {
-            //refresh routes
-            Routes.clear()
-            //控制器
-            controllersDir.eachFileRecurse {
-                if (it.name.endsWith('.groovy')) {
-                    log.info("run controller script ${it.absolutePath}")
-                    scriptEngine.run(it.absolutePath.substring(controllersDir.absolutePath.length() + 1), '')
-                }
-            }
-            //拦截器
-            interceptorsDir.eachFileRecurse {
-                if (it.name.endsWith('.groovy')) {
-                    log.info("run interceptor script ${it.absolutePath}")
-                    scriptEngine.run(it.absolutePath.substring(interceptorsDir.absolutePath.length() + 1), '')
-                }
-            }
-            //sort
-            Routes.sort()
-        }
-        refreshing = false
-    }
-
-    /**
-     * 等待刷新完成
-     * 用于 servlet 中，避免更新过程中可能出现的不确定性
-     */
-    void waitingForRefresh() {
-        if (!refreshing) return
-        while (true) {
-            sleep(100)
-            if (!refreshing) return
-        }
-    }
-
-    /**
-     * 判断是否是控制器
-     * @param path
-     * @return
-     */
-    boolean isController(String path) {
-        return path.startsWith(controllersDir.absolutePath)
     }
 
     /**
