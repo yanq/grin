@@ -39,8 +39,8 @@ class GraceServer {
      * 目录是一个完整的 grace app 结构。
      * @param root
      */
-    void startApp(File root, String env = GraceApp.ENV_DEV) {
-        GraceApp.setRootAndEnv(root, env)
+    void startApp(File root = null, String env = GraceApp.ENV_DEV) {
+        if (root) GraceApp.setRootAndEnv(root, env)
         def app = GraceApp.instance
         log.info("start app @ ${app.root.absolutePath} ${app.environment}")
         if (app.isAppDir()) {
