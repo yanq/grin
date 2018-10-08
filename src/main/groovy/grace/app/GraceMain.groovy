@@ -40,10 +40,20 @@ class GraceMain {
      * @param args
      */
     public static void main(String[] args) {
+
+        if (!args){
+            Scanner scanner = new Scanner(System.in)
+            println('input command :')
+            String input = scanner.nextLine()
+            println('input: '+input)
+            args = input.split()
+        }
+
         String cmd = args ? args[0] : ''
 
         //not support
         if (!cmds.containsKey(cmd)) {
+            println("command error : ${args}")
             usage()
             return
         }
