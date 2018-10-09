@@ -80,4 +80,15 @@ trait FileRender extends Render {
             render(new File("${app.config.fileUpload.location ?: ''}", params.file))
         }
     }
+
+    /**
+     * 站点静态文件
+     */
+    void files() {
+        if (!params.file) {
+            notFound()
+        } else {
+            render(new File(app.staticDir, params.file))
+        }
+    }
 }
