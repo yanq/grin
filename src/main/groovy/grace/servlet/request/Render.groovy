@@ -25,20 +25,4 @@ trait Render extends RequestBase {
     void render(Object o) {
         response.getWriter().write(o.toString())
     }
-
-    /**
-     * view and model
-     * 默认 thymeleaf 渲染
-     * @param view
-     * @param model
-     */
-    void render(String view, Map model) {
-        Context ctx = new Context()
-        model.putAll(toMap())
-        ctx.setVariables(model)
-
-        String path = view.startsWith('/') ? view : "/${controllerName}/${view}"
-
-        GraceApp.instance.templateEngine.process(path, ctx, response.getWriter())
-    }
 }

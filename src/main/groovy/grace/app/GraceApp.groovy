@@ -7,8 +7,6 @@ import com.alibaba.druid.pool.DruidDataSource
 import com.alibaba.druid.sql.SQLUtils
 import grace.controller.route.Routes
 import groovy.util.logging.Slf4j
-import org.thymeleaf.TemplateEngine
-import org.thymeleaf.templateresolver.FileTemplateResolver
 import javax.sql.DataSource
 import java.nio.file.FileSystems
 import java.nio.file.Paths
@@ -44,9 +42,8 @@ class GraceApp {
     String environment = 'dev' // dev,prod
     //datastore
     DataSource dataSource
-    //engines for script,template,..
+    //engines for script
     GroovyScriptEngine scriptEngine
-    TemplateEngine templateEngine
     //dirs
     boolean refreshing = false
     File projectDir, appDir, domainsDir, controllersDir, viewsDir, interceptorsDir, configDir, initDir, assetDir, assetBuildDir,staticDir
@@ -217,23 +214,6 @@ class GraceApp {
         if (scriptEngine) return scriptEngine
         scriptEngine = new GroovyScriptEngine(controllersDir.absolutePath, interceptorsDir.absolutePath)
         return scriptEngine
-    }
-
-    /**
-     * template engine by thymeleaf
-     * 默认是缓存的。
-     * @return
-     */
-    TemplateEngine getTemplateEngine() {
-        if (templateEngine) return templateEngine
-        templateEngine = new TemplateEngine()
-        FileTemplateResolver resolver = new FileTemplateResolver()
-        resolver.setPrefix(viewsDir.canonicalPath)
-        resolver.setSuffix('.html')
-        resolver.setCharacterEncoding('utf-8')
-        resolver.setCacheable(false) //todo 开发期间不缓存
-        templateEngine.setTemplateResolver(resolver)
-        return templateEngine
     }
 
     /**
