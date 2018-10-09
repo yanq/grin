@@ -56,7 +56,7 @@ class GraceServer {
             if (app.config.fileUpload.fileSizeThreshold) this.fileSizeThreshold = app.config.fileUpload.fileSizeThreshold
 
             def d = buildDeploymentInfo()
-            app.init(d) //内部处理
+            app.init(d) //应用初始化内容
             startUndertowServer(d)
         } else {
             throw new Exception("It is not a grace app dir @ ${GraceApp.instance.projectDir.absolutePath}")
@@ -71,6 +71,7 @@ class GraceServer {
         DeploymentInfo servletBuilder = Servlets.deployment()
                 .setClassLoader(GraceServer.class.getClassLoader())
                 .setDefaultMultipartConfig(new MultipartConfigElement(location, maxFileSize, maxRequestSize, fileSizeThreshold))
+                .setTempDir(File.createTempDir()) //这里上传文件的时候，如果 location 空，会用到。但设置了 location，这里就必须设置。
                 .setContextPath(context)
                 .setDeploymentName("grace.war")
                 .addServlets(Servlets.servlet("GraceServlet", GraceServlet.class).addMapping("/*"))
@@ -82,7 +83,6 @@ class GraceServer {
      * start undertow server
      */
     private void startUndertowServer(DeploymentInfo deploymentInfo) {
-
         DeploymentManager manager = Servlets.defaultContainer().addDeployment(deploymentInfo);
         manager.deploy()
 
@@ -94,16 +94,5 @@ class GraceServer {
         server.start()
 
         log.info("start server @ http://${host}:${port}${context}")
-    }
-
-    /**
-     * main
-     * @param args
-     */
-    public static void main(String[] args) {
-        File root
-        if (args) root = new File(args[0])
-
-        new GraceServer().startApp(root)
     }
 }

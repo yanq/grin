@@ -7,12 +7,13 @@ import javax.servlet.ServletRequest
 import javax.servlet.ServletResponse
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
+import javax.servlet.http.Part
 
 /**
  * 文件处理
- * 包括 asset 处理
+ * 文件上传，下载，包括 asset 处理
  */
-trait FileRender extends RequestBase {
+trait FileRender extends Render {
     static int ONE_DAY = 24 * 60 * 60 //second
 
     /**
@@ -44,11 +45,39 @@ trait FileRender extends RequestBase {
         File assetFile
         if (app.isDev()) {
             assetFile = new File(app.assetDir, params.file)
-        }else {
-            assetFile = new File(app.assetBuildDir,params.file)
+        } else {
+            assetFile = new File(app.assetBuildDir, params.file)
         }
 
         render(assetFile)
     }
 
+    /**
+     * 文件上传和下载
+     * @return
+     */
+    void upload() {
+        try {
+            List fileNames = []
+            request.parts.each {
+                String fileName = FileUtil.fileUUIDName(it.submittedFileName)
+                it.write(fileName)
+                fileNames << fileName
+            }
+            render(fileNames.collect { "${app.config.fileUpload.download ?: ''}/$it" })
+        } catch (Exception e) {
+            render([])
+        }
+    }
+
+    /**
+     * 文件下载
+     */
+    void download() {
+        if (!params.file) {
+            notFound()
+        } else {
+            render(new File("${app.config.fileUpload.location ?: ''}", params.file))
+        }
+    }
 }

@@ -134,13 +134,18 @@ class GraceApp {
         refreshing = true
         log.info("refresh request @ ${dirs ?: 'start'}")
 
-        //重载配置
-        config = new ConfigSlurper(environment).parse(new File(configDir, 'config.groovy').text)
+
 
         //重载控制器，拦截器
         if (dirs == null || dirs?.find {it.endsWith('.groovy')}) {
             //refresh routes
             Routes.clear()
+
+            //重载配置
+            config = new ConfigSlurper(environment).parse(new File(configDir, 'config.groovy').text)
+            if (config.fileUpload.upload) Routes.post(config.fileUpload.upload){upload()}
+            if (config.fileUpload.download) Routes.get(config.fileUpload.download+'/@file'){download()}
+
             //控制器
             controllersDir.eachFileRecurse {
                 if (it.name.endsWith('.groovy')) {
