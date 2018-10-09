@@ -34,6 +34,7 @@ class GraceApp {
     public static final String APP_CONFIG = 'conf'
     public static final String APP_INIT = 'init'
     public static final String APP_ASSETS = 'assets'
+    public static final String APP_STATIC = 'static'
     //env
     public static final String ENV_PROD = 'prod'
     public static final String ENV_DEV = 'dev'
@@ -49,17 +50,17 @@ class GraceApp {
     TemplateEngine templateEngine
     //dirs
     boolean refreshing = false
-    File projectDir, appDir, domainsDir, controllersDir, viewsDir, interceptorsDir, configDir, initDir, assetDir, assetBuildDir
+    File projectDir, appDir, domainsDir, controllersDir, viewsDir, interceptorsDir, configDir, initDir, assetDir, assetBuildDir,staticDir
     List<File> allDirs
 
     /**
      * 构造并初始化
-     * @param appRoot
+     * @param projectRoot
      */
-    GraceApp(File appRoot = null, String env = ENV_DEV) {
+    GraceApp(File projectRoot = null, String env = ENV_DEV) {
         //init dirs
-        if (!appRoot) appRoot = new File('.')
-        projectDir = appRoot
+        if (!projectRoot) projectRoot = new File('.')
+        projectDir = projectRoot
         appDir = new File(projectDir, APP_DIR)
         domainsDir = new File(appDir, APP_DOMAINS)
         controllersDir = new File(appDir, APP_CONTROLLERS)
@@ -69,7 +70,8 @@ class GraceApp {
         initDir = new File(appDir, APP_INIT)
         assetDir = new File(appDir, APP_ASSETS)
         assetBuildDir = new File(projectDir, 'build/assets')
-        allDirs = [appDir, domainsDir, controllersDir, viewsDir, interceptorsDir, configDir, initDir, assetDir]
+        staticDir = new File(appDir, APP_STATIC)
+        allDirs = [appDir, domainsDir, controllersDir, viewsDir, interceptorsDir, configDir, initDir, assetDir,staticDir]
         //config
         environment = env
     }
@@ -145,6 +147,8 @@ class GraceApp {
             config = new ConfigSlurper(environment).parse(new File(configDir, 'config.groovy').text)
             if (config.fileUpload.upload) Routes.post(config.fileUpload.upload){upload()}
             if (config.fileUpload.download) Routes.get(config.fileUpload.download+'/@file'){download()}
+            if (config.assets.uri) Routes.get(config.assets.uri+'/@file'){asset()}
+            if (config.files.uri) Routes.get(config.files.uri+'/@file'){files()}
 
             //控制器
             controllersDir.eachFileRecurse {

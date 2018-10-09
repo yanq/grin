@@ -8,7 +8,7 @@ import grace.controller.route.Routes
  * 提供一些方法，处理一些东西。如 asset。
  */
 class GraceEx {
-    def assetsPath = Routes.ASSETS_PATH
+    def assetsPath = GraceApp.instance.config.assets.uri ?: '/assets'
     /**
      * 处理 application.js
      * 解析文件中的指令，并产生 js 链接

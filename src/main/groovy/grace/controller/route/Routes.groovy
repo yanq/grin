@@ -78,23 +78,6 @@ class Routes {
     }
 
     /**
-     * asset
-     * @param path
-     * @return
-     */
-    static assets(String path) {
-        def assetPath = "$path/@file"
-        if (routes.find { it.path == assetPath }) {
-            log.error("assets path {$path} already exists !")
-            throw new Exception("assets path {$path} already exists !")
-        } else {
-            log.info("config assets path @ $path")
-            ASSETS_PATH = path
-            routes.add(new Route(method: METHOD_GET, path: assetPath, closure: { asset() }))
-        }
-    }
-
-    /**
      * 添加到路由表
      * 如果重复，会异常爆出，方便随时发现问题
      * @param path
