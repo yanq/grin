@@ -25,14 +25,6 @@ class GraceServer {
     int fileSizeThreshold = 0
 
     /**
-     * 最简化启动，只启动部署了 GraceServlet 的 Undertow server。
-     * 用于但 controller 文件启动。
-     */
-    void start() {
-        startUndertowServer(buildDeploymentInfo())
-    }
-
-    /**
      * 启动 GraceApp
      * todo 对产品部署环境优化
      * 监控目录，即时编译，适用于开发阶段
@@ -62,18 +54,11 @@ class GraceServer {
     }
 
     /**
-     * 构建 deploy info
-     * @return
+     * 最简化启动，只启动部署了 GraceServlet 的 Undertow server。
+     * 用于但 controller 文件启动。
      */
-    private DeploymentInfo buildDeploymentInfo() {
-        DeploymentInfo servletBuilder = Servlets.deployment()
-                .setClassLoader(GraceServer.class.getClassLoader())
-                .setDefaultMultipartConfig(new MultipartConfigElement(location, maxFileSize, maxRequestSize, fileSizeThreshold))
-                .setTempDir(File.createTempDir()) //这里上传文件的时候，如果 location 空，会用到。但设置了 location，这里就必须设置。
-                .setContextPath(context)
-                .setDeploymentName("grace.war")
-                .addServlets(Servlets.servlet("GraceServlet", GraceServlet.class).addMapping("/*"))
-        return servletBuilder
+    void start() {
+        startUndertowServer(buildDeploymentInfo())
     }
 
     /**
@@ -92,5 +77,20 @@ class GraceServer {
         server.start()
 
         log.info("start server @ http://${host}:${port}${context}")
+    }
+
+    /**
+     * 构建 deploy info
+     * @return
+     */
+    private DeploymentInfo buildDeploymentInfo() {
+        DeploymentInfo servletBuilder = Servlets.deployment()
+                .setClassLoader(GraceServer.class.getClassLoader())
+                .setDefaultMultipartConfig(new MultipartConfigElement(location, maxFileSize, maxRequestSize, fileSizeThreshold))
+                .setTempDir(File.createTempDir()) //这里上传文件的时候，如果 location 空，会用到。但设置了 location，这里就必须设置。
+                .setContextPath(context)
+                .setDeploymentName("grace.war")
+                .addServlets(Servlets.servlet("GraceServlet", GraceServlet.class).addMapping("/*"))
+        return servletBuilder
     }
 }
