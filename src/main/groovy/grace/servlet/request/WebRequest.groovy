@@ -1,5 +1,6 @@
 package grace.servlet.request
 
+import grace.common.Request
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 
@@ -9,4 +10,4 @@ import groovy.util.logging.Slf4j
  */
 @Slf4j
 @CompileStatic
-class WebRequest implements JSON, HTML, Render, FileRender, ThymeleafRender {}
+class WebRequest extends Request implements JSON, HTML, Render, FileRender, ThymeleafRender {}

@@ -21,6 +21,7 @@ trait RequestBase {
     Map<String, String> headers
     @Lazy
     GraceExpression g = new GraceExpression()
+    String controllerName = '' //当前控制器
 
     /**
      * forward

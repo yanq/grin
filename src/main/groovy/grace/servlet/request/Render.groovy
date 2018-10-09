@@ -8,7 +8,6 @@ import org.thymeleaf.context.Context
  * 支持字符串，object，thymeleaf 模板等
  */
 trait Render extends RequestBase {
-    String controllerName = '' //当前控制器
 
     /**
      * 返回string
