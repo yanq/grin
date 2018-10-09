@@ -1,4 +1,4 @@
-package grace.controller.request
+package grace.common
 
 import groovy.transform.CompileStatic
 import java.text.SimpleDateFormat

@@ -1,6 +1,6 @@
 package grace.datastore.entity
 
-import grace.controller.request.Params
+import grace.common.Params
 import grace.datastore.DB
 import grace.datastore.DBUtil
 import groovy.sql.GroovyRowResult

@@ -1,13 +1,12 @@
-package grace.controller.request
+package grace.common
 
 import grace.app.GraceApp
-import grace.controller.route.Routes
 
 /**
  * grace 表达式
- * 提供一些方法，处理一些东西。如 asset。
+ * 提供一些方法，处理一些东西。如 asset,link。
  */
-class GraceEx {
+class GraceExpression {
     def assetsPath = GraceApp.instance.config.assets.uri ?: '/assets'
     /**
      * 处理 application.js

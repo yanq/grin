@@ -7,7 +7,6 @@ import com.alibaba.druid.pool.DruidDataSource
 import com.alibaba.druid.sql.SQLUtils
 import grace.controller.route.Routes
 import groovy.util.logging.Slf4j
-import io.undertow.servlet.api.DeploymentInfo
 import org.thymeleaf.TemplateEngine
 import org.thymeleaf.templateresolver.FileTemplateResolver
 import javax.sql.DataSource
@@ -132,6 +131,18 @@ class GraceApp {
     }
 
     /**
+     * 运行 Bootstrap
+     * 方便应用在服务启动器，初始化自己的内容。
+     * @param context 根据需要传递参数，如 undertow 传递 DeploymentInfo；后续会支持其他模式。
+     */
+    void init(Object context) {
+        def bootstrap = new File(initDir, 'BootStrap.groovy')
+        if (bootstrap.exists()) {
+            new GroovyClassLoader().parseClass(bootstrap).newInstance().init(context)
+        }
+    }
+
+    /**
      * 刷新应用
      */
     synchronized void refresh(List<String> dirs = null) {
@@ -181,17 +192,6 @@ class GraceApp {
         while (true) {
             sleep(100)
             if (!refreshing) return
-        }
-    }
-
-    /**
-     * 初始化阶段整合其他 servlet 等。由 undertow 提供的类来实现。
-     * @param deploymentInfo
-     */
-    void init(DeploymentInfo deploymentInfo) {
-        def bootstrap = new File(initDir, 'BootStrap.groovy')
-        if (bootstrap.exists()) {
-            new GroovyClassLoader().parseClass(bootstrap).newInstance().init(deploymentInfo)
         }
     }
 

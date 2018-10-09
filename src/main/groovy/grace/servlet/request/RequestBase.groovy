@@ -1,7 +1,8 @@
-package grace.controller.request
+package grace.servlet.request
 
 import grace.app.GraceApp
-
+import grace.common.GraceExpression
+import grace.common.Params
 import javax.servlet.RequestDispatcher
 import javax.servlet.ServletContext
 import javax.servlet.ServletException
@@ -19,7 +20,7 @@ trait RequestBase {
     Params params
     Map<String, String> headers
     @Lazy
-    GraceEx g = new GraceEx()
+    GraceExpression g = new GraceExpression()
 
     /**
      * forward
@@ -34,6 +35,13 @@ trait RequestBase {
      */
     void redirect(String location) throws IOException {
         response.sendRedirect(location);
+    }
+
+    /**
+     * not found
+     */
+    void notFound(){
+        response.status = 404
     }
 
     /**

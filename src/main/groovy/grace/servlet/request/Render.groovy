@@ -1,4 +1,4 @@
-package grace.controller.request
+package grace.servlet.request
 
 import grace.app.GraceApp
 import org.thymeleaf.context.Context
@@ -40,9 +40,5 @@ trait Render extends RequestBase {
         String path = view.startsWith('/') ? view : "/${controllerName}/${view}"
 
         GraceApp.instance.templateEngine.process(path, ctx, response.getWriter())
-    }
-
-    void notFound(){
-        response.status = 404
     }
 }

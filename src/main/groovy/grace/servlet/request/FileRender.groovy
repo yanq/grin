@@ -1,13 +1,6 @@
-package grace.controller.request
+package grace.servlet.request
 
-import grace.app.GraceApp
 import grace.util.FileUtil
-
-import javax.servlet.ServletRequest
-import javax.servlet.ServletResponse
-import javax.servlet.http.HttpServletRequest
-import javax.servlet.http.HttpServletResponse
-import javax.servlet.http.Part
 
 /**
  * 文件处理

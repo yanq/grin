@@ -1,4 +1,4 @@
-package grace.controller.request
+package grace.servlet.request
 
 import groovy.xml.MarkupBuilder
 
