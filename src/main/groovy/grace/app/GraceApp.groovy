@@ -121,12 +121,14 @@ class GraceApp {
     }
 
     /**
-     * 检查是否是 grace app
+     * 检查目录结构
      * @return
      */
-    boolean isAppDir() {
+    void checkDirs() {
         log.info("check grace app dirs @ ${projectDir.absolutePath}")
-        return !allDirs.find { !it.exists() }
+        allDirs.each {
+            if (!it.exists() ) throw new Exception("目录不存在：${it.canonicalPath}")
+        }
     }
 
     /**

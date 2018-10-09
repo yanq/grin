@@ -43,24 +43,22 @@ class GraceServer {
         if (root) GraceApp.setRootAndEnv(root, env)
         def app = GraceApp.instance
         log.info("start app @ ${app.projectDir.absolutePath} ${app.environment}")
-        if (app.isAppDir()) {
-            app.startFileWatcher()
-            app.refresh()
-            //config
-            if (app.config.server.port) this.port = app.config.server.port
-            if (app.config.server.host) this.host = app.config.server.host
-            if (app.config.server.context) this.context = app.config.server.context
-            if (app.config.fileUpload.location) this.location = app.config.fileUpload.location
-            if (app.config.fileUpload.maxFileSize) this.maxFileSize = app.config.fileUpload.maxFileSize
-            if (app.config.fileUpload.maxRequestSize) this.maxRequestSize = app.config.fileUpload.maxRequestSize
-            if (app.config.fileUpload.fileSizeThreshold) this.fileSizeThreshold = app.config.fileUpload.fileSizeThreshold
 
-            def d = buildDeploymentInfo()
-            app.init(d) //应用初始化内容
-            startUndertowServer(d)
-        } else {
-            throw new Exception("It is not a grace app dir @ ${GraceApp.instance.projectDir.absolutePath}")
-        }
+        app.checkDirs() //确保是一个 grace 目录结构
+        app.startFileWatcher()
+        app.refresh()
+        //config
+        if (app.config.server.port) this.port = app.config.server.port
+        if (app.config.server.host) this.host = app.config.server.host
+        if (app.config.server.context) this.context = app.config.server.context
+        if (app.config.fileUpload.location) this.location = app.config.fileUpload.location
+        if (app.config.fileUpload.maxFileSize) this.maxFileSize = app.config.fileUpload.maxFileSize
+        if (app.config.fileUpload.maxRequestSize) this.maxRequestSize = app.config.fileUpload.maxRequestSize
+        if (app.config.fileUpload.fileSizeThreshold) this.fileSizeThreshold = app.config.fileUpload.fileSizeThreshold
+
+        def d = buildDeploymentInfo()
+        app.init(d) //应用初始化内容
+        startUndertowServer(d)
     }
 
     /**
