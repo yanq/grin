@@ -10,4 +10,9 @@ import groovy.util.logging.Slf4j
  */
 @Slf4j
 @CompileStatic
-class WebRequest extends Request implements JSON, HTML, Render, FileRender, ThymeleafRender {}
+class WebRequest extends Request implements JSON, HTML, Render, FileRender, ThymeleafRender {
+    @Override
+    int status() {
+        return response.status
+    }
+}

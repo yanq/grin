@@ -14,6 +14,7 @@ trait HTML extends RequestBase {
      */
     MarkupBuilder getHtml() {
         if (html) return html
-        return new MarkupBuilder(response.getWriter())
+        html = new MarkupBuilder(response.getWriter())
+        return html
     }
 }

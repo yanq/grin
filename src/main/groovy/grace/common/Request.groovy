@@ -33,6 +33,7 @@ abstract class Request {
     HttpExchange exchange
 
     //usually
+    abstract int status()
     abstract void notFound()
 
     // renders

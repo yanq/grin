@@ -14,7 +14,8 @@ trait JSON extends RequestBase {
      */
     StreamingJsonBuilder getJson() {
         if (json) return json
-        return new StreamingJsonBuilder(response.getWriter())
+        json = new StreamingJsonBuilder(response.getWriter())
+        return json
     }
 
     /**
