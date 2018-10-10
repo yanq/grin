@@ -38,9 +38,9 @@ class RegexUtil {
      * @return
      */
     static String clearRequestURI(String requestURI) {
-        if (requestURI.indexOf('?') > 0) return requestURI.substring(0,requestURI.indexOf('?'))
-        if (requestURI.indexOf(';') > 0) return requestURI.substring(0,requestURI.indexOf(';'))
-        if (requestURI.indexOf('#') > 0) return requestURI.substring(0,requestURI.indexOf('#'))
+        if (requestURI.indexOf('?') > 0) return requestURI.substring(0, requestURI.indexOf('?'))
+        if (requestURI.indexOf(';') > 0) return requestURI.substring(0, requestURI.indexOf(';'))
+        if (requestURI.indexOf('#') > 0) return requestURI.substring(0, requestURI.indexOf('#'))
         return requestURI
     }
 
@@ -50,8 +50,8 @@ class RegexUtil {
      * @param context
      * @return
      */
-    static String toURI(String requestURI,String context){
-        if (context.size()>1 && requestURI.startsWith(context)) requestURI = requestURI.substring(context.size())
+    static String toURI(String requestURI, String context = '') {
+        if (context.size() > 1 && requestURI.startsWith(context)) requestURI = requestURI.substring(context.size())
         return clearRequestURI(requestURI) ?: '/'
     }
 }

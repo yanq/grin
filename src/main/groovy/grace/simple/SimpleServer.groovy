@@ -56,7 +56,7 @@ class SimpleServer {
     static class GraceHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
-            String clearedURI = RegexUtil.toURI(exchange.getRequestURI().path, '')
+            String clearedURI = RegexUtil.toURI(exchange.getRequestURI().path,exchange.httpContext.path)
             SimpleRequest request = new SimpleRequest(exchange)
 
             try {
