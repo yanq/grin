@@ -1,6 +1,7 @@
 package grace.servlet
 
 import grace.app.GraceApp
+import grace.controller.route.RouteUtil
 import grace.servlet.request.WebRequest
 import grace.controller.route.Route
 import grace.controller.route.Routes
@@ -18,73 +19,19 @@ import javax.servlet.http.HttpServletResponse
 class GraceServlet extends GenericServlet {
     @Override
     void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {
-        HttpServletRequest request = (HttpServletRequest) req
-        HttpServletResponse response = (HttpServletResponse) res
-        String requestURI = request.requestURI
-
         //等待刷新，如果系统在刷新中
         GraceApp.instance.waitingForRefresh()
 
-        String clearedURI = RegexUtil.toURI(requestURI,request.getContextPath())
-        Route route = Routes.routes.find { it.matches(clearedURI) }
-        if (route) {
-            //设置默认编码
-            request.setCharacterEncoding('utf-8')
-            response.setCharacterEncoding('utf-8')
-            response.setContentType('text/html;charset=UTF-8')
+        //设置默认编码
+        req.setCharacterEncoding('utf-8')
+        res.setCharacterEncoding('utf-8')
+        res.setContentType('text/html;charset=UTF-8')
 
-            //初始化闭包
-            WebRequest webRequest = new WebRequest(request: request, response: response)
-            Closure closure = route.closure.clone()
-            closure.delegate = webRequest
-            closure.setResolveStrategy(Closure.DELEGATE_ONLY)
-            webRequest.controllerName = ClassUtil.propertyName(closure.owner.class)
+        HttpServletRequest request = (HttpServletRequest) req
+        HttpServletResponse response = (HttpServletResponse) res
 
-            //路径参数
-            def pathParas = route.getPathParams(clearedURI)
-            if (pathParas) webRequest.params.putAll(pathParas)
-
-            //处理
-            long start = System.nanoTime()
-            Object result
-            use(GraceCategory.class) {
-                //before
-                boolean pass = before(clearedURI, webRequest)
-                if (!pass) return //结束了
-                //process
-                result = closure()
-                //after
-                after(clearedURI, webRequest) //似乎返回结果也没啥意义
-            }
-
-            log.info("${response.status} $clearedURI ($route.path) , ${(System.nanoTime() - start) / 1000000}ms")
-        } else {
-            response.setStatus(404)
-            res.writer.write("No page found for ${request.requestURI}")
-        }
-    }
-
-    private boolean before(String uri, WebRequest webRequest) {
-        Routes.beforeInterceptors.each {
-            if (it.matches(uri)) {
-                Closure i = it.closure.clone()
-                i.delegate = webRequest
-                i.setResolveStrategy(Closure.DELEGATE_ONLY)
-                boolean r = i()
-                if (r == false) return false
-                return true
-            }
-        }
-    }
-
-    private boolean after(String uri, WebRequest webRequest) {
-        Routes.afterInterceptors.each {
-            if (it.matches(uri)) {
-                Closure i = it.closure.clone()
-                i.delegate = webRequest
-                i.setResolveStrategy(Closure.DELEGATE_ONLY)
-                return i()
-            }
-        }
+        String clearedURI = RegexUtil.toURI(request.requestURI, request.getContextPath())
+        WebRequest webRequest = new WebRequest(request: request, response: response)
+        use(GraceCategory.class) { RouteUtil.processRequest(clearedURI, webRequest) }
     }
 }

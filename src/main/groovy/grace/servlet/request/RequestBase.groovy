@@ -43,6 +43,7 @@ trait RequestBase {
      */
     void notFound(){
         response.status = 404
+        response.writer.write("No page found for ${request.requestURI}")
     }
 
     /**
