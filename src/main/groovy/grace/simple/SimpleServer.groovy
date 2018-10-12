@@ -69,10 +69,7 @@ class SimpleServer {
                 }
             } catch (Exception e) {
                 e.printStackTrace()
-                byte[] bytes = "Exception: ${e.getMessage()}".getBytes('utf-8')
-                exchange.sendResponseHeaders(500, bytes.length)
-                exchange.getResponseBody().write(bytes)
-                exchange.getResponseBody().close()
+                request.error(e)
             }
         }
     }

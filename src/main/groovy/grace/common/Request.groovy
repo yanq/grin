@@ -35,6 +35,7 @@ abstract class Request {
     //usually
     abstract int status()
     abstract void notFound()
+    abstract void error(Exception e)
 
     // renders
     abstract void render(Object object) // for anything others : list map ...

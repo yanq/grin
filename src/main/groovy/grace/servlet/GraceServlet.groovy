@@ -38,6 +38,7 @@ class GraceServlet extends GenericServlet {
                 RouteUtil.processRequest(clearedURI, webRequest)
             }catch(Exception e){
                 e.printStackTrace()
+                webRequest.error(e)
             }
         }
     }

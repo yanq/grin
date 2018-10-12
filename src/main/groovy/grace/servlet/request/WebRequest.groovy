@@ -15,4 +15,10 @@ class WebRequest extends Request implements JSON, HTML, Render, FileRender, Thym
     int status() {
         return response.status
     }
+
+    @Override
+    void error(Exception e) {
+        response.status = 500
+        response.writer.write("Error: ${e.getMessage()}")
+    }
 }

@@ -89,6 +89,18 @@ class SimpleRequest extends Request {
     }
 
     /**
+     * error
+     * @param e
+     */
+    @Override
+    void error(Exception e) {
+        byte[] bytes = "Error: ${e.getMessage()}".getBytes('utf-8')
+        getExchange().sendResponseHeaders(500, bytes.length)
+        getExchange().getResponseBody().write(bytes)
+        getExchange().getResponseBody().close()
+    }
+
+    /**
      * render anything
      * @param object
      */
