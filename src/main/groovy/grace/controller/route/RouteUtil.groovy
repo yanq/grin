@@ -57,9 +57,9 @@ class RouteUtil {
                 i.setResolveStrategy(Closure.DELEGATE_ONLY)
                 boolean r = i()
                 if (r == false) return false
-                return true
             }
         }
+        return true
     }
 
     /**

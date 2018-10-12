@@ -32,6 +32,13 @@ class GraceServlet extends GenericServlet {
 
         String clearedURI = RegexUtil.toURI(request.requestURI, request.getContextPath())
         WebRequest webRequest = new WebRequest(request: request, response: response)
-        use(GraceCategory.class) { RouteUtil.processRequest(clearedURI, webRequest) }
+
+        use(GraceCategory.class) {
+            try {
+                RouteUtil.processRequest(clearedURI, webRequest)
+            }catch(Exception e){
+                e.printStackTrace()
+            }
+        }
     }
 }
