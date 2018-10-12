@@ -6,6 +6,7 @@ import com.alibaba.druid.filter.stat.StatFilter
 import com.alibaba.druid.pool.DruidDataSource
 import com.alibaba.druid.sql.SQLUtils
 import grace.controller.route.Routes
+import grace.datastore.DB
 import groovy.util.logging.Slf4j
 import javax.sql.DataSource
 import java.nio.file.FileSystems
@@ -145,8 +146,6 @@ class GraceApp {
     synchronized void refresh(List<String> dirs = null) {
         refreshing = true
         log.info("refresh request @ ${dirs ?: 'start'}")
-
-
 
         //重载控制器，拦截器
         if (dirs == null || dirs?.find {it.endsWith('.groovy')}) {

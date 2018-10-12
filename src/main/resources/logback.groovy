@@ -1,6 +1,6 @@
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder
 
-statusListener(OnConsoleStatusListener)
+// statusListener(OnConsoleStatusListener)
 
 appender("CONSOLE", ConsoleAppender) {
     encoder(PatternLayoutEncoder) {

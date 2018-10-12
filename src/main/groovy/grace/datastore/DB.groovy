@@ -3,20 +3,24 @@ package grace.datastore
 import grace.app.GraceApp
 import groovy.sql.Sql
 
+import javax.sql.DataSource
+
 /**
  * DB 数据库
  */
 class DB {
 
+    static DataSource dataSource //datasource,提供一个配置的入口，方便 grace 外部使用。
+
     /**
      * 获取 sql
      * @return
      */
-    static Sql getSql(){
-        return new Sql(GraceApp.instance.dataSource)
+    static Sql getSql() {
+        return new Sql(dataSource ?: GraceApp.instance.dataSource)
     }
 
-    static withSql(@DelegatesTo(SQL) Closure closure){
+    static withSql(@DelegatesTo(SQL) Closure closure) {
         Sql sql = getSql()
         def result = closure.call(sql)
         sql.close()
@@ -26,7 +30,7 @@ class DB {
     /**
      * 用作闭包代理，便于 ide 提示。
      */
-    static class SQL{
+    static class SQL {
         Sql sql
     }
 }
