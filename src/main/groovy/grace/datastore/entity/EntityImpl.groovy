@@ -7,6 +7,8 @@ import groovy.sql.GroovyRowResult
 import groovy.sql.Sql
 import groovy.util.logging.Slf4j
 import java.lang.reflect.Modifier
+import java.time.LocalDate
+import java.time.LocalDateTime
 
 /**
  * 实体 api 实现
@@ -31,7 +33,8 @@ class EntityImpl {
     static get(Class target, Serializable id) {
         Sql sql = DB.sql
         String table = findTableName(target)
-        def result = sql.firstRow("select * from ${table} where id=?", id)
+        def tid = Transformer.toType(target,'id',id) //pg must transform；mysql not need。
+        def result = sql.firstRow("select * from ${table} where id=?", tid)
         def entity = bindResultToEntity(result, target)
         sql.close()
         return entity
@@ -142,7 +145,19 @@ class EntityImpl {
             } else {
                 key = DBUtil.toDbName(key)
             }
-            if (result.containsKey(key)) entity[(it)] = result[key]
+            if (result.containsKey(key)) {
+                Class propClass = target.getDeclaredField(it)?.type
+                switch (propClass) {
+                    case LocalDate:
+                        entity[(it)] = result[key].toLocalDate()
+                        break
+                    case LocalDateTime:
+                        entity[(it)] = result[key].toLocalDateTime()
+                        break
+                    default:
+                        entity[(it)] = result[key]
+                }
+            }
         }
         return entity
     }
@@ -230,7 +245,7 @@ class EntityImpl {
     }
 
     /**
-     * 绑定参数
+     * 绑定参数到实体
      * @param entityClass
      * @param params
      * @return
@@ -262,6 +277,12 @@ class EntityImpl {
                         break
                     case Date:
                         entity[it] = params.date(it)
+                        break
+                    case LocalDate:
+                        entity[it] = params.localDate(it)
+                        break
+                    case LocalDateTime:
+                        entity[it] = params.localDateTime(it)
                         break
                     default: entity[it] = params[it]
                 }
