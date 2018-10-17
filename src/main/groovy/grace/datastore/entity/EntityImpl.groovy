@@ -33,7 +33,7 @@ class EntityImpl {
     static get(Class target, Serializable id) {
         Sql sql = DB.sql
         String table = findTableName(target)
-        def tid = Transformer.toType(target,'id',id) //pg must transform；mysql not need。
+        def tid = Transformer.toType(target, 'id', id) //pg must transform；mysql not need。
         def result = sql.firstRow("select * from ${table} where id=?", tid)
         def entity = bindResultToEntity(result, target)
         sql.close()
@@ -260,33 +260,7 @@ class EntityImpl {
         Class entityClass = entity.class
         List props = findPropertiesToPersist(entityClass) - 'id'
         props.each {
-            Class propClass = entityClass.getDeclaredField(it)?.type
-            if (params[it]) {
-                switch (propClass) {
-                    case Integer:
-                        entity[it] = params[it].toString().toInteger()
-                        break
-                    case Long:
-                        entity[it] = params[it].toString().toLong()
-                        break
-                    case Float:
-                        entity[it] = params[it].toString().toFloat()
-                        break
-                    case Double:
-                        entity[it] = params[it].toString().toDouble()
-                        break
-                    case Date:
-                        entity[it] = params.date(it)
-                        break
-                    case LocalDate:
-                        entity[it] = params.localDate(it)
-                        break
-                    case LocalDateTime:
-                        entity[it] = params.localDateTime(it)
-                        break
-                    default: entity[it] = params[it]
-                }
-            }
+            if (params[it]) entity[it] = Transformer.toType(entityClass, it, params[it])
         }
         return entity
     }
