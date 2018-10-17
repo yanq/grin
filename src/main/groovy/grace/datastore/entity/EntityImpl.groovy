@@ -179,7 +179,7 @@ class EntityImpl {
         List list(Map pageParams) {
             return DB.withSql { Sql sql ->
                 List list = []
-                List rows = sql.rows("select * from ${findTableName(entityClass)} ${whereSql ? 'where ' + whereSql : ''} ${DBUtil.params(pageParams)}".toString())
+                List rows = sql.rows("select * from ${findTableName(entityClass)} ${whereSql ? 'where ' + whereSql : ''} ${DBUtil.params(pageParams)}".toString(), params)
                 rows.each { row ->
                     list << bindResultToEntity(row, entityClass)
                 }
