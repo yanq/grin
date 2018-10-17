@@ -1,11 +1,8 @@
 package grace.servlet
 
 import grace.app.GraceApp
-import grace.controller.route.RouteUtil
+import grace.controller.route.Processor
 import grace.servlet.request.WebRequest
-import grace.controller.route.Route
-import grace.controller.route.Routes
-import grace.util.ClassUtil
 import grace.util.RegexUtil
 import groovy.util.logging.Slf4j
 import javax.servlet.GenericServlet
@@ -35,7 +32,7 @@ class GraceServlet extends GenericServlet {
 
         use(GraceCategory.class) {
             try {
-                RouteUtil.processRequest(clearedURI, webRequest)
+                Processor.processRequest(clearedURI, webRequest)
             }catch(Exception e){
                 e.printStackTrace()
                 webRequest.error(e)

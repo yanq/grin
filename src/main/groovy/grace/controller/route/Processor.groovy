@@ -8,7 +8,7 @@ import groovy.util.logging.Slf4j
  * 处理 request
  */
 @Slf4j
-class RouteUtil {
+class Processor {
     /**
      * 处理请求
      * @param uri

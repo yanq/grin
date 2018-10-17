@@ -3,7 +3,7 @@ package grace.simple
 import com.sun.net.httpserver.HttpExchange
 import com.sun.net.httpserver.HttpHandler
 import com.sun.net.httpserver.HttpServer
-import grace.controller.route.RouteUtil
+import grace.controller.route.Processor
 import grace.util.RegexUtil
 import groovy.util.logging.Slf4j
 
@@ -60,7 +60,7 @@ class SimpleServer {
             SimpleRequest request = new SimpleRequest(exchange)
 
             try {
-                RouteUtil.processRequest(clearedURI, request)
+                Processor.processRequest(clearedURI, request)
                 if (!request.processed) { //如果没有处理过
                     byte[] bytes = request.writer.toString().getBytes('utf-8')
                     exchange.sendResponseHeaders(200, bytes.length)
