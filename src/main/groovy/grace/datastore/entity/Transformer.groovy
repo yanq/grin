@@ -15,7 +15,7 @@ import java.time.format.DateTimeFormatter
 class Transformer {
     static List<String> dateFormats = ['yyyy-MM-dd', 'yyyyMMdd']
     static List<String> dateTimeFormats = ['EEE MMM dd HH:mm:ss z yyyy',
-                                           "yyyy-MM-dd'T'HH:mm:ss.S", "yyyy-MM-dd HH:mm:ss.S",
+                                           "yyyy-MM-dd'T'HH:mm:ss.SSS", "yyyy-MM-dd HH:mm:ss.SSS",
                                            "yyyy-MM-dd'T'HH:mm:ss", "yyyy-MM-dd HH:mm:ss",
                                            "yyyy-MM-dd'T'HH:mm", "yyyy-MM-dd HH:mm"]
     static List<String> allFormats = dateTimeFormats + dateFormats

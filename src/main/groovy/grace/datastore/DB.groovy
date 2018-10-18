@@ -2,7 +2,6 @@ package grace.datastore
 
 import grace.app.GraceApp
 import groovy.sql.Sql
-
 import javax.sql.DataSource
 
 /**
@@ -20,9 +19,29 @@ class DB {
         return new Sql(dataSource ?: GraceApp.instance.dataSource)
     }
 
+    /**
+     * with sql
+     * @param closure
+     * @return
+     */
     static withSql(@DelegatesTo(SQL) Closure closure) {
         Sql sql = getSql()
         def result = closure.call(sql)
+        sql.close()
+        return result
+    }
+
+    /**
+     * with transaction
+     * @param closure
+     * @return
+     */
+    static withTransaction(@DelegatesTo(SQL) Closure closure) {
+        Sql sql = getSql()
+        def result
+        sql.withTransaction {
+            result = closure.call(sql)
+        }
         sql.close()
         return result
     }
