@@ -102,4 +102,20 @@ class GraceExpression {
             return "<link rel=\"stylesheet\" href=\"${assetsPath}/${css}\"/>"
         }
     }
+
+    /**
+     * 文件链接处理 位于 static 目录下
+     * @param f
+     * @return
+     */
+    def file(String f){
+        "${GraceApp.instance.config.files.uri ?: '/files'}/$f"
+    }
+
+    /**
+     * 拼接字符串
+     */
+    def string(Object... list){
+        list.join()
+    }
 }
