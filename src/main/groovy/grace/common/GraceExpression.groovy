@@ -51,7 +51,7 @@ class GraceExpression {
             }
 
             return result.trim()
-        }else {
+        } else {
             return "<script type=\"text/javascript\" src=\"${assetsPath}/${js}\" ></script>"
         }
     }
@@ -98,7 +98,7 @@ class GraceExpression {
             }
 
             return result.trim()
-        }else {
+        } else {
             return "<link rel=\"stylesheet\" href=\"${assetsPath}/${css}\"/>"
         }
     }
@@ -108,14 +108,14 @@ class GraceExpression {
      * @param f
      * @return
      */
-    def file(String f){
+    def file(String f) {
         "${GraceApp.instance.config.files.uri ?: '/files'}/$f"
     }
 
     /**
      * 拼接字符串
      */
-    def string(Object... list){
-        list.join()
+    def string(Object... list) {
+        list.collect { it ? it.toString() : '' }.join()
     }
 }
