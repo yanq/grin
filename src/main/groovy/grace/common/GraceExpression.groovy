@@ -9,7 +9,7 @@ import grace.generate.Generator
  */
 class GraceExpression {
     GraceApp app = GraceApp.instance
-    def assetsPath =app.config.assets.uri ?: '/assets'
+    def assetsPath = app.config.assets.uri ?: '/assets'
     /**
      * 处理 application.js
      * 解析文件中的指令，并产生 js 链接
@@ -136,10 +136,10 @@ class GraceExpression {
         int pageCount = (total / limit as int) + 1
         def pre, next
         if (current != 1) {
-            pre = [title: current - 1, link: link('', [offset: offset - limit, limit: limit]) + '&' + params]
+            pre = [title: current - 1, link: link('', [offset: offset - limit, limit: limit]) + "${params ? '&' + params : ''}"]
         }
         if (current != pageCount) {
-            next = [title: current + 1, link: link('', [offset: offset + limit, limit: limit]) + '&' + params]
+            next = [title: current + 1, link: link('', [offset: offset + limit, limit: limit]) + "${params ? '&' + params : ''}"]
         }
         Generator.generate('components/pagination.html', [current: current, pageCount: pageCount, pre: pre, next: next])
     }
