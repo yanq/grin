@@ -1,13 +1,15 @@
 package grace.common
 
 import grace.app.GraceApp
+import grace.generate.Generator
 
 /**
  * grace 表达式
  * 提供一些方法，处理一些东西。如 asset,link。
  */
 class GraceExpression {
-    def assetsPath = GraceApp.instance.config.assets.uri ?: '/assets'
+    GraceApp app = GraceApp.instance
+    def assetsPath =app.config.assets.uri ?: '/assets'
     /**
      * 处理 application.js
      * 解析文件中的指令，并产生 js 链接
@@ -117,5 +119,39 @@ class GraceExpression {
      */
     def string(Object... list) {
         list.collect { it ? it.toString() : '' }.join()
+    }
+
+    /**
+     * 分页
+     * 这里多个参数，是因为 tl 没法传递 map 数据为参数。
+     * 一个 tf 的好处是，参数它会处理，变成相应的类型
+     * @param offset
+     * @param limit
+     * @param total
+     * @param params
+     * @return
+     */
+    def pagination(int offset, int limit, int total, String params = '') {
+        int current = (offset / limit as int) + 1
+        int pageCount = (total / limit as int) + 1
+        def pre, next
+        if (current != 1) {
+            pre = [title: current - 1, link: link('', [offset: offset - limit, limit: limit]) + '&' + params]
+        }
+        if (current != pageCount) {
+            next = [title: current + 1, link: link('', [offset: offset + limit, limit: limit]) + '&' + params]
+        }
+        Generator.generate('components/pagination.html', [current: current, pageCount: pageCount, pre: pre, next: next])
+    }
+
+    /**
+     * 链接生成
+     * @param uri
+     * @param params
+     * @return
+     */
+    def link(String uri, Map params = [:]) {
+        def paramsString = params.collect { return "${it.key}=${URLEncoder.encode(it.value.toString(), "utf-8")}" }.join('&')
+        "$uri?${paramsString}"
     }
 }
