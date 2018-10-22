@@ -13,7 +13,8 @@ class GraceMain {
             'run'              : ['run [dev|prod]?', 'run grace server'],
             'create-domain'    : ['create domain class'],
             'create-controller': ['create controller class'],
-            'generate-all'     : ['generate controller and views from domain class']
+            'generate-all'     : ['generate controller and views from domain class'],
+            'run-script'       : ['generate controller and views from domain class']
     ]
     /**
      * 用法提示
@@ -28,7 +29,7 @@ class GraceMain {
         println 'Enjoy it!'
     }
 
-    static warmAndExit(boolean expression, String title) {
+    static mustOrFail(boolean expression, String title) {
         if (!expression) {
             println(title)
             System.exit(0)
@@ -41,11 +42,11 @@ class GraceMain {
      */
     public static void main(String[] args) {
 
-        if (!args){
+        if (!args) {
             Scanner scanner = new Scanner(System.in)
             println('input command :')
             String input = scanner.nextLine()
-            println('input: '+input)
+            println('input: ' + input)
             args = input.split()
         }
 
@@ -75,20 +76,27 @@ class GraceMain {
 
         //create domain
         if (cmd == 'create-domain') {
-            warmAndExit args.size() > 1, "缺少类名"
+            mustOrFail args.size() > 1, "缺少类名"
             Generator.createDomain(args[1])
         }
 
         //create controller
         if (cmd == 'create-controller') {
-            warmAndExit args.size() > 1, "缺少类名"
+            mustOrFail args.size() > 1, "缺少类名"
             Generator.createController(args[1])
         }
 
         //generate all
         if (cmd == 'generate-all') {
-            warmAndExit args.size() > 1, "缺少类名"
+            mustOrFail args.size() > 1, "缺少类名"
             Generator.generateAll(args[1])
+        }
+
+        //run script
+        if (cmd == 'run-script') {
+            mustOrFail args.size() > 1, "缺少类名"
+            String script = args[1].endsWith('.groovy') ? args[1] : args[1] + '.groovy'
+            GraceApp.instance.scriptEngine.run(script, '')
         }
     }
 }

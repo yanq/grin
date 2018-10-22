@@ -33,6 +33,7 @@ class GraceApp {
     public static final String APP_INIT = 'init'
     public static final String APP_ASSETS = 'assets'
     public static final String APP_STATIC = 'static'
+    public static final String APP_SCRIPTS = 'scripts'
     //env
     public static final String ENV_PROD = 'prod'
     public static final String ENV_DEV = 'dev'
@@ -47,7 +48,7 @@ class GraceApp {
     GroovyScriptEngine scriptEngine
     //dirs
     boolean refreshing = false
-    File projectDir, appDir, domainsDir, controllersDir, viewsDir, interceptorsDir, configDir, initDir, assetDir, assetBuildDir,staticDir
+    File projectDir, appDir, domainsDir, controllersDir, viewsDir, interceptorsDir, configDir, initDir, assetDir, assetBuildDir,staticDir,scriptDir
     List<File> allDirs
 
     /**
@@ -68,7 +69,8 @@ class GraceApp {
         assetDir = new File(appDir, APP_ASSETS)
         assetBuildDir = new File(projectDir, 'build/assets')
         staticDir = new File(appDir, APP_STATIC)
-        allDirs = [appDir, domainsDir, controllersDir, viewsDir, interceptorsDir, configDir, initDir, assetDir,staticDir]
+        scriptDir = new File(appDir,APP_SCRIPTS)
+        allDirs = [appDir, domainsDir, controllersDir, viewsDir, interceptorsDir, configDir, initDir, assetDir,staticDir,scriptDir]
         //config
         environment = env
     }
@@ -211,7 +213,7 @@ class GraceApp {
      */
     GroovyScriptEngine getScriptEngine() {
         if (scriptEngine) return scriptEngine
-        scriptEngine = new GroovyScriptEngine(controllersDir.absolutePath, interceptorsDir.absolutePath)
+        scriptEngine = new GroovyScriptEngine(controllersDir.absolutePath, interceptorsDir.absolutePath,scriptDir.absolutePath)
         return scriptEngine
     }
 
