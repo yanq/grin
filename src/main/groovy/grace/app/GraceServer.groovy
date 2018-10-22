@@ -32,7 +32,7 @@ class GraceServer {
      * @param root
      */
     void startApp(File root = null, String env = GraceApp.ENV_DEV) {
-        if (root) GraceApp.setRootAndEnv(root, env)
+        GraceApp.setRootAndEnv(root, env)
         def app = GraceApp.instance
         log.info("start app @ ${app.projectDir.absolutePath} ${app.environment}")
 
