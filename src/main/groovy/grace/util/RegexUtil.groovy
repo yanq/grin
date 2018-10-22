@@ -38,9 +38,9 @@ class RegexUtil {
      * @return
      */
     static String clearRequestURI(String requestURI) {
-        if (requestURI.indexOf('?') > 0) return requestURI.substring(0, requestURI.indexOf('?'))
         if (requestURI.indexOf(';') > 0) return requestURI.substring(0, requestURI.indexOf(';'))
         if (requestURI.indexOf('#') > 0) return requestURI.substring(0, requestURI.indexOf('#'))
+        if (requestURI.indexOf('?') > 0) return requestURI.substring(0, requestURI.indexOf('?'))
         return requestURI
     }
 
