@@ -48,7 +48,7 @@ class GraceApp {
     GroovyScriptEngine scriptEngine
     //dirs
     boolean refreshing = false
-    File projectDir, appDir, domainsDir, controllersDir, viewsDir, interceptorsDir, configDir, initDir, assetDir, assetBuildDir,staticDir,scriptDir
+    File projectDir, appDir, domainsDir, controllersDir, viewsDir, interceptorsDir, configDir, initDir, assetDir, assetBuildDir, staticDir, scriptDir
     List<File> allDirs
 
     /**
@@ -69,9 +69,10 @@ class GraceApp {
         assetDir = new File(appDir, APP_ASSETS)
         assetBuildDir = new File(projectDir, 'build/assets')
         staticDir = new File(appDir, APP_STATIC)
-        scriptDir = new File(appDir,APP_SCRIPTS)
-        allDirs = [appDir, domainsDir, controllersDir, viewsDir, interceptorsDir, configDir, initDir, assetDir,staticDir,scriptDir]
+        scriptDir = new File(appDir, APP_SCRIPTS)
+        allDirs = [appDir, domainsDir, controllersDir, viewsDir, interceptorsDir, configDir, initDir, assetDir, staticDir, scriptDir]
         //config
+        config = config()
         environment = env
     }
 
@@ -93,6 +94,19 @@ class GraceApp {
         if (instance) return instance
         instance = new GraceApp()
         return instance
+    }
+
+    /**
+     * 获取配置
+     * @return
+     */
+    ConfigObject config() {
+        def configFile = new File(configDir, 'config.groovy')
+        if (configFile.exists()) {
+            return new ConfigSlurper(environment).parse(configFile.text)
+        } else {
+            log.warn("No config file found!")
+        }
     }
 
     /**
@@ -126,7 +140,7 @@ class GraceApp {
     void checkDirs() {
         log.info("check grace app dirs @ ${projectDir.absolutePath}")
         allDirs.each {
-            if (!it.exists() ) throw new Exception("目录不存在：${it.canonicalPath}")
+            if (!it.exists()) throw new Exception("目录不存在：${it.canonicalPath}")
         }
     }
 
@@ -150,16 +164,16 @@ class GraceApp {
         log.info("refresh request @ ${dirs ?: 'start'}")
 
         //重载控制器，拦截器
-        if (dirs == null || dirs?.find {it.endsWith('.groovy')}) {
+        if (dirs == null || dirs?.find { it.endsWith('.groovy') }) {
             //refresh routes
             Routes.clear()
 
             //重载配置
-            config = new ConfigSlurper(environment).parse(new File(configDir, 'config.groovy').text)
-            if (config.fileUpload.upload) Routes.post(config.fileUpload.upload){upload()}
-            if (config.fileUpload.download) Routes.get(config.fileUpload.download+'/@file'){download()}
-            if (config.assets.uri) Routes.get(config.assets.uri+'/@file'){asset()}
-            if (config.files.uri) Routes.get(config.files.uri+'/@file'){files()}
+            config = config()
+            if (config.fileUpload.upload) Routes.post(config.fileUpload.upload) { upload() }
+            if (config.fileUpload.download) Routes.get(config.fileUpload.download + '/@file') { download() }
+            if (config.assets.uri) Routes.get(config.assets.uri + '/@file') { asset() }
+            if (config.files.uri) Routes.get(config.files.uri + '/@file') { files() }
 
             //控制器
             controllersDir.eachFileRecurse {
@@ -213,7 +227,7 @@ class GraceApp {
      */
     GroovyScriptEngine getScriptEngine() {
         if (scriptEngine) return scriptEngine
-        scriptEngine = new GroovyScriptEngine(controllersDir.absolutePath, interceptorsDir.absolutePath,scriptDir.absolutePath)
+        scriptEngine = new GroovyScriptEngine(controllersDir.absolutePath, interceptorsDir.absolutePath, scriptDir.absolutePath)
         return scriptEngine
     }
 
