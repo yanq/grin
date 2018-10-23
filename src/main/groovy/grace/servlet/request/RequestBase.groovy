@@ -41,7 +41,7 @@ trait RequestBase {
     /**
      * not found
      */
-    void notFound(){
+    void notFound() {
         response.status = 404
         response.writer.write("No page found for ${request.requestURI}")
     }
@@ -106,6 +106,6 @@ trait RequestBase {
      * @return
      */
     Map toMap() {
-        return [request: request, response: response, session: session, context: context, params: params, headers: headers, g: g]
+        return [app: app, request: request, response: response, session: session, context: context, params: params, headers: headers, g: g]
     }
 }
