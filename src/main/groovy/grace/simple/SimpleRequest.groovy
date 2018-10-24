@@ -127,6 +127,11 @@ class SimpleRequest extends Request {
         return exchange.getResponseCode()
     }
 
+    @Override
+    def remoteIP() {
+        return ''
+    }
+
     //------------------------------------------------------------------------------------------------
 
     @Override

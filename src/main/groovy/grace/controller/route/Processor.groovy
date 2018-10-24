@@ -40,7 +40,7 @@ class Processor {
             request.notFound()
         }
 
-        log.info("${request.status() != -1 ? request.status() : 200} $uri (${route?.path ?: '-'}) , ${(System.nanoTime() - start) / 1000000}ms")
+        log.info("${request.status() != -1 ? request.status() : 200} ${request.remoteIP()} $uri (${route?.path ?: '-'}) , ${(System.nanoTime() - start) / 1000000}ms")
     }
 
     /**

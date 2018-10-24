@@ -12,6 +12,11 @@ import groovy.util.logging.Slf4j
 @CompileStatic
 class WebRequest extends Request implements JSON, HTML, Render, FileRender, ThymeleafRender {
     @Override
+    def remoteIP() {
+        request.getHeader("X-Real-Ip") ?: request.getRemoteAddr()
+    }
+
+    @Override
     int status() {
         return response.status
     }

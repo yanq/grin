@@ -33,6 +33,7 @@ abstract class Request {
     HttpExchange exchange
 
     //usually
+    abstract remoteIP()
     abstract int status()
     abstract void notFound()
     abstract void error(Exception e)
