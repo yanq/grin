@@ -37,7 +37,12 @@ class Processor {
             //after
             after(uri, request) //似乎返回结果也没啥意义
         } else {
-            request.notFound()
+            if (request.app.config.views.notFound){
+                request.response.setStatus(404)
+                request.render(request.app.config.views.notFound,[:])
+            }else {
+                request.notFound()
+            }
         }
 
         log.info("${request.status() != -1 ? request.status() : 200} ${request.remoteIP()} $uri (${route?.path ?: '-'}) , ${(System.nanoTime() - start) / 1000000}ms")

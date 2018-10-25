@@ -33,9 +33,14 @@ class GraceServlet extends GenericServlet {
         use(GraceCategory.class) {
             try {
                 Processor.processRequest(clearedURI, webRequest)
-            }catch(Exception e){
+            } catch (Exception e) {
                 e.printStackTrace()
-                webRequest.error(e)
+                if (app.config.views.error) {
+                    response.status = 500
+                    webRequest.render(app.config.views.error, [exception: e])
+                } else {
+                    webRequest.error(e)
+                }
             }
         }
     }

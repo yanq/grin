@@ -50,17 +50,13 @@ trait FileRender extends Render {
      * @return
      */
     void upload() {
-        try {
-            List fileNames = []
-            request.parts.each {
-                String fileName = FileUtil.fileUUIDName(it.submittedFileName)
-                it.write(fileName)
-                fileNames << fileName
-            }
-            render(fileNames.collect { "${app.config.fileUpload.download ?: ''}/$it" })
-        } catch (Exception e) {
-            render([])
+        List fileNames = []
+        request.parts.each {
+            String fileName = FileUtil.fileUUIDName(it.submittedFileName)
+            it.write(fileName)
+            fileNames << fileName
         }
+        render(fileNames.collect { "${app.config.fileUpload.download ?: ''}/$it" })
     }
 
     /**

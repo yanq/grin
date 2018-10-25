@@ -1,6 +1,7 @@
 package grace.common
 
 import com.sun.net.httpserver.HttpExchange
+import grace.app.GraceApp
 import groovy.json.StreamingJsonBuilder
 import groovy.xml.MarkupBuilder
 import javax.servlet.ServletContext
@@ -17,6 +18,7 @@ abstract class Request {
     String controllerName
     //参数
     Params params
+    GraceApp app
     //g
     GraceExpression g
     //servlet
