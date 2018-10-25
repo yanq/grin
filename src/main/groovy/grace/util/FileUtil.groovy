@@ -87,7 +87,7 @@ class FileUtil {
             long fileLength = target.length();
 
             if (request.getHeader("Range") != null) {
-                response.setHeader("Accept-Ranges", "bytes") //如果放在外面，普通文件也会影响，前段 Nginx gzip 就不起作用了。
+                response.setHeader("Accept-Ranges", "bytes") //通过修改nginx 配置文件生效了。可能不是这里的原因。
                 response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);//206  默认是 200，不用专门设置
 
                 def ranges = request.getHeader("Range").replaceAll("bytes=", "").split('-')
