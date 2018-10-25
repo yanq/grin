@@ -6,7 +6,8 @@ import org.thymeleaf.context.Context
 import org.thymeleaf.templateresolver.FileTemplateResolver
 
 trait ThymeleafRender extends RequestBase {
-    static templateEngine
+    static templateEngine //静态全局
+
     /**
      * view and model
      * 默认 thymeleaf 渲染
@@ -35,7 +36,7 @@ trait ThymeleafRender extends RequestBase {
         resolver.setPrefix(app.viewsDir.canonicalPath)
         resolver.setSuffix('.html')
         resolver.setCharacterEncoding('utf-8')
-        resolver.setCacheable(false) //todo 开发期间不缓存
+        resolver.setCacheable(!app.isDev())
         templateEngine.setTemplateResolver(resolver)
         return templateEngine
     }
