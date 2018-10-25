@@ -14,7 +14,7 @@ import javax.servlet.http.HttpSession
  * 作为闭包的代理，用于 IDE 提示。
  * 实际情况不一定全部实现。
  */
-abstract class Request {
+abstract class WebRequest {
     String controllerName
     //参数
     Params params

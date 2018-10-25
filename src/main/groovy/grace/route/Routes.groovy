@@ -1,6 +1,6 @@
 package grace.route
 
-import grace.common.Request
+import grace.common.WebRequest
 import grace.util.ClassUtil
 import groovy.util.logging.Slf4j
 
@@ -26,52 +26,52 @@ class Routes {
     static List<Interceptor> afterInterceptors = [] //后置拦截器
 
     //all method
-    static req(String path, @DelegatesTo(Request) Closure closure) {
+    static req(String path, @DelegatesTo(WebRequest) Closure closure) {
         addRoute(METHOD_ALL, path, closure)
     }
 
     //get
-    static get(String path, @DelegatesTo(Request) Closure closure) {
+    static get(String path, @DelegatesTo(WebRequest) Closure closure) {
         addRoute(METHOD_GET, path, closure)
     }
 
     //post
-    static post(String path, @DelegatesTo(Request) Closure closure) {
+    static post(String path, @DelegatesTo(WebRequest) Closure closure) {
         addRoute(METHOD_POST, path, closure)
     }
 
     //put
-    static put(String path, @DelegatesTo(Request) Closure closure) {
+    static put(String path, @DelegatesTo(WebRequest) Closure closure) {
         addRoute(METHOD_PUT, path, closure)
     }
 
     //delete
-    static delete(String path, @DelegatesTo(Request) Closure closure) {
+    static delete(String path, @DelegatesTo(WebRequest) Closure closure) {
         addRoute(METHOD_DELETE, path, closure)
     }
 
     //interceptors
-    static before(@DelegatesTo(Request) Closure<Boolean> closure) {
+    static before(@DelegatesTo(WebRequest) Closure<Boolean> closure) {
         before('/' + ClassUtil.propertyName(closure.owner.class) + '/**', closure)
     }
 
-    static before(String path, @DelegatesTo(Request) Closure<Boolean> closure) {
+    static before(String path, @DelegatesTo(WebRequest) Closure<Boolean> closure) {
         before(path, Interceptor.ORDER_NORMAL, closure)
     }
 
-    static before(String path, int order, @DelegatesTo(Request) Closure<Boolean> closure) {
+    static before(String path, int order, @DelegatesTo(WebRequest) Closure<Boolean> closure) {
         addInterceptor(path, order, closure, true)
     }
 
-    static after(@DelegatesTo(Request) Closure<Boolean> closure) {
+    static after(@DelegatesTo(WebRequest) Closure<Boolean> closure) {
         after('/' + ClassUtil.propertyName(closure.owner.class) + '/**', closure)
     }
 
-    static after(String path, @DelegatesTo(Request) Closure<Boolean> closure) {
+    static after(String path, @DelegatesTo(WebRequest) Closure<Boolean> closure) {
         after(path, Interceptor.ORDER_NORMAL, closure)
     }
 
-    static after(String path, int order, @DelegatesTo(Request) Closure<Boolean> closure) {
+    static after(String path, int order, @DelegatesTo(WebRequest) Closure<Boolean> closure) {
         addInterceptor(path, order, closure, false)
     }
 

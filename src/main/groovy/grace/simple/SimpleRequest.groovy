@@ -2,7 +2,7 @@ package grace.simple
 
 import com.sun.net.httpserver.HttpExchange
 import grace.common.Params
-import grace.common.Request
+import grace.common.WebRequest
 import groovy.json.StreamingJsonBuilder
 import groovy.xml.MarkupBuilder
 
@@ -10,7 +10,7 @@ import groovy.xml.MarkupBuilder
  * simple request
  * for http server 's handler
  */
-class SimpleRequest extends Request {
+class SimpleRequest extends WebRequest {
     boolean processed = false //自行处理
     HttpExchange exchange
     StreamingJsonBuilder json

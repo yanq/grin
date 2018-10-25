@@ -3,7 +3,7 @@ package grace.servlet
 import grace.app.GraceApp
 import grace.common.GraceExpression
 import grace.common.Params
-import grace.common.Request
+import grace.common.WebRequest
 import grace.util.FileUtil
 import groovy.json.StreamingJsonBuilder
 import groovy.util.logging.Slf4j
@@ -23,7 +23,7 @@ import javax.servlet.http.HttpSession
  * 包装请求，提供方便变量和方法使用数据
  */
 @Slf4j
-class GraceServletRequest extends Request {
+class GraceServletRequest extends WebRequest {
     static int ONE_DAY = 24 * 60 * 60 //second
     static TemplateEngine templateEngine //静态全局变量，thymeleaf 模板引擎
     //servlet

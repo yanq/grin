@@ -1,6 +1,6 @@
 package grace.route
 
-import grace.common.Request
+import grace.common.WebRequest
 import grace.util.ClassUtil
 import groovy.util.logging.Slf4j
 
@@ -15,7 +15,7 @@ class Processor {
      * @param request
      * @return
      */
-    static processRequest(String uri, Request request) {
+    static processRequest(String uri, WebRequest request) {
         long start = System.nanoTime()
 
         Route route = Routes.routes.find { it.matches(uri) }
@@ -49,7 +49,7 @@ class Processor {
      * @param request
      * @return
      */
-    private static boolean before(String uri, Request request) {
+    private static boolean before(String uri, WebRequest request) {
         Routes.beforeInterceptors.each {
             if (it.matches(uri)) {
                 Closure i = it.closure.clone()
@@ -68,7 +68,7 @@ class Processor {
      * @param request
      * @return
      */
-    private static boolean after(String uri, Request request) {
+    private static boolean after(String uri, WebRequest request) {
         Routes.afterInterceptors.each {
             if (it.matches(uri)) {
                 Closure i = it.closure.clone()
