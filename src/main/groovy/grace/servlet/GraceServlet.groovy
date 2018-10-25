@@ -1,7 +1,7 @@
 package grace.servlet
 
 import grace.app.GraceApp
-import grace.controller.route.Processor
+import grace.route.Processor
 import grace.servlet.request.WebRequest
 import grace.util.RegexUtil
 import groovy.util.logging.Slf4j

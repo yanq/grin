@@ -1,4 +1,4 @@
-package grace.controller.route
+package grace.route
 
 import grace.common.Request
 import grace.util.ClassUtil

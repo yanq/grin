@@ -3,7 +3,7 @@ package grace.simple
 import com.sun.net.httpserver.HttpExchange
 import com.sun.net.httpserver.HttpHandler
 import com.sun.net.httpserver.HttpServer
-import grace.controller.route.Processor
+import grace.route.Processor
 import grace.util.RegexUtil
 import groovy.util.logging.Slf4j
 

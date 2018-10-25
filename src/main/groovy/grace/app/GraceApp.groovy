@@ -5,8 +5,7 @@ import com.alibaba.druid.filter.logging.Slf4jLogFilter
 import com.alibaba.druid.filter.stat.StatFilter
 import com.alibaba.druid.pool.DruidDataSource
 import com.alibaba.druid.sql.SQLUtils
-import grace.controller.route.Routes
-import grace.datastore.DB
+import grace.route.Routes
 import groovy.util.logging.Slf4j
 import javax.sql.DataSource
 import java.nio.file.FileSystems
