@@ -27,12 +27,14 @@ abstract class Request {
     HttpSession session
     ServletContext context
     Map<String, String> headers
+
+    // http server exchange
+    HttpExchange exchange
+
     abstract Map toMap() // for template binding , above
     abstract void forward(String path)
     abstract void redirect(String location)
 
-    // exchange
-    HttpExchange exchange
 
     //usually
     abstract remoteIP()

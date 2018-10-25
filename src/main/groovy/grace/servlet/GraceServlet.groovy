@@ -2,7 +2,6 @@ package grace.servlet
 
 import grace.app.GraceApp
 import grace.route.Processor
-import grace.servlet.request.WebRequest
 import grace.util.RegexUtil
 import groovy.util.logging.Slf4j
 import javax.servlet.GenericServlet
@@ -28,19 +27,14 @@ class GraceServlet extends GenericServlet {
         HttpServletResponse response = (HttpServletResponse) res
 
         String clearedURI = RegexUtil.toURI(request.requestURI, request.getContextPath())
-        WebRequest webRequest = new WebRequest(request: request, response: response)
+        GraceServletRequest webRequest = new GraceServletRequest(request, response)
 
         use(GraceCategory.class) {
             try {
                 Processor.processRequest(clearedURI, webRequest)
             } catch (Exception e) {
+                webRequest.error(e)
                 e.printStackTrace()
-                if (app.config.views.error) {
-                    response.status = 500
-                    webRequest.render(app.config.views.error, [exception: e])
-                } else {
-                    webRequest.error(e)
-                }
             }
         }
     }
