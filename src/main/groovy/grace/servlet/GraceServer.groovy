@@ -1,17 +1,16 @@
-package grace.app
+package grace.servlet
 
-import grace.servlet.GraceServlet
+import grace.app.GraceApp
 import groovy.util.logging.Slf4j
 import io.undertow.Undertow
 import io.undertow.servlet.Servlets
 import io.undertow.servlet.api.DeploymentInfo
 import io.undertow.servlet.api.DeploymentManager
-
 import javax.servlet.MultipartConfigElement
 
 /**
  * Server
- * 启动服务器
+ * 启动服务器，使用 undertow servlet 容器。
  */
 @Slf4j
 class GraceServer {
