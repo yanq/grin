@@ -251,7 +251,7 @@ class GraceApp {
                 while (true) {
                     WatchKey key = watchService.take()
                     try {
-                        List<String> names = key.pollEvents()*.context()*.path
+                        List<String> names = key.pollEvents()*.context()*.toString()
                         refresh(names)
                     } catch (Exception e) {
                         log.warn("file change deal fail")

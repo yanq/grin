@@ -64,7 +64,8 @@ class GraceMain {
         if (cmd == 'run') {
             def server = new GraceServer()
             if (args.contains('prod')) {
-                server.startApp(null, GraceApp.ENV_PROD)
+                GraceApp.setRootAndEnv(null,GraceApp.ENV_PROD)
+                server.startApp()
             } else {
                 server.startApp()
             }
