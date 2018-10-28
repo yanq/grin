@@ -35,7 +35,7 @@ class GraceServer {
         log.info("start app @ ${app.projectDir.absolutePath} ${app.environment}")
 
         app.checkDirs() //确保是一个 grace 目录结构
-        app.startFileWatcher()
+        if (app.isDev()) app.startFileWatcher() //只是开发模式下启动文件监控，即时刷新
         app.refresh()
         //config
         if (app.config.server.port) this.port = app.config.server.port
