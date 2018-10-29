@@ -8,7 +8,7 @@ import groovy.util.logging.Slf4j
  * 路由工具类
  * 提供方便的方法定义路由
  */
-@Slf4j
+@Slf4j('RoutesLog')
 class Routes {
     static final METHOD_ALL = '*'
     static final String METHOD_DELETE = "DELETE"
@@ -87,10 +87,10 @@ class Routes {
         if (!path.startsWith('/')) path = "/${ClassUtil.propertyName(ownerClass)}/$path"
 
         if (routes.find { it.path == path }) {
-            log.error("route path {$path} already exists !")
+            RoutesLog.error("route path {$path} already exists !")
             throw new Exception("route path {$path} already exists !")
         } else {
-            log.info("add a route @ ${ownerClass.simpleName} $method $path")
+            RoutesLog.info("add a route @ ${ownerClass.simpleName} $method $path")
             routes.add(new Route(method: method, path: path, closure: closure))
         }
     }
@@ -110,11 +110,11 @@ class Routes {
         List<Interceptor> target = before ? beforeInterceptors : afterInterceptors
 
         if (target.find { it.path == path }) {
-            log.error("interceptor path {$path} already exists !")
+            RoutesLog.error("interceptor path {$path} already exists !")
             throw new Exception("interceptor path {$path} already exists !")
         } else {
             target.add(new Interceptor(path: path, order: order, closure: closure))
-            log.info("add a interceptor @ ${ownerClass.simpleName} $path")
+            RoutesLog.info("add a interceptor @ ${ownerClass.simpleName} $path")
         }
     }
 

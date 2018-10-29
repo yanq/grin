@@ -27,7 +27,6 @@ abstract class WebRequest {
     HttpSession session
     ServletContext context
     Map<String, String> headers
-
     // http server exchange
     HttpExchange exchange
 

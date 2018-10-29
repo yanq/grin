@@ -45,10 +45,10 @@ class Validator {
     /**
      * 验证 size
      * @param value
-     * @param size
+     * @param range
      * @return
      */
-    static boolean validateSize(String value, Range size) {
-        return size.contains(value.size())
+    static boolean validateSize(String value, Range range) {
+        return range.containsWithinBounds(value.size())
     }
 }
