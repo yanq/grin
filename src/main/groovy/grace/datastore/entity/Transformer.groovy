@@ -15,6 +15,7 @@ import java.time.format.DateTimeFormatter
 class Transformer {
     static List<String> dateFormats = ['yyyy-MM-dd', 'yyyyMMdd']
     static List<String> dateTimeFormats = ['EEE MMM dd HH:mm:ss z yyyy',
+                                           "yyyy-MM-dd'T'HH:mm:ss.SSSSSS", "yyyy-MM-dd HH:mm:ss.SSSSSS",
                                            "yyyy-MM-dd'T'HH:mm:ss.SSS", "yyyy-MM-dd HH:mm:ss.SSS",
                                            "yyyy-MM-dd'T'HH:mm:ss", "yyyy-MM-dd HH:mm:ss",
                                            "yyyy-MM-dd'T'HH:mm", "yyyy-MM-dd HH:mm"]
@@ -82,7 +83,7 @@ class Transformer {
      * @param formats
      * @return
      */
-    static toDate(Object propValue, List formats) {
+    static toDate(Object propValue, List formats=[]) {
         if (propValue instanceof Date) return propValue
 
         List<String> list = formats ?: allFormats
@@ -106,7 +107,7 @@ class Transformer {
      * @param formats
      * @return
      */
-    static toLoaclDate(Object propValue, List formats) {
+    static toLoaclDate(Object propValue, List formats=[]) {
         if (propValue instanceof LocalDate) return propValue
 
         List<String> list = formats ?: dateFormats
@@ -130,7 +131,7 @@ class Transformer {
      * @param formats
      * @return
      */
-    static toLocalDateTime(Object propValue, List formats) {
+    static toLocalDateTime(Object propValue, List formats=[]) {
         if (propValue instanceof LocalDateTime) return propValue
 
         List<String> list = formats ?: dateTimeFormats
