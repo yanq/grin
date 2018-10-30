@@ -1,5 +1,6 @@
 package grace.route
 
+import grace.common.FlashScope
 import grace.common.WebRequest
 import grace.util.ClassUtil
 import groovy.util.logging.Slf4j
@@ -28,6 +29,9 @@ class Processor {
             //路径参数
             def pathParas = route.getPathParams(uri)
             if (pathParas) webRequest.params.putAll(pathParas)
+
+            //flash next
+            FlashScope.next(webRequest.session.id)
 
             //before
             boolean pass = before(uri, webRequest)

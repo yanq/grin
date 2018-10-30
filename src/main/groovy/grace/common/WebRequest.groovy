@@ -30,6 +30,9 @@ abstract class WebRequest {
     // http server exchange
     HttpExchange exchange
 
+    //flash
+    abstract FlashScope.Flash getFlash()
+
     abstract Map toMap() // for template binding , above
     abstract void forward(String path)
     abstract void redirect(String location)

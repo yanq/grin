@@ -1,6 +1,7 @@
 package grace.simple
 
 import com.sun.net.httpserver.HttpExchange
+import grace.common.FlashScope
 import grace.common.Params
 import grace.common.WebRequest
 import groovy.json.StreamingJsonBuilder
@@ -144,6 +145,9 @@ class SimpleRequest extends WebRequest {
 
     @Override
     void render(String view, Map model) { throw new Exception("没有实现的方法") }
+
+    @Override
+    FlashScope.Flash getFlash() { throw new Exception("没有实现的方法") }
 
     @Override
     Map toMap() { throw new Exception("没有实现的方法") }

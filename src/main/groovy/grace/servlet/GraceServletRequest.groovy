@@ -1,6 +1,7 @@
 package grace.servlet
 
 import grace.app.GraceApp
+import grace.common.FlashScope
 import grace.common.GraceExpression
 import grace.common.Params
 import grace.common.WebRequest
@@ -75,6 +76,15 @@ class GraceServletRequest extends WebRequest {
     }
 
     /**
+     * flash
+     * @return
+     */
+    @Override
+    FlashScope.Flash getFlash() {
+        FlashScope.getFlash(getSession().id)
+    }
+
+    /**
      * context
      * @return
      */
@@ -127,7 +137,7 @@ class GraceServletRequest extends WebRequest {
      * @return
      */
     Map toMap() {
-        return [app: app, request: request, response: response, session: session, context: context, params: params, headers: headers, g: g]
+        return [app: app, request: request, response: response, session: session, flash: flash, context: context, params: params, headers: headers, g: g]
     }
 
     /**
@@ -154,8 +164,8 @@ class GraceServletRequest extends WebRequest {
         render(message)
     }
 /**
-     * 不存在页面
-     */
+ * 不存在页面
+ */
     void notFound() {
         response.status = 404
 
