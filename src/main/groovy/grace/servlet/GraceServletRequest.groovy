@@ -148,7 +148,12 @@ class GraceServletRequest extends WebRequest {
         response.status
     }
 
-    /**
+    @Override
+    void sendMessage(int status, String message) {
+        response.setStatus(status)
+        render(message)
+    }
+/**
      * 不存在页面
      */
     void notFound() {

@@ -128,6 +128,14 @@ class SimpleRequest extends WebRequest {
     }
 
     @Override
+    void sendMessage(int status, String message) {
+        byte[] bytes = message.getBytes('utf-8')
+        getExchange().sendResponseHeaders(status, bytes.length)
+        getExchange().getResponseBody().write(bytes)
+        getExchange().getResponseBody().close()
+    }
+
+    @Override
     def remoteIP() {
         return ''
     }

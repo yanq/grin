@@ -38,6 +38,8 @@ abstract class WebRequest {
     //usually
     abstract remoteIP()
     abstract int status()
+    //send message
+    abstract void sendMessage(int status,String message)
     abstract void notFound()
     abstract void error(Exception e)
 
