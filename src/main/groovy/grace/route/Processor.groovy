@@ -12,35 +12,35 @@ class Processor {
     /**
      * 处理请求
      * @param uri
-     * @param request
+     * @param webRequest
      * @return
      */
-    static processRequest(String uri, WebRequest request) {
+    static processRequest(String uri, WebRequest webRequest) {
         long start = System.nanoTime()
 
         Route route = Routes.routes.find { it.matches(uri) }
         if (route) {
             Closure closure = route.closure.clone()
-            closure.delegate = request
+            closure.delegate = webRequest
             closure.setResolveStrategy(Closure.DELEGATE_ONLY)
-            request.controllerName = ClassUtil.propertyName(closure.owner.class)
+            webRequest.controllerName = ClassUtil.propertyName(closure.owner.class)
 
             //路径参数
             def pathParas = route.getPathParams(uri)
-            if (pathParas) request.params.putAll(pathParas)
+            if (pathParas) webRequest.params.putAll(pathParas)
 
             //before
-            boolean pass = before(uri, request)
+            boolean pass = before(uri, webRequest)
             if (!pass) return //结束了
             //process
             Object result = closure()
             //after
-            after(uri, request) //似乎返回结果也没啥意义
+            after(uri, webRequest) //似乎返回结果也没啥意义
         } else {
-            request.notFound()
+            webRequest.notFound()
         }
 
-        log.info("${request.status() != -1 ? request.status() : 200} ${request.remoteIP()} $uri (${route?.path ?: '-'}) , ${(System.nanoTime() - start) / 1000000}ms")
+        log.info("${webRequest.status() != -1 ? webRequest.status() : 200} ${webRequest.remoteIP()} $uri (${route?.path ?: '-'}) , ${(System.nanoTime() - start) / 1000000}ms")
     }
 
     /**
@@ -50,16 +50,15 @@ class Processor {
      * @return
      */
     private static boolean before(String uri, WebRequest request) {
-        Routes.beforeInterceptors.each {
+        def fail = Routes.beforeInterceptors.find {
             if (it.matches(uri)) {
                 Closure i = it.closure.clone()
                 i.delegate = request
                 i.setResolveStrategy(Closure.DELEGATE_ONLY)
-                boolean r = i()
-                if (r == false) return false
+                return !i()
             }
         }
-        return true
+       !fail
     }
 
     /**
@@ -74,7 +73,7 @@ class Processor {
                 Closure i = it.closure.clone()
                 i.delegate = request
                 i.setResolveStrategy(Closure.DELEGATE_ONLY)
-                return i()
+                i() //each 里面的 return 毫无意义
             }
         }
     }
