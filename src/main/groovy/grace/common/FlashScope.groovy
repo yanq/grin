@@ -35,16 +35,25 @@ class FlashScope {
      * flash
      * flash 数据存储及切换
      */
-    static class Flash {
-        private List<FlashValue> valueList = new ArrayList<>()
+    static class Flash extends AbstractMap<String, Object> {
+        private Set<FlashValue> flashValues = new HashSet<>()
+
+        /**
+         * 切换页面
+         * 保留上个的，清理过期的
+         */
+        void next() {
+            flashValues = flashValues.findAll { it.count == 0 } //保留上次的
+            flashValues.each { it.count = it.count + 1 } //然后加一
+        }
 
         /**
          * 获取值
          * @param key
          * @return
          */
-        Object getProperty(String key) {
-            valueList.find { it.key == key }?.value
+        Object get(Object key) {
+            flashValues.find { it.key == key }?.value
         }
 
         /**
@@ -52,38 +61,35 @@ class FlashScope {
          * @param key
          * @param value
          */
-        void setProperty(String key, Object value) {
-            def fv = valueList.find { it.key == key }
+        Object put(Object key, Object value) {
+            def fv = flashValues.find { it.key == key }
             if (fv) {
                 fv.count = 0
                 fv.value = value
             } else {
                 fv = new FlashValue(key, value)
-                valueList << fv
+                flashValues << fv
             }
         }
 
         /**
-         * 切换页面
-         * 保留上个的，清理过期的
+         * set
+         * @return
          */
-        void next() {
-            valueList = valueList.findAll { it.count == 0 } //保留上次的
-            valueList.each { it.count = it.count + 1 } //然后加一
+        @Override
+        Set<Entry> entrySet() {
+            return flashValues
         }
-    }
 
-    /**
-     * flash value
-     */
-    class FlashValue {
-        String key
-        Object value
-        int count = 0 //第一次创建，0，跳转后页面，1
+        /**
+         * flash value
+         */
+        class FlashValue extends AbstractMap.SimpleEntry<String, Object> {
+            int count = 0 //第一次创建，0，跳转后页面，1
 
-        FlashValue(String key, Object value) {
-            this.key = key
-            this.value = value
+            FlashValue(String key, Object value) {
+                super(key, value)
+            }
         }
     }
 }
