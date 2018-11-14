@@ -15,7 +15,7 @@ class Constraints {
         if (c) {
             c = c.clone()
             c.delegate = this
-            c.setResolveStrategy(Closure.DELEGATE_ONLY)
+            c.setResolveStrategy(Closure.DELEGATE_FIRST)
             c.call()
         }
     }
