@@ -98,7 +98,9 @@ class GraceMain {
         if (cmd == 'run-script') {
             mustOrFail args.size() > 1, "缺少类名"
             String script = args[1].endsWith('.groovy') ? args[1] : args[1] + '.groovy'
+            def start = System.currentTimeMillis()
             GraceApp.instance.scriptEngine.run(script, '')
+            println("Run script ${script},use time ${(System.currentTimeMillis()-start)/1000}s.")
         }
     }
 }
