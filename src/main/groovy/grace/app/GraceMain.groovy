@@ -15,8 +15,9 @@ class GraceMain {
             'create-domain'    : ['create domain class'],
             'create-controller': ['create controller class'],
             'generate-all'     : ['generate controller and views from domain class'],
-            'run-script'       : ['generate controller and views from domain class']
+            'run-script'       : ['run script']
     ]
+
     /**
      * 用法提示
      * @return
@@ -30,6 +31,12 @@ class GraceMain {
         println 'Enjoy it!'
     }
 
+    /**
+     * 满足条件，否则退出
+     * @param expression
+     * @param title
+     * @return
+     */
     static mustOrFail(boolean expression, String title) {
         if (!expression) {
             println(title)
@@ -64,7 +71,7 @@ class GraceMain {
         if (cmd == 'run') {
             def server = new GraceServer()
             if (args.contains('prod')) {
-                GraceApp.setRootAndEnv(null,GraceApp.ENV_PROD)
+                GraceApp.setRootAndEnv(null, GraceApp.ENV_PROD)
                 server.startApp()
             } else {
                 server.startApp()
@@ -100,7 +107,7 @@ class GraceMain {
             String script = args[1].endsWith('.groovy') ? args[1] : args[1] + '.groovy'
             def start = System.currentTimeMillis()
             GraceApp.instance.scriptEngine.run(script, '')
-            println("Run script ${script},use time ${(System.currentTimeMillis()-start)/1000}s.")
+            println("Run script ${script},use time ${(System.currentTimeMillis() - start) / 1000}s.")
         }
     }
 }
