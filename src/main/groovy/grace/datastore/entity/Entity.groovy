@@ -20,7 +20,7 @@ trait Entity<D> {
     }
 
     /**
-     * get ids
+     * get all
      * 获取多条
      * @param ids
      * @return
@@ -72,6 +72,10 @@ trait Entity<D> {
      */
     static EntityImpl.Where where(String sql, List params = []) {
         new EntityImpl.Where(whereSql: sql, params: params, entityClass: this)
+    }
+
+    static EntityImpl.Where where(String sql, Object... params) {
+        new EntityImpl.Where(whereSql: sql, params: params.toList(), entityClass: this)
     }
 
     /**
