@@ -15,8 +15,22 @@ trait Entity<D> {
      * @param id
      * @return
      */
-    static get(Serializable id) {
+    static D get(Serializable id) {
         EntityImpl.get(this, id)
+    }
+
+    /**
+     * get ids
+     * 获取多条
+     * @param ids
+     * @return
+     */
+    static List<D> getAll(Serializable... ids) {
+        new EntityImpl.Where(whereSql: "id in (${ids.collect { '?' }.join(',')})", params: ids.toList(), entityClass: this).list()
+    }
+
+    static List<D> getAll(List<Serializable> ids) {
+        new EntityImpl.Where(whereSql: "id in (${ids.collect { '?' }.join(',')})", params: ids, entityClass: this).list()
     }
 
     /**
@@ -24,7 +38,7 @@ trait Entity<D> {
      * @param params
      * @return
      */
-    static list(Map params = null) {
+    static List<D> list(Map params = null) {
         EntityImpl.list(this, params)
     }
 
@@ -80,7 +94,7 @@ trait Entity<D> {
      * 属性列表
      * @return
      */
-    static List<String> getProps(){
+    static List<String> getProps() {
         EntityImpl.findPropertiesToPersist(this)
     }
 
@@ -89,8 +103,8 @@ trait Entity<D> {
      * @param params
      * @return
      */
-    D bind(Params params){
-        EntityImpl.bind(this,params)
+    D bind(Params params) {
+        EntityImpl.bind(this, params)
     }
 
     /**
@@ -98,7 +112,7 @@ trait Entity<D> {
      * @param params
      * @return
      */
-    static from(Params params){
-        EntityImpl.bind(this,params)
+    static from(Params params) {
+        EntityImpl.bind(this, params)
     }
 }
