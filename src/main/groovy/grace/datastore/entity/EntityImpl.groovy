@@ -165,18 +165,18 @@ class EntityImpl {
     /**
      * where 查询
      */
-    static class Where {
+    static class Where<D> {
         String whereSql
         List params
         Class entityClass
 
-        def get() {
+        D get() {
             List list = list([offset: 0, max: 1])
             if (list) return list[0]
             return null
         }
 
-        List list(Map pageParams) {
+        List<D> list(Map pageParams) {
             return DB.withSql { Sql sql ->
                 List list = []
                 List rows = sql.rows("select * from ${findTableName(entityClass)} ${whereSql ? 'where ' + whereSql : ''} ${DBUtil.params(pageParams)}".toString(), params)

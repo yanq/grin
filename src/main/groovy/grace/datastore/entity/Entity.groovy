@@ -70,11 +70,11 @@ trait Entity<D> {
      * where 自定义条件查询
      * @param sql
      */
-    static EntityImpl.Where where(String sql, List params = []) {
+    static EntityImpl.Where<D> where(String sql, List params = []) {
         new EntityImpl.Where(whereSql: sql, params: params, entityClass: this)
     }
 
-    static EntityImpl.Where where(String sql, Object... params) {
+    static EntityImpl.Where<D> where(String sql, Object... params) {
         new EntityImpl.Where(whereSql: sql, params: params.toList(), entityClass: this)
     }
 
