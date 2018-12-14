@@ -6,6 +6,8 @@ import grace.datastore.DBUtil
 import groovy.sql.GroovyRowResult
 import groovy.sql.Sql
 import groovy.util.logging.Slf4j
+import org.hamcrest.core.IsInstanceOf
+
 import java.lang.reflect.Modifier
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -140,19 +142,28 @@ class EntityImpl {
         List<String> properties = findPropertiesToPersist(target)
         properties.each {
             String key = it
+            Class propClass = target.getDeclaredField(it)?.type
+            //处理属性对表列的映射
             if (columnMap.containsKey(key)) {
                 key = columnMap[key]
             } else {
                 key = DBUtil.toDbName(key)
+                if (propClass.interfaces.contains(Entity)) {
+                    key = key + "_id"
+                }
             }
+            //从 result 中取值并赋值给实体
             if (result.containsKey(key)) {
-                Class propClass = target.getDeclaredField(it)?.type
                 switch (propClass) {
                     case LocalDate:
                         entity[(it)] = result[key].toLocalDate()
                         break
                     case LocalDateTime:
                         entity[(it)] = result[key].toLocalDateTime()
+                        break
+                    case Entity:
+                        entity[(it)] = propClass.newInstance()
+                        entity[(it)]['id'] = result[key]
                         break
                     default:
                         entity[(it)] = result[key]
