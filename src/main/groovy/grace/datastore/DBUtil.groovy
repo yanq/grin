@@ -1,5 +1,7 @@
 package grace.datastore
 
+import grace.datastore.entity.Entity
+
 /**
  * db 工具类
  */
@@ -38,5 +40,32 @@ class DBUtil {
     static String params(Map params) {
         if (!params) return ''
         return "${params.order ? 'order by ' + params.order : ''} ${params.limit ? 'limit ' + params.limit : ''} ${(params.limit && params.offset) ? 'offset ' + params.offset : ''}"
+    }
+
+    /**
+     * 获取关联实体
+     * 避免 n+1 现象
+     * @param list
+     * @param names
+     */
+    static void fetch(List list, String... names) {
+        if (!list) return
+        def entityClass = list[0].class
+        if (!names) {
+            names = entityClass.declaredFields.findAll { it.type.interfaces.contains(Entity) }.name
+        }
+
+        names.each {
+            def name = it
+            def property = list[0][name]
+            def propertyClass = property.class
+            def ids = list.collect { it[name] }.id.unique()
+            def propertyList = propertyClass.getAll(ids)
+            list.each {
+                def entity = it
+                def p = propertyList.find { it.id = entity[name].id }
+                if (p) entity[name] = p
+            }
+        }
     }
 }
