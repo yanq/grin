@@ -2,7 +2,6 @@ package grace.datastore.entity
 
 import grace.common.Params
 import grace.datastore.DB
-import grace.datastore.DBUtil
 import groovy.sql.GroovyRowResult
 import groovy.sql.Sql
 import groovy.util.logging.Slf4j
@@ -49,7 +48,7 @@ class EntityImpl {
     static list(Class target, Map params) {
         Sql sql = DB.sql
         List list = []
-        List rows = sql.rows("select * from ${findTableName(target)} ${DBUtil.params(params)}".toString())
+        List rows = sql.rows("select * from ${findTableName(target)} ${EntityUtil.params(params)}".toString())
         rows.each { row ->
             list << bindResultToEntity(row, target)
         }
@@ -85,9 +84,9 @@ class EntityImpl {
                     kvs << [(columnMap[it]): property]
                 } else {
                     if (entity[it] instanceof Entity) {
-                        kvs << [(DBUtil.toDbName(it) + '_id'): property.id]
+                        kvs << [(EntityUtil.toDbName(it) + '_id'): property.id]
                     } else {
-                        kvs << [(DBUtil.toDbName(it)): property]
+                        kvs << [(EntityUtil.toDbName(it)): property]
                     }
                 }
             }
@@ -150,7 +149,7 @@ class EntityImpl {
      * @return
      */
     static String findTableName(Class target) {
-        target[MAPPING]?.table ?: DBUtil.toDbName(target.simpleName)
+        target[MAPPING]?.table ?: EntityUtil.toDbName(target.simpleName)
     }
 
     /**
@@ -194,7 +193,7 @@ class EntityImpl {
             if (columnMap.containsKey(key)) {
                 key = columnMap[key]
             } else {
-                key = DBUtil.toDbName(key)
+                key = EntityUtil.toDbName(key)
                 if (propClass.interfaces.contains(Entity)) {
                     key = key + "_id"
                 }
@@ -237,7 +236,7 @@ class EntityImpl {
         List<D> list(Map pageParams) {
             return DB.withSql { Sql sql ->
                 List list = []
-                List rows = sql.rows("select * from ${findTableName(entityClass)} ${whereSql ? 'where ' + whereSql : ''} ${DBUtil.params(pageParams)}".toString(), params)
+                List rows = sql.rows("select * from ${findTableName(entityClass)} ${whereSql ? 'where ' + whereSql : ''} ${EntityUtil.params(pageParams)}".toString(), params)
                 rows.each { row ->
                     list << bindResultToEntity(row, entityClass)
                 }

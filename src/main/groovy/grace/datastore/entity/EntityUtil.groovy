@@ -1,11 +1,11 @@
-package grace.datastore
+package grace.datastore.entity
 
 import grace.datastore.entity.Entity
 
 /**
- * db 工具类
+ * 实体工具类
  */
-class DBUtil {
+class EntityUtil {
     /**
      * 将属性名称编程数据库风格名称
      * @param propName
