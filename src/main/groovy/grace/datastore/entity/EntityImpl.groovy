@@ -6,8 +6,6 @@ import grace.datastore.DBUtil
 import groovy.sql.GroovyRowResult
 import groovy.sql.Sql
 import groovy.util.logging.Slf4j
-import org.hamcrest.core.IsInstanceOf
-
 import java.lang.reflect.Modifier
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -68,11 +66,18 @@ class EntityImpl {
         List ps = findPropertiesToPersist(entity.class)
         Map kvs = [:]
         ps.each {
-            String name = it
-            if (columnMap.containsKey(it)) {
-                kvs << [(columnMap[it]): entity[it]]
-            } else {
-                kvs << [(DBUtil.toDbName(it)): entity[name]]
+            def property = entity[it]
+            //null，不作处理
+            if (property != null) {
+                if (columnMap.containsKey(it)) {
+                    kvs << [(columnMap[it]): property]
+                } else {
+                    if (entity[it] instanceof Entity) {
+                        kvs << [(DBUtil.toDbName(it) + '_id'): property.id]
+                    } else {
+                        kvs << [(DBUtil.toDbName(it)): property]
+                    }
+                }
             }
         }
         kvs.remove('id')
