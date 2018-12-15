@@ -10,7 +10,6 @@ trait Entity<D> {
 
     /**
      * get
-     * todo 如果带着 D ，编译的时候异常，找不到类型 D，这不太科学。
      * this 返回的是实现的类，这是 trait 的特性。
      * @param id
      * @return
@@ -64,6 +63,14 @@ trait Entity<D> {
      */
     boolean delete() {
         EntityImpl.delete(this)
+    }
+
+    /**
+     * 刷新
+     * @return
+     */
+    boolean refresh(){
+        EntityImpl.refresh(this)
     }
 
     /**

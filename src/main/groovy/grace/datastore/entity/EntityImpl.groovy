@@ -40,6 +40,12 @@ class EntityImpl {
         return entity
     }
 
+    /**
+     * list
+     * @param target
+     * @param params
+     * @return
+     */
     static list(Class target, Map params) {
         Sql sql = DB.sql
         List list = []
@@ -51,12 +57,18 @@ class EntityImpl {
         return list
     }
 
+    /**
+     * count
+     * @param target
+     * @return
+     */
     static int count(Class target) {
         return DB.withSql { sql -> sql.firstRow("select count(*) as num from ${findTableName(target)}".toString()).num }
     }
 
     /**
      * save
+     * 插入或更新
      * @param entity
      */
     static save(Object entity) {
@@ -100,9 +112,26 @@ class EntityImpl {
         return entity
     }
 
-
+    /**
+     * delete
+     * 删除
+     * @param entity
+     * @return
+     */
     static boolean delete(Object entity) {
         return DB.withSql { sql -> sql.execute "delete from ${findTableName(entity.class)} where id = ?".toString(), [entity.id] }
+    }
+
+    /**
+     * refresh
+     * @param entity
+     * @return
+     */
+    static refresh(Object entity) {
+        DB.withSql { sql ->
+            def row = sql.firstRow "select * from ${findTableName(entity.class)} where id = ?".toString(), [entity.id]
+            bindResultToEntityInstance(row, entity)
+        }
     }
 
     /**
@@ -143,11 +172,24 @@ class EntityImpl {
         if (!result) return null
 
         def entity = target.newInstance()
-        def columnMap = columnMap(target)
-        List<String> properties = findPropertiesToPersist(target)
+        return bindResultToEntityInstance(result, entity)
+    }
+
+    /**
+     * 绑定 row 到 实体实例
+     * @param result
+     * @param entity
+     * @return
+     */
+    static bindResultToEntityInstance(GroovyRowResult result, Object entity) {
+        if (!result) return null
+
+        def clasz = entity.class
+        def columnMap = columnMap(clasz)
+        List<String> properties = findPropertiesToPersist(clasz)
         properties.each {
             String key = it
-            Class propClass = target.getDeclaredField(it)?.type
+            Class propClass = clasz.getDeclaredField(it)?.type
             //处理属性对表列的映射
             if (columnMap.containsKey(key)) {
                 key = columnMap[key]
