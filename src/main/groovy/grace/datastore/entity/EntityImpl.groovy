@@ -62,7 +62,7 @@ class EntityImpl {
      * @return
      */
     static int count(Class target) {
-        return DB.withSql { sql -> sql.firstRow("select count(*) as num from ${findTableName(target)}".toString()).num }
+        return DB.withSql { Sql sql -> sql.firstRow("select count(*) as num from ${findTableName(target)}".toString()).num }
     }
 
     /**
@@ -118,7 +118,7 @@ class EntityImpl {
      * @return
      */
     static boolean delete(Object entity) {
-        return DB.withSql { sql -> sql.execute "delete from ${findTableName(entity.class)} where id = ?".toString(), [entity.id] }
+        return DB.withSql { Sql sql -> sql.execute "delete from ${findTableName(entity.class)} where id = ?".toString(), [entity.id] }
     }
 
     /**
@@ -127,7 +127,7 @@ class EntityImpl {
      * @return
      */
     static refresh(Object entity) {
-        DB.withSql { sql ->
+        DB.withSql { Sql sql ->
             def row = sql.firstRow "select * from ${findTableName(entity.class)} where id = ?".toString(), [entity.id]
             bindResultToEntityInstance(row, entity)
         }
@@ -246,7 +246,7 @@ class EntityImpl {
         }
 
         int count() {
-            DB.withSql { sql -> sql.firstRow("select count(*) as num from ${findTableName(entityClass)} ${whereSql ? 'where ' + whereSql : ''}".toString(), params).num }
+            DB.withSql { Sql sql -> sql.firstRow("select count(*) as num from ${findTableName(entityClass)} ${whereSql ? 'where ' + whereSql : ''}".toString(), params).num }
         }
     }
 
