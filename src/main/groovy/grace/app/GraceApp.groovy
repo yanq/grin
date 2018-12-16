@@ -89,7 +89,7 @@ class GraceApp {
      * 获取单例
      * @return
      */
-    static getInstance() {
+    static GraceApp getInstance() {
         if (instance) return instance
         instance = new GraceApp()
         return instance

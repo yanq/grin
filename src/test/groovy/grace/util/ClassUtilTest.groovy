@@ -19,5 +19,6 @@ class ClassUtilTest extends GroovyTestCase {
     void testDate() {
         println Transformer.toLocalDateTime("2018-10-22T15:53:48.860")
         println Transformer.toLocalDateTime("2018-10-22T15:53:48.860698")
+        println Transformer.toDate("Sun Dec 16 16:37:26 CST 2018")
     }
 }

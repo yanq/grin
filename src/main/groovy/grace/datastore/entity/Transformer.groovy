@@ -14,7 +14,7 @@ import java.time.format.DateTimeFormatter
 @Slf4j
 class Transformer {
     static List<String> dateFormats = ['yyyy-MM-dd', 'yyyyMMdd']
-    static List<String> dateTimeFormats = ['EEE MMM dd HH:mm:ss z yyyy',
+    static List<String> dateTimeFormats = ['EEE MMM dd HH:mm:ss z yyyy',"EEE MMM d HH:mm:ss 'CST' yyyy",
                                            "yyyy-MM-dd'T'HH:mm:ss.SSSSSS", "yyyy-MM-dd HH:mm:ss.SSSSSS",
                                            "yyyy-MM-dd'T'HH:mm:ss.SSS", "yyyy-MM-dd HH:mm:ss.SSS",
                                            "yyyy-MM-dd'T'HH:mm:ss", "yyyy-MM-dd HH:mm:ss",
@@ -90,7 +90,8 @@ class Transformer {
         Date date = null
         for (int i = 0; i < list.size(); i++) {
             try {
-                date = new SimpleDateFormat(list[i]).parse(propValue)
+                //这里有个诡异的问题。如果没有 locale，脚本测试都可以，但 web 下就不行了。web 下会默认当前的 locale，如含中文，常规格式解析不了了
+                date = new SimpleDateFormat(list[i],Locale.ENGLISH).parse(propValue)
             } catch (Exception e) {
                 log.debug("Exception :${e.getMessage()}")
                 // e.printStackTrace()
