@@ -79,18 +79,15 @@ class EntityImpl {
         Map kvs = [:]
         ps.each {
             def property = entity[it]
-            //null，不作处理 todo 这里可能有坑，如果要设置为 null 呢
-            if (property != null) {
-                //如果是 Date，转换成 LocalDateTime，pg 当前的驱动不支持 Date 了。mysql 无影响。
-                if (property instanceof Date) property = java.time.LocalDateTime.ofInstant(property.toInstant(), ZoneId.systemDefault())
-                if (columnMap.containsKey(it)) {
-                    kvs << [(columnMap[it]): property]
+            //如果是 Date，转换成 LocalDateTime，pg 当前的驱动不支持 Date 了。mysql 无影响。
+            if (property instanceof Date) property = java.time.LocalDateTime.ofInstant(property.toInstant(), ZoneId.systemDefault())
+            if (columnMap.containsKey(it)) {
+                kvs << [(columnMap[it]): property]
+            } else {
+                if (entity[it] instanceof Entity) {
+                    kvs << [(EntityUtil.toDbName(it) + '_id'): property?.id]
                 } else {
-                    if (entity[it] instanceof Entity) {
-                        kvs << [(EntityUtil.toDbName(it) + '_id'): property.id]
-                    } else {
-                        kvs << [(EntityUtil.toDbName(it)): property]
-                    }
+                    kvs << [(EntityUtil.toDbName(it)): property]
                 }
             }
         }
