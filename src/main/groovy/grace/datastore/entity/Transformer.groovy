@@ -30,7 +30,7 @@ class Transformer {
      * @return
      */
     static toType(Class aClass, String propName, Object propValue, List<String> formats = []) {
-        if (!aClass || !propName || !propValue) return null
+        if (!aClass || !propName || propValue==null) return null
         try {
             Class propClass = aClass.getDeclaredField(propName)?.type
             return toType(propClass, propValue, formats)

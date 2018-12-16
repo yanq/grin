@@ -317,7 +317,7 @@ class EntityImpl {
         Class entityClass = entity.class
         List props = findPropertiesToPersist(entityClass) - 'id'
         props.each {
-            if (params[it]) entity[it] = Transformer.toType(entityClass, it, params[it])
+            if (params.containsKey(it)) entity[it] = Transformer.toType(entityClass, it, params[it])
         }
         return entity
     }
