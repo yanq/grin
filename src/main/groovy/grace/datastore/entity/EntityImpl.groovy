@@ -8,6 +8,7 @@ import groovy.util.logging.Slf4j
 import java.lang.reflect.Modifier
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.ZoneId
 
 /**
  * 实体 api 实现
@@ -78,8 +79,10 @@ class EntityImpl {
         Map kvs = [:]
         ps.each {
             def property = entity[it]
-            //null，不作处理
+            //null，不作处理 todo 这里可能有坑，如果要设置为 null 呢
             if (property != null) {
+                //如果是 Date，转换成 LocalDateTime，pg 当前的驱动不支持 Date 了。mysql 无影响。
+                if (property instanceof Date) property = java.time.LocalDateTime.ofInstant(property.toInstant(), ZoneId.systemDefault())
                 if (columnMap.containsKey(it)) {
                     kvs << [(columnMap[it]): property]
                 } else {
