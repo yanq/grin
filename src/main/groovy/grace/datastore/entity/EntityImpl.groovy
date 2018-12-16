@@ -79,12 +79,13 @@ class EntityImpl {
         Map kvs = [:]
         ps.each {
             def property = entity[it]
+            def propertyClass = entity.class.getDeclaredField(it).type
             //如果是 Date，转换成 LocalDateTime，pg 当前的驱动不支持 Date 了。mysql 无影响。
             if (property instanceof Date) property = java.time.LocalDateTime.ofInstant(property.toInstant(), ZoneId.systemDefault())
             if (columnMap.containsKey(it)) {
                 kvs << [(columnMap[it]): property]
             } else {
-                if (entity[it] instanceof Entity) {
+                if (propertyClass.interfaces.contains(Entity)) {
                     kvs << [(EntityUtil.toDbName(it) + '_id'): property?.id]
                 } else {
                     kvs << [(EntityUtil.toDbName(it)): property]
@@ -261,29 +262,39 @@ class EntityImpl {
         entity.errors = [] //置空
         getConstraintMap(entity.class).each {
             def propertyConstraints = it
-            def value = entity[propertyConstraints.key]
+            def propertyName = propertyConstraints.key
+            def propertyValue = entity[propertyName]
             Map constraintsToValidate = propertyConstraints.value
 
             //comment
             constraintsToValidate.remove('comment')
 
             //null 处理
-            if (null == value) {
-                if (!constraintsToValidate.nullable) entity.errors << [propertyConstraints.key, 'nullable']
+            if (null == propertyValue) {
+                if (!constraintsToValidate.nullable) entity.errors << [propertyName, 'nullable']
                 return
             }
             constraintsToValidate.remove('nullable')
 
             //blank
-            if ('' == value) {
-                if (!constraintsToValidate.blank) entity.errors << [propertyConstraints.key, 'blank']
+            if ('' == propertyValue) {
+                if (!constraintsToValidate.blank) entity.errors << [propertyName, 'blank']
                 return
             }
             constraintsToValidate.remove('blank')
 
+            //validator
+            def validator = constraintsToValidate.get('validator')
+            if (validator) {
+                Closure closure = ((Closure) validator).clone()
+                def result = closure.call(propertyValue, entity)
+                if (result == false) entity.errors << [propertyName, 'validator']
+                constraintsToValidate.remove('validator')
+            }
+
             constraintsToValidate.each {
-                if (!Validator.validate(value, it)) {
-                    entity.errors << [propertyConstraints.key, it.key]
+                if (!Validator.validate(propertyValue, it)) {
+                    entity.errors << [propertyName, it.key]
                 }
             }
         }
