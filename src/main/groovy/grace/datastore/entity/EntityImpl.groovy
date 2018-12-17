@@ -333,9 +333,14 @@ class EntityImpl {
             //绑定实体和其他是不一样的
             def propClass = entity.class.getDeclaredField(it).type
             if (propClass.interfaces.contains(Entity)) {
-                if (params.containsKey(it+'Id')){
-                    entity[(it)] = propClass.newInstance()
-                    entity[(it)]['id'] = Transformer.toType(propClass, 'id', params[it+'Id'])
+                String k = it+'Id'
+                if (params.containsKey(k)){
+                    if (params[k]){
+                        entity[(it)] = propClass.newInstance()
+                        entity[(it)]['id'] = Transformer.toType(propClass, 'id', params[k])
+                    }else {
+                        entity[(it)] = null
+                    }
                 }
             } else if (params.containsKey(it)) {
                 entity[it] = Transformer.toType(entityClass, it, params[it])
