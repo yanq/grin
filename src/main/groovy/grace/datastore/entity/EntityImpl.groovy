@@ -209,8 +209,10 @@ class EntityImpl {
                         entity[(it)] = result[key].toLocalDateTime()
                         break
                     case Entity:
-                        entity[(it)] = propClass.newInstance()
-                        entity[(it)]['id'] = result[key]
+                        if (result[key]) {
+                            entity[(it)] = propClass.newInstance()
+                            entity[(it)]['id'] = result[key]
+                        }
                         break
                     default:
                         entity[(it)] = result[key]
@@ -328,7 +330,16 @@ class EntityImpl {
         Class entityClass = entity.class
         List props = findPropertiesToPersist(entityClass) - 'id'
         props.each {
-            if (params.containsKey(it)) entity[it] = Transformer.toType(entityClass, it, params[it])
+            //绑定实体和其他是不一样的
+            def propClass = entity.class.getDeclaredField(it).type
+            if (propClass.interfaces.contains(Entity)) {
+                if (params.containsKey(it+'Id')){
+                    entity[(it)] = propClass.newInstance()
+                    entity[(it)]['id'] = Transformer.toType(propClass, 'id', params[it+'Id'])
+                }
+            } else if (params.containsKey(it)) {
+                entity[it] = Transformer.toType(entityClass, it, params[it])
+            }
         }
         return entity
     }

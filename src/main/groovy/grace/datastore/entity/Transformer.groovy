@@ -66,6 +66,8 @@ class Transformer {
                 return propValue.toString().toDouble()
             case Double:
                 return propValue.toString().toDouble()
+            case BigDecimal:
+                return propValue.toString().toBigDecimal()
             case Date:
                 return toDate(propValue, formats)
             case LocalDate:

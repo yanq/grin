@@ -1,6 +1,6 @@
 package grace.generate
 
-
+import grace.datastore.entity.Entity
 import grace.datastore.entity.EntityImpl
 
 /**
@@ -25,9 +25,11 @@ class FormGenerator extends Generator {
     }
 
     static String generateItem(Class entityClass, String propName, String propType, Map constraints) {
-        if (constraints?.inList || constraints?.range) { //select
+        if (entityClass.getDeclaredField(propName).type.interfaces.contains(Entity)) {//entity
+            entity(entityClass, propName, propType, constraints)
+        } else if (constraints?.inList) { //select
             select(entityClass, propName, propType, constraints)
-        } else {
+        } else {//text
             input(entityClass, propName, propType, constraints)
         }
     }
@@ -38,5 +40,9 @@ class FormGenerator extends Generator {
 
     static select(Class entityClass, String propName, String propType, Map constraints) {
         generate('form/select.html', [entityClass: entityClass, propName: propName, propType: propType, constraints: constraints])
+    }
+
+    static entity(Class entityClass, String propName, String propType, Map constraints) {
+        generate('form/entity.html', [entityClass: entityClass, propName: propName, propType: propType, constraints: constraints])
     }
 }
