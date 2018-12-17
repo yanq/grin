@@ -58,13 +58,17 @@ class EntityUtil {
         }
         names.each {
             def name = it
-            def property = list[0][name]
-            def propertyClass = property.class
+            def propertyClass = entityClass.getDeclaredField(name).type
             def ids = list.collect { it[name] }.id.unique()
+
+            if (!ids) return
+
             def propertyList = propertyClass.getAll(ids)
             list.each {
                 def entity = it
-                def p = propertyList.find { it.id = entity[name].id }
+                def p = propertyList.find {
+                    it.id == entity[name]?.id
+                }
                 if (p) entity[name] = p
             }
         }
