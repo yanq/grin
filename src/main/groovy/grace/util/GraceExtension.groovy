@@ -1,5 +1,6 @@
 package grace.util
 
+import grace.datastore.entity.Entity
 import grace.datastore.entity.EntityUtil
 import java.text.SimpleDateFormat
 
@@ -14,6 +15,10 @@ class GraceExtension {
      */
     public static void fetch(List list,String... names){
         EntityUtil.fetch(list,names)
+    }
+
+    public static void fetch(Entity entity, String... names){
+        EntityUtil.fetch([entity],names)
     }
 
     /**
