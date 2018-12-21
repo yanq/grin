@@ -55,9 +55,10 @@ abstract class WebRequest {
     abstract void render(File file)
     abstract void render(File file,int cacheTime)
     abstract void asset()
-    abstract void upload()
-    abstract void download()
     abstract void files()
+    //上传下载
+    abstract List upload()
+    abstract void download()
 
     //json
     abstract StreamingJsonBuilder getJson()

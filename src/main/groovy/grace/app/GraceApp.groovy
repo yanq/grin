@@ -167,9 +167,9 @@ class GraceApp {
             //refresh routes
             Routes.clear()
 
-            //重载配置
+            //重载文件相关配置项
             config = config()
-            if (config.fileUpload.upload) Routes.post(config.fileUpload.upload) { upload() }
+            if (config.fileUpload.upload) Routes.post(config.fileUpload.upload) { json(upload()) }
             if (config.fileUpload.download) Routes.get(config.fileUpload.download + '/@file') { download() }
             if (config.assets.uri) Routes.get(config.assets.uri + '/@file') { asset() }
             if (config.files.uri) Routes.get(config.files.uri + '/@file') { files() }

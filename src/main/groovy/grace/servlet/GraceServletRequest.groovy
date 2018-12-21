@@ -263,14 +263,14 @@ class GraceServletRequest extends WebRequest {
      * 文件上传
      * @return
      */
-    void upload() {
+    List upload() {
         List fileNames = []
         request.parts.each {
             String fileName = FileUtil.fileUUIDName(it.submittedFileName)
             it.write(fileName)
             fileNames << fileName
         }
-        render(fileNames.collect { "${app.config.fileUpload.download ?: ''}/$it" })
+        fileNames.collect { "${app.config.fileUpload.download ?: ''}/$it" }
     }
 
     /**
@@ -317,6 +317,7 @@ class GraceServletRequest extends WebRequest {
      * @return
      */
     StreamingJsonBuilder getJson() {
+        response.setHeader("Content-Type", "application/json;charset=UTF-8")
         if (json) return json
         json = new StreamingJsonBuilder(response.getWriter())
         return json

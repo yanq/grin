@@ -51,6 +51,7 @@ class SimpleRequest extends WebRequest {
      */
     @Override
     StreamingJsonBuilder getJson() {
+        response.setHeader("Content-Type", "application/json;charset=UTF-8")
         if (json) return json
         json = new StreamingJsonBuilder(getWriter())
         return json
@@ -171,7 +172,7 @@ class SimpleRequest extends WebRequest {
     void asset() { throw new Exception("没有实现的方法") }
 
     @Override
-    void upload() { throw new Exception("没有实现的方法") }
+    List upload() { throw new Exception("没有实现的方法") }
 
     @Override
     void download() { throw new Exception("没有实现的方法") }
