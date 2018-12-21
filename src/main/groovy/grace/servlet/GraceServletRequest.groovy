@@ -266,9 +266,11 @@ class GraceServletRequest extends WebRequest {
     List upload() {
         List fileNames = []
         request.parts.each {
-            String fileName = FileUtil.fileUUIDName(it.submittedFileName)
-            it.write(fileName)
-            fileNames << fileName
+            if (it.submittedFileName){
+                String fileName = FileUtil.fileUUIDName(it.submittedFileName)
+                it.write(fileName)
+                fileNames << fileName
+            }
         }
         fileNames.collect { "${app.config.fileUpload.download ?: ''}/$it" }
     }
