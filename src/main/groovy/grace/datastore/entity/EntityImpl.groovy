@@ -31,6 +31,7 @@ class EntityImpl {
      * @return
      */
     static get(Class target, Serializable id) {
+        if (id==null) return null
         Sql sql = DB.sql
         String table = findTableName(target)
         def tid = Transformer.toType(target, 'id', id) //pg must transform；mysql not need。
