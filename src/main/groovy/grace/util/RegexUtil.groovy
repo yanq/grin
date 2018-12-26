@@ -42,6 +42,7 @@ class RegexUtil {
         if (requestURI.indexOf(';') > 0) return requestURI.substring(0, requestURI.indexOf(';'))
         if (requestURI.indexOf('#') > 0) return requestURI.substring(0, requestURI.indexOf('#'))
         if (requestURI.indexOf('?') > 0) return requestURI.substring(0, requestURI.indexOf('?'))
+        if (requestURI.endsWith('/')) return requestURI.substring(0, requestURI.length() - 1)
         return requestURI
     }
 

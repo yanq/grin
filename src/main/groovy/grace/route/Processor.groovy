@@ -20,6 +20,7 @@ class Processor {
         long start = System.nanoTime()
 
         Route route = Routes.routes.find { it.matches(uri) }
+        if (!route) route = Routes.routes.find { it.matches(uri+'/index') } //默认 index 页面
         if (route) {
             Closure closure = route.closure.clone()
             closure.delegate = webRequest
