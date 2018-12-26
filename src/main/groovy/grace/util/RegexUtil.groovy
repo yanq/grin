@@ -18,9 +18,10 @@ class RegexUtil {
             return '.*'
         }
         path.replaceAll('\\.', '\\\\.')
+                .replaceAll('@\\w+\\*\\*', '(.+)')
                 .replaceAll('\\*\\*', '(?:.+\\/?){0,}')
                 .replaceAll('\\*', '[^\\/]+')
-                .replaceAll('@\\w+', '(.+)')
+                .replaceAll('@\\w+', '([^/]+)')
     }
 
     /**

@@ -31,7 +31,7 @@ class Route {
     Map getPathParams(String uri) {
         def result = [:]
 
-        if (!pattern) RegexUtil.toPattern(path)
+        if (!pattern) pattern = RegexUtil.toPattern(path)
 
         List<String> vars = path.findAll(/@\w+/)
         if (!vars) return result
