@@ -87,6 +87,7 @@ class Transformer {
      */
     static toDate(Object propValue, List formats=[]) {
         if (propValue instanceof Date) return propValue
+        if (!propValue.toString().trim()) return null
 
         List<String> list = formats ?: allFormats
         Date date = null
@@ -112,6 +113,7 @@ class Transformer {
      */
     static toLoaclDate(Object propValue, List formats=[]) {
         if (propValue instanceof LocalDate) return propValue
+        if (!propValue.toString().trim()) return null
 
         List<String> list = formats ?: dateFormats
         LocalDate date = null
@@ -136,6 +138,7 @@ class Transformer {
      */
     static toLocalDateTime(Object propValue, List formats=[]) {
         if (propValue instanceof LocalDateTime) return propValue
+        if (!propValue.toString().trim()) return null
 
         List<String> list = formats ?: dateTimeFormats
         LocalDateTime date = null
