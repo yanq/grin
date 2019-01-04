@@ -263,7 +263,15 @@ class EntityImpl {
         if (!entity.hasProperty('id')) throw new Exception("该类没有 id 属性，差评")
 
         entity.errors = [] //置空
-        getConstraintMap(entity.class).each {
+        Map constraints = getConstraintMap(entity.class)
+
+        findPropertiesToPersist(entity.class).each {
+            if (!constraints.containsKey(it)){
+                constraints << [(it):[blank:false,nullable:false]] //默认约束，不能为空
+            }
+        }
+
+        constraints.each {
             def propertyConstraints = it
             def propertyName = propertyConstraints.key
             def propertyValue = entity[propertyName]
