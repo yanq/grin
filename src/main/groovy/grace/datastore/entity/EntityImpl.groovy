@@ -31,7 +31,7 @@ class EntityImpl {
      * @return
      */
     static get(Class target, Serializable id) {
-        if (id==null) return null
+        if (id == null) return null
         Sql sql = DB.sql
         String table = findTableName(target)
         def tid = Transformer.toType(target, 'id', id) //pg must transform；mysql not need。
@@ -266,8 +266,8 @@ class EntityImpl {
         Map constraints = getConstraintMap(entity.class)
 
         findPropertiesToPersist(entity.class).each {
-            if (!constraints.containsKey(it)){
-                constraints << [(it):[blank:false,nullable:false]] //默认约束，不能为空
+            if (!constraints.containsKey(it)) {
+                constraints << [(it): [blank: false, nullable: false]] //默认约束，不能为空
             }
         }
 
@@ -339,20 +339,25 @@ class EntityImpl {
         Class entityClass = entity.class
         List props = findPropertiesToPersist(entityClass) - 'id'
         props.each {
-            //绑定实体和其他是不一样的
-            def propClass = entity.class.getDeclaredField(it).type
-            if (propClass.interfaces.contains(Entity)) {
-                String k = it+'Id'
-                if (params.containsKey(k)){
-                    if (params[k]){
-                        entity[(it)] = propClass.newInstance()
-                        entity[(it)]['id'] = Transformer.toType(propClass, 'id', params[k])
-                    }else {
-                        entity[(it)] = null
+            try {
+                //绑定实体和其他是不一样的
+                def propClass = entity.class.getDeclaredField(it).type
+                if (propClass.interfaces.contains(Entity)) {
+                    String k = it + 'Id'
+                    if (params.containsKey(k)) {
+                        if (params[k]) {
+                            entity[(it)] = propClass.newInstance()
+                            entity[(it)]['id'] = Transformer.toType(propClass, 'id', params[k])
+                        } else {
+                            entity[(it)] = null
+                        }
                     }
+                } else if (params.containsKey(it)) {
+                    entity[it] = Transformer.toType(entityClass, it, params[it])
                 }
-            } else if (params.containsKey(it)) {
-                entity[it] = Transformer.toType(entityClass, it, params[it])
+            } catch (Exception e) {
+                entity.errors << [(it),'type'] //类型转换异常
+                e.printStackTrace()
             }
         }
         return entity
