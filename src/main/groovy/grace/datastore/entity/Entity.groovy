@@ -15,6 +15,7 @@ trait Entity<D> {
      * @return
      */
     static D get(Serializable id) {
+        if (!id) return null
         EntityImpl.get(this, id)
     }
 
@@ -25,10 +26,12 @@ trait Entity<D> {
      * @return
      */
     static List<D> getAll(Serializable... ids) {
+        if (!ids) return []
         new EntityImpl.Where(whereSql: "id in (${ids.collect { '?' }.join(',')})", params: ids.toList(), entityClass: this).list()
     }
 
     static List<D> getAll(List<Serializable> ids) {
+        if (!ids) return []
         new EntityImpl.Where(whereSql: "id in (${ids.collect { '?' }.join(',')})", params: ids, entityClass: this).list()
     }
 
