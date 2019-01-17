@@ -50,6 +50,10 @@ class Transformer {
      */
     static toType(Class propClass, Object propValue, List<String> formats = []) {
         switch (propClass) {
+            case boolean :
+                return propValue.toString().toBoolean()
+            case Boolean:
+                return propValue.toString().toBoolean()
             case int:
                 return propValue.toString().toInteger()
             case Integer:
@@ -96,7 +100,7 @@ class Transformer {
                 //这里有个诡异的问题。如果没有 locale，脚本测试都可以，但 web 下就不行了。web 下会默认当前的 locale，如含中文，常规格式解析不了了
                 date = new SimpleDateFormat(list[i],Locale.ENGLISH).parse(propValue)
             } catch (Exception e) {
-                log.debug("Exception :${e.getMessage()}")
+                log.debug("Exception :${e.getMessage()}，format：${list[i]}")
                 // e.printStackTrace()
             }
             if (date) return date

@@ -267,7 +267,7 @@ class EntityImpl {
 
         findPropertiesToPersist(entity.class).each {
             if (!constraints.containsKey(it)) {
-                constraints << [(it): [blank: false, nullable: false]] //默认约束，不能为空
+                constraints << [(it): [blank: false, nullable: false]] //默认约束，不能为空 //貌似这里不需要内容也是一样的效果，后面是判断 true 才通过
             }
         }
 
@@ -356,7 +356,7 @@ class EntityImpl {
                     entity[it] = Transformer.toType(entityClass, it, params[it])
                 }
             } catch (Exception e) {
-                entity.errors << [(it),'type'] //类型转换异常
+                entity.errors << [(it), 'type'] //类型转换异常
                 e.printStackTrace()
             }
         }
