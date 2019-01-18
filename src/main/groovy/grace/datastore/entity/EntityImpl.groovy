@@ -238,6 +238,7 @@ class EntityImpl {
         }
 
         List<D> list(Map pageParams) {
+            preDealParams()
             return DB.withSql { Sql sql ->
                 List list = []
                 List rows = sql.rows("select * from ${findTableName(entityClass)} ${whereSql ? 'where ' + whereSql : ''} ${EntityUtil.params(pageParams)}".toString(), params)
@@ -250,7 +251,14 @@ class EntityImpl {
         }
 
         int count() {
+            preDealParams()
             DB.withSql { Sql sql -> sql.firstRow("select count(*) as num from ${findTableName(entityClass)} ${whereSql ? 'where ' + whereSql : ''}".toString(), params).num }
+        }
+
+        private preDealParams(){
+            for (int i = 0; i < params.size(); i++) {
+                if (params[i] instanceof Date) params[i] = java.time.LocalDateTime.ofInstant(params[i].toInstant(), ZoneId.systemDefault())
+            }
         }
     }
 
