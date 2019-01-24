@@ -2,6 +2,7 @@ package grace.route
 
 import grace.common.WebRequest
 import grace.util.ClassUtil
+import grace.websocket.WebSocketHandler
 import groovy.util.logging.Slf4j
 
 /**
@@ -119,6 +120,16 @@ class Routes {
     }
 
     /**
+     * 定义 web socket 消息处理
+     * @param messageType
+     * @param closure
+     * @return
+     */
+    static message(String messageType, @DelegatesTo(WebSocketHandler.WSMessage) Closure closure){
+        WebSocketHandler.message(messageType,closure)
+    }
+
+    /**
      * 清空
      * @return
      */
@@ -126,6 +137,7 @@ class Routes {
         routes.clear()
         beforeInterceptors.clear()
         afterInterceptors.clear()
+        WebSocketHandler.clear()
     }
 
     /**

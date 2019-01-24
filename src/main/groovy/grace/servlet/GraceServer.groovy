@@ -1,11 +1,14 @@
 package grace.servlet
 
 import grace.app.GraceApp
+import grace.websocket.WebSocketEntry
 import groovy.util.logging.Slf4j
 import io.undertow.Undertow
 import io.undertow.servlet.Servlets
 import io.undertow.servlet.api.DeploymentInfo
 import io.undertow.servlet.api.DeploymentManager
+import io.undertow.websockets.jsr.WebSocketDeploymentInfo
+
 import javax.servlet.MultipartConfigElement
 
 /**
@@ -82,6 +85,10 @@ class GraceServer {
      * @return
      */
     private DeploymentInfo buildDeploymentInfo() {
+
+        WebSocketDeploymentInfo webSockets = new WebSocketDeploymentInfo()
+        webSockets.addEndpoint(WebSocketEntry)
+
         DeploymentInfo servletBuilder = Servlets.deployment()
                 .setClassLoader(GraceServer.class.getClassLoader())
                 .setDefaultMultipartConfig(new MultipartConfigElement(location, maxFileSize, maxRequestSize, fileSizeThreshold))
@@ -89,6 +96,7 @@ class GraceServer {
                 .setContextPath(context)
                 .setDeploymentName("grace.war")
                 .addServlets(Servlets.servlet("GraceServlet", GraceServlet.class).addMapping("/*"))
+                .addServletContextAttribute(WebSocketDeploymentInfo.ATTRIBUTE_NAME, webSockets)
         return servletBuilder
     }
 }
