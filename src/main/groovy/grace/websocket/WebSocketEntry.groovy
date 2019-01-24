@@ -20,7 +20,6 @@ class WebSocketEntry {
 
     @OnMessage
     public String onMessage(String message, Session session) {
-        log.info("Message ${session.id} : ${message}")
         def result
         try {
             result = WebSocketHandler.handleMessage(message, session)

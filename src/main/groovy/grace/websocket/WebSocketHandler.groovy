@@ -21,13 +21,16 @@ class WebSocketHandler {
     }
 
     static handleMessage(String message, Session session) {
+        def start = System.nanoTime()
         WSMessage msg = new WSMessage(message: message, session: session)
         Closure closure = handlers.get(msg.params.type)
         if (closure) {
             Closure c = closure.clone()
             c.delegate = msg
             c.setResolveStrategy(Closure.DELEGATE_ONLY)
-            return c()
+            def result = c()
+            log.info("${msg.params.type} , ${(System.nanoTime() - start) / 1000000}ms ")
+            return result
         } else {
             log.warn("Not found handler for ${msg.params.type}")
         }
