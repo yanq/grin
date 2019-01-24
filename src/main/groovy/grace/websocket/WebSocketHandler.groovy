@@ -2,7 +2,6 @@ package grace.websocket
 
 import groovy.json.JsonSlurper
 import groovy.util.logging.Slf4j
-
 import javax.websocket.Session
 
 /**
@@ -23,14 +22,14 @@ class WebSocketHandler {
 
     static handleMessage(String message, Session session) {
         WSMessage msg = new WSMessage(message: message, session: session)
-        Closure closure = handlers.get(msg.data.type)
+        Closure closure = handlers.get(msg.params.type)
         if (closure) {
             Closure c = closure.clone()
             c.delegate = msg
             c.setResolveStrategy(Closure.DELEGATE_ONLY)
             return c()
         } else {
-            log.warn("Not found handler for ${msg.data.type}")
+            log.warn("Not found handler for ${msg.params.type}")
         }
     }
 
@@ -43,7 +42,7 @@ class WebSocketHandler {
         Session session
         Object _data
 
-        Object getData() {
+        Object getParams() {
             if (_data) return _data
             _data = new JsonSlurper().parseText(message)
             return _data
