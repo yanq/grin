@@ -87,11 +87,18 @@ class WebSocketHandler {
     static class WSMessage {
         String message
         Session session
-        Object _data
+        private Object _data //作缓存用
 
         Object getParams() {
             if (_data) return _data
-            _data = new JsonSlurper().parseText(message)
+
+            try {
+                _data = new JsonSlurper().parseText(message)
+            } catch (Exception e) {
+                _data = [:]
+                log.warn('parse json fail ：'+e.message)
+            }
+
             return _data
         }
     }
