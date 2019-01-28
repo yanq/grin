@@ -10,19 +10,54 @@ import javax.websocket.Session
 @Slf4j
 class WebSocketHandler {
     static Map<String, Closure> handlers = [:]
+    static Closure beforeInterceptor
 
+    /**
+     * 定义消息处理
+     * @param messageType
+     * @param closure
+     * @return
+     */
     static message(String messageType, @DelegatesTo(WSMessage) Closure closure) {
         if (handlers.containsKey(messageType)) {
             throw new Exception("${messageType} already exist!")
         } else {
-            log.info("add a ws message hander for ${messageType}")
+            log.info("add a message handler @ ${closure.owner.class.simpleName} ${messageType}")
             handlers.put(messageType, closure)
         }
     }
 
+    /**
+     * 定义前置拦截器
+     * 这里是唯一的，因为貌似不需要太多
+     * @param closure
+     * @return
+     */
+    static before(@DelegatesTo(WSMessage) Closure closure) {
+        if (beforeInterceptor) throw new Exception("before already exist!")
+        log.info("set message before interceptor @ ${closure.owner.class.simpleName}")
+        beforeInterceptor = closure
+    }
+
+    /**
+     * 处理消息过程
+     * @param message
+     * @param session
+     * @return
+     */
     static handleMessage(String message, Session session) {
         def start = System.nanoTime()
         WSMessage msg = new WSMessage(message: message, session: session)
+
+        if (beforeInterceptor) {
+            Closure c = beforeInterceptor.clone()
+            c.delegate = msg
+            c.setResolveStrategy(Closure.DELEGATE_ONLY)
+            def result = c()
+            if (result == false) return
+            if (result instanceof String) return result
+        }
+
         Closure closure = handlers.get(msg.params.type)
         if (closure) {
             Closure c = closure.clone()
@@ -36,10 +71,19 @@ class WebSocketHandler {
         }
     }
 
+    /**
+     * 清理
+     * @return
+     */
     static clear() {
         handlers.clear()
+        beforeInterceptor = null
     }
 
+    /**
+     * 代理消息类
+     * 并做消息处理
+     */
     static class WSMessage {
         String message
         Session session

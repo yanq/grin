@@ -125,8 +125,17 @@ class Routes {
      * @param closure
      * @return
      */
-    static message(String messageType, @DelegatesTo(WebSocketHandler.WSMessage) Closure closure){
-        WebSocketHandler.message(messageType,closure)
+    static message(String messageType, @DelegatesTo(WebSocketHandler.WSMessage) Closure closure) {
+        WebSocketHandler.message(messageType, closure)
+    }
+
+    /**
+     * 设置消息前置拦截器
+     * @param closure
+     * @return
+     */
+    static messageBefore(@DelegatesTo(WebSocketHandler.WSMessage) Closure closure) {
+        WebSocketHandler.before(closure)
     }
 
     /**
