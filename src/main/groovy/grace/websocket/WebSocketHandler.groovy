@@ -1,5 +1,6 @@
 package grace.websocket
 
+import grace.util.ClassUtil
 import groovy.json.JsonSlurper
 import groovy.util.logging.Slf4j
 import javax.websocket.Session
@@ -47,19 +48,22 @@ class WebSocketHandler {
      */
     static handleMessage(String message, Session session) {
         def start = System.nanoTime()
+
         WSMessage msg = new WSMessage(message: message, session: session)
-
-        if (beforeInterceptor) {
-            Closure c = beforeInterceptor.clone()
-            c.delegate = msg
-            c.setResolveStrategy(Closure.DELEGATE_ONLY)
-            def result = c()
-            if (result == false) return
-            if (result instanceof String) return result
-        }
-
         Closure closure = handlers.get(msg.params.type)
+
         if (closure) {
+            msg.controllerName = ClassUtil.propertyName(closure.owner.class)
+
+            if (beforeInterceptor) {
+                Closure c = beforeInterceptor.clone()
+                c.delegate = msg
+                c.setResolveStrategy(Closure.DELEGATE_ONLY)
+                def result = c()
+                if (result == false) return
+                if (result instanceof String) return result
+            }
+
             Closure c = closure.clone()
             c.delegate = msg
             c.setResolveStrategy(Closure.DELEGATE_ONLY)
@@ -67,7 +71,7 @@ class WebSocketHandler {
             log.info("${msg.params.type} , ${(System.nanoTime() - start) / 1000000}ms ")
             return result
         } else {
-            log.warn("Not found handler for ${msg.params.type}")
+            log.warn("No message handler found for ${msg.params.type}")
         }
     }
 
@@ -87,6 +91,7 @@ class WebSocketHandler {
     static class WSMessage {
         String message
         Session session
+        String controllerName //控制器简称，方便权限控制时，批量设置
         private Object _data //作缓存用
 
         Object getParams() {
@@ -96,7 +101,7 @@ class WebSocketHandler {
                 _data = new JsonSlurper().parseText(message)
             } catch (Exception e) {
                 _data = [:]
-                log.warn('parse json fail ：'+e.message)
+                log.warn('parse json fail ：' + e.message)
             }
 
             return _data
