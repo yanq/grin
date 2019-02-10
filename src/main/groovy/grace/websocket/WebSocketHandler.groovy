@@ -60,7 +60,7 @@ class WebSocketHandler {
                 c.delegate = msg
                 c.setResolveStrategy(Closure.DELEGATE_ONLY)
                 def result = c()
-                if (result == false) return
+                if (result == false) return 'accessFail'
                 if (result instanceof String) return result
             }
 
