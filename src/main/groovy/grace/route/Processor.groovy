@@ -20,7 +20,7 @@ class Processor {
         long start = System.nanoTime()
 
         Route route = Routes.routes.find { it.matches(uri) }
-        if (!route) route = Routes.routes.find { it.matches(uri+'/index') } //默认 index 页面
+        if (!route) route = Routes.routes.find { it.matches(uri + '/index') } //默认 index 页面
         if (route) {
             Closure closure = route.closure.clone()
             closure.delegate = webRequest
@@ -34,13 +34,18 @@ class Processor {
             //flash next
             FlashScope.next(webRequest.session.id)
 
-            //before
-            boolean pass = before(uri, webRequest)
-            if (!pass) return //结束了
-            //process
-            Object result = closure()
-            //after
-            after(uri, webRequest) //似乎返回结果也没啥意义
+            try {
+                //before
+                boolean pass = before(uri, webRequest)
+                if (!pass) return //结束了
+                //process
+                Object result = closure()
+                //after
+                after(uri, webRequest) //似乎返回结果也没啥意义
+            } catch (Exception e) {
+                webRequest.error(e)
+                e.printStackTrace()
+            }
         } else {
             webRequest.notFound()
         }
@@ -63,7 +68,7 @@ class Processor {
                 return !i()
             }
         }
-       !fail
+        !fail
     }
 
     /**
