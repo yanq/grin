@@ -130,10 +130,11 @@ class FileUtil {
      * @param fileName
      * @return
      */
-    static String fileUUIDName(String fileName){
-        def s = fileName.split('\\.')
-        def postFix = s.size()==2 ? s[1] : (s.size()==1 ? '' : s[1..-1].join('.'))
-        def uuid = UUID.randomUUID().toString().replace('-','')
-        "${uuid}.${postFix}"
+    static String fileUUIDName(String fileName) {
+        def index = fileName.lastIndexOf('.')
+        def postFix = ''
+        if (index > 0) postFix = fileName.substring(index + 1)
+        def uuid = UUID.randomUUID().toString().replace('-', '')
+        return postFix ? "${uuid}.${postFix}" : uuid
     }
 }
