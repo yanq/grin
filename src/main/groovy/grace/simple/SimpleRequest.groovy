@@ -160,6 +160,9 @@ class SimpleRequest extends WebRequest {
     void redirect(String location) { throw new Exception("没有实现的方法") }
 
     @Override
+    boolean accept(List<String> contents) { throw new Exception("没有实现的方法") }
+
+    @Override
     void render(byte[] bytes) { throw new Exception("没有实现的方法") }
 
     @Override

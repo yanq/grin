@@ -141,6 +141,16 @@ class GraceServletRequest extends WebRequest {
     }
 
     /**
+     * accept header
+     * @param contents
+     * @return
+     */
+    @Override
+    boolean accept(List<String> contents) {
+        contents.find {headers['Accept']?.contains(it)}
+    }
+
+    /**
      * 获取客户端 IP 地址
      * @return
      */

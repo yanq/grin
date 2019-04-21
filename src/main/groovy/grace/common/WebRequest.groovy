@@ -37,6 +37,9 @@ abstract class WebRequest {
     abstract void forward(String path)
     abstract void redirect(String location)
 
+    // accept
+    abstract boolean accept(List<String> contents)
+    boolean accept(String content) { accept([content]) }
 
     //usually
     abstract remoteIP()
