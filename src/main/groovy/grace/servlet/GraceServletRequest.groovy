@@ -147,7 +147,7 @@ class GraceServletRequest extends WebRequest {
      */
     @Override
     boolean accept(List<String> contents) {
-        contents.find {headers['Accept']?.contains(it)}
+        contents.find { headers['Accept']?.contains(it) } || contents.find { headers['accept']?.contains(it) }
     }
 
     /**
@@ -276,7 +276,7 @@ class GraceServletRequest extends WebRequest {
     List upload() {
         List fileNames = []
         request.parts.each {
-            if (it.submittedFileName){
+            if (it.submittedFileName) {
                 String fileName = FileUtil.fileUUIDName(it.submittedFileName)
                 it.write(fileName)
                 fileNames << fileName
