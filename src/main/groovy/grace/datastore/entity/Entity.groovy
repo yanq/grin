@@ -72,7 +72,7 @@ trait Entity<D> {
      * 刷新
      * @return
      */
-    boolean refresh(){
+    boolean refresh() {
         EntityImpl.refresh(this)
     }
 
@@ -81,7 +81,7 @@ trait Entity<D> {
      * @param sql
      */
     static EntityImpl.Where<D> where(String sql, List params = []) {
-        new EntityImpl.Where(whereSql: sql, params: params, entityClass: this)
+        new EntityImpl.Where(whereSql: sql, params: params ?: [], entityClass: this)
     }
 
     static EntityImpl.Where<D> where(String sql, Object... params) {
