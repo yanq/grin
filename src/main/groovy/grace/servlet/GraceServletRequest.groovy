@@ -6,6 +6,7 @@ import grace.common.GraceExpression
 import grace.common.Params
 import grace.common.WebRequest
 import grace.util.FileUtil
+import groovy.json.JsonSlurper
 import groovy.json.StreamingJsonBuilder
 import groovy.util.logging.Slf4j
 import groovy.xml.MarkupBuilder
@@ -126,6 +127,27 @@ class GraceServletRequest extends WebRequest {
                 } else {
                     params.put(name, values);
                 }
+            }
+        }
+
+        // json data
+        String contentType = request.getHeader('content-type') ?: request.getHeader('Content-Type')
+        if (contentType?.contains('application/json')) {
+            try {
+                if (!request.inputStream.isFinished()) {
+                    String text = request.inputStream.text
+                    if (text) {
+                        def data = new JsonSlurper().parseText(text)
+                        if (data instanceof Map) {
+                            params.putAll(data)
+                        } else {
+                            params.put('json', data)
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                log.warn("maybe json data,but throw an exception : ${e.getMessage()}")
+                e.printStackTrace()
             }
         }
 
