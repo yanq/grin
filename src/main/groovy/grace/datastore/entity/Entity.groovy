@@ -6,7 +6,7 @@ import grace.common.Params
  * 提供实体类的基本功能
  */
 trait Entity<D> {
-    List errors = []
+    List errorList = []
 
     /**
      * get
@@ -102,6 +102,18 @@ trait Entity<D> {
      */
     boolean validate() {
         EntityImpl.validate(this)
+    }
+
+    /**
+     * 错误表 (含提示)
+     * @return
+     */
+    Map getErrors(){
+        def errorMap = [:], constrains = constraintMap
+        errorList.each {
+            errorMap[it[0]] = constrains[it[0]]?.comment
+        }
+        return errorMap
     }
 
     /**

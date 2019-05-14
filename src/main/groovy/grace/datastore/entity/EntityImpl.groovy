@@ -21,7 +21,7 @@ class EntityImpl {
     public static final String TRANSIENTS = 'transients' //不持久化的类属性
     public static final String CONSTRAINTS = 'constraints' //约束
     // 系统级忽略的内容
-    public static final List<String> excludeProperties = ['metaClass', 'grace_datastore_entity_Entity__errors']
+    public static final List<String> excludeProperties = ['metaClass', 'grace_datastore_entity_Entity__errorList']
 
     /**
      * get
@@ -270,7 +270,7 @@ class EntityImpl {
     static boolean validate(Entity entity) {
         if (!entity.hasProperty('id')) throw new Exception("该类没有 id 属性，差评")
 
-        entity.errors = [] //置空
+        entity.errorList = [] //置空
         Map constraints = getConstraintMap(entity.class)
 
         findPropertiesToPersist(entity.class).each {
@@ -290,14 +290,14 @@ class EntityImpl {
 
             //null 处理
             if (null == propertyValue) {
-                if (!constraintsToValidate.nullable) entity.errors << [propertyName, 'nullable']
+                if (!constraintsToValidate.nullable) entity.errorList << [propertyName, 'nullable']
                 return
             }
             constraintsToValidate.remove('nullable')
 
             //blank
             if ('' == propertyValue) {
-                if (!constraintsToValidate.blank) entity.errors << [propertyName, 'blank']
+                if (!constraintsToValidate.blank) entity.errorList << [propertyName, 'blank']
                 return
             }
             constraintsToValidate.remove('blank')
@@ -307,18 +307,18 @@ class EntityImpl {
             if (validator) {
                 Closure closure = ((Closure) validator).clone()
                 def result = closure.call(propertyValue, entity)
-                if (result == false) entity.errors << [propertyName, 'validator']
+                if (result == false) entity.errorList << [propertyName, 'validator']
                 constraintsToValidate.remove('validator')
             }
 
             constraintsToValidate.each {
                 if (!Validator.validate(propertyValue, it)) {
-                    entity.errors << [propertyName, it.key]
+                    entity.errorList << [propertyName, it.key]
                 }
             }
         }
 
-        entity.errors ? false : true
+        entity.errorList ? false : true
     }
 
     /**
@@ -364,7 +364,7 @@ class EntityImpl {
                     entity[it] = Transformer.toType(entityClass, it, params[it])
                 }
             } catch (Exception e) {
-                entity.errors << [(it), 'type'] //类型转换异常
+                entity.errorList << [(it), 'type'] //类型转换异常
                 e.printStackTrace()
             }
         }
