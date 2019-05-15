@@ -366,4 +366,20 @@ class GraceServletRequest extends WebRequest {
         html = new MarkupBuilder(response.getWriter())
         return html
     }
+
+    @Override
+    void dumpInfos(OutputStream out = System.out) {
+        String title = ' request infos '.center(60, '-')
+        out.println(title)
+        out.println("---------- method : $request.method")
+        out.println("---------- headers :")
+        getHeaders().each {
+            out.println("${it.key} : ${it.value}")
+        }
+        out.println('---------- params :')
+        getParams().each {
+            out.println("${it.key} : ${it.key == 'password' ? '*********' : it.value}")
+        }
+        out.println(title)
+    }
 }

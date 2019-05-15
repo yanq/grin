@@ -79,4 +79,7 @@ abstract class WebRequest {
 
     //html
     abstract MarkupBuilder getHtml()
+
+    // dump infos  headers,params ...
+    abstract void dumpInfos(OutputStream out)
 }
