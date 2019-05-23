@@ -2,6 +2,7 @@ package grace.datastore.entity
 
 import groovy.util.logging.Slf4j
 
+import java.sql.Timestamp
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -14,7 +15,7 @@ import java.time.format.DateTimeFormatter
 @Slf4j
 class Transformer {
     static List<String> dateFormats = ['yyyy-MM-dd', 'yyyyMMdd']
-    static List<String> dateTimeFormats = ['EEE MMM dd HH:mm:ss z yyyy',"EEE MMM d HH:mm:ss 'CST' yyyy",
+    static List<String> dateTimeFormats = ['EEE MMM dd HH:mm:ss z yyyy', "EEE MMM d HH:mm:ss 'CST' yyyy",
                                            "yyyy-MM-dd'T'HH:mm:ss.SSSSSS", "yyyy-MM-dd HH:mm:ss.SSSSSS",
                                            "yyyy-MM-dd'T'HH:mm:ss.SSS", "yyyy-MM-dd HH:mm:ss.SSS",
                                            "yyyy-MM-dd'T'HH:mm:ss", "yyyy-MM-dd HH:mm:ss",
@@ -30,7 +31,7 @@ class Transformer {
      * @return
      */
     static toType(Class aClass, String propName, Object propValue, List<String> formats = []) {
-        if (!aClass || !propName || propValue==null) return null
+        if (!aClass || !propName || propValue == null) return null
         try {
             Class propClass = aClass.getDeclaredField(propName)?.type
             return toType(propClass, propValue, formats)
@@ -50,7 +51,7 @@ class Transformer {
      */
     static toType(Class propClass, Object propValue, List<String> formats = []) {
         switch (propClass) {
-            case boolean :
+            case boolean:
                 return propValue.toString().toBoolean()
             case Boolean:
                 return propValue.toString().toBoolean()
@@ -89,7 +90,8 @@ class Transformer {
      * @param formats
      * @return
      */
-    static toDate(Object propValue, List formats=[]) {
+    static toDate(Object propValue, List formats = []) {
+        if (propValue instanceof Timestamp) return new Date(propValue.time)
         if (propValue instanceof Date) return propValue
         if (!propValue.toString().trim()) return null
 
@@ -98,7 +100,7 @@ class Transformer {
         for (int i = 0; i < list.size(); i++) {
             try {
                 //这里有个诡异的问题。如果没有 locale，脚本测试都可以，但 web 下就不行了。web 下会默认当前的 locale，如含中文，常规格式解析不了了
-                date = new SimpleDateFormat(list[i],Locale.ENGLISH).parse(propValue)
+                date = new SimpleDateFormat(list[i], Locale.ENGLISH).parse(propValue)
             } catch (Exception e) {
                 log.debug("Exception :${e.getMessage()}，format：${list[i]}")
                 // e.printStackTrace()
@@ -115,7 +117,7 @@ class Transformer {
      * @param formats
      * @return
      */
-    static toLoaclDate(Object propValue, List formats=[]) {
+    static toLoaclDate(Object propValue, List formats = []) {
         if (propValue instanceof LocalDate) return propValue
         if (!propValue.toString().trim()) return null
 
@@ -140,7 +142,7 @@ class Transformer {
      * @param formats
      * @return
      */
-    static toLocalDateTime(Object propValue, List formats=[]) {
+    static toLocalDateTime(Object propValue, List formats = []) {
         if (propValue instanceof LocalDateTime) return propValue
         if (!propValue.toString().trim()) return null
 
