@@ -101,7 +101,7 @@ class WebSocketHandler {
                 _data = new JsonSlurper().parseText(message)
             } catch (Exception e) {
                 _data = [:]
-                log.warn('parse json fail ：' + e.message)
+                log.warn("parse json fail，message : $message")
             }
 
             return _data
