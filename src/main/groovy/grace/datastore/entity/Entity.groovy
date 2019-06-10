@@ -108,7 +108,7 @@ trait Entity<D> {
      * 错误表 (含提示)
      * @return
      */
-    Map getErrors(){
+    Map getErrors() {
         def errorMap = [:], constrains = constraintMap
         errorList.each {
             errorMap[it[0]] = constrains[it[0]]?.comment
@@ -122,6 +122,14 @@ trait Entity<D> {
      */
     static List<String> getProps() {
         EntityImpl.findPropertiesToPersist(this)
+    }
+
+    /**
+     * 转换成 Map
+     * @return
+     */
+    Map toMap(List<String> excludes) {
+        EntityImpl.toMap(excludes,this)
     }
 
     /**

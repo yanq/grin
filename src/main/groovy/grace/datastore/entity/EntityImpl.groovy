@@ -146,6 +146,25 @@ class EntityImpl {
     }
 
     /**
+     * 转换成 Map
+     * @return
+     */
+    static Map toMap(List<String> excludes, Object entity) {
+        def list = findPropertiesToPersist(entity.class) - excludes
+        def result = [:]
+        list.each {
+            def value = entity[it]
+            if (value instanceof Entity) {
+                def prefix = it+'.'
+                def subExcludes = excludes.findAll { it.startsWith(prefix) }.collect { it.replaceFirst(prefix,'') }
+                value = value.toMap(subExcludes)
+            }
+            result.put(it, value)
+        }
+        return result
+    }
+
+    /**
      * 获取表名
      * @param target
      * @return
@@ -255,7 +274,7 @@ class EntityImpl {
             DB.withSql { Sql sql -> sql.firstRow("select count(*) as num from ${findTableName(entityClass)} ${whereSql ? 'where ' + whereSql : ''}".toString(), params).num }
         }
 
-        private preDealParams(){
+        private preDealParams() {
             for (int i = 0; i < params.size(); i++) {
                 if (params[i] instanceof Date) params[i] = java.time.LocalDateTime.ofInstant(params[i].toInstant(), ZoneId.systemDefault())
             }
