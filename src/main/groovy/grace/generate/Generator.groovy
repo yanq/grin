@@ -60,6 +60,19 @@ class Generator {
     }
 
     /**
+     * 从领域类生成 Service
+     * @param className
+     * @return
+     */
+    static generateService(String className) {
+        Class entityClass = Class.forName(className)
+        String propName = ClassUtil.propertyName(className)
+        File template = new File(templateDir, 'servicecontroller')
+        File target = new File(controllersDir, ClassUtil.classPath(className) + 'Controller.groovy')
+        generate(template, target, ClassUtil.toMap(entityClass))
+    }
+
+    /**
      * 生成文件
      * @param templateFile
      * @param targetFile

@@ -15,6 +15,7 @@ class GraceMain {
             'create-domain'    : ['create domain class'],
             'create-controller': ['create controller class'],
             'generate-all'     : ['generate controller and views from domain class'],
+            'generate-service' : ['generate a service controller from domain class'],
             'run-script'       : ['run script']
     ]
 
@@ -99,6 +100,12 @@ class GraceMain {
         if (cmd == 'generate-all') {
             mustOrFail args.size() > 1, "缺少类名"
             Generator.generateAll(args[1])
+        }
+
+        //generate all
+        if (cmd == 'generate-service') {
+            mustOrFail args.size() > 1, "缺少类名"
+            Generator.generateService(args[1])
         }
 
         //run script
