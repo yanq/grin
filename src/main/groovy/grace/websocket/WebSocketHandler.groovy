@@ -59,7 +59,7 @@ class WebSocketHandler {
             if (beforeInterceptor) {
                 Closure c = beforeInterceptor.clone()
                 c.delegate = msg
-                c.setResolveStrategy(Closure.DELEGATE_ONLY)
+                c.setResolveStrategy(Closure.DELEGATE_FIRST)
                 def result = c()
                 if (result == false) return 'accessFail'
                 if (result instanceof String) return result
@@ -67,7 +67,7 @@ class WebSocketHandler {
 
             Closure c = closure.clone()
             c.delegate = msg
-            c.setResolveStrategy(Closure.DELEGATE_ONLY)
+            c.setResolveStrategy(Closure.DELEGATE_FIRST)
             def result = c()
             log.info("${msg.params.type} , ${(System.nanoTime() - start) / 1000000}ms ")
             return result
