@@ -56,7 +56,9 @@ trait Entity<D> {
      * 保存，更新或者插入
      * @return
      */
-    D save() {
+    D save(boolean validate = false) {
+        if (validate) this.validate()
+        if (this.errorList) return null
         EntityImpl.save(this)
     }
 
