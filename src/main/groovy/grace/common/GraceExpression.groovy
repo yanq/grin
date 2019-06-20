@@ -132,7 +132,7 @@ class GraceExpression {
      * @return
      */
     def pagination(int offset, int limit, int total, String params = '') {
-        if (total==0) return ''
+        if (total == 0) return ''
         int current = (offset / limit as int) + 1
         int pageCount = (total / limit as int) + 1
         def pre, next
@@ -153,6 +153,6 @@ class GraceExpression {
      */
     def link(String uri, Map params = [:]) {
         def paramsString = params.collect { return "${it.key}=${URLEncoder.encode(it.value.toString(), "utf-8")}" }.join('&')
-        "$uri?${paramsString}"
+        "${uri}${params ? '?' + paramsString : ''}"
     }
 }
