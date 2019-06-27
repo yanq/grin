@@ -1,7 +1,7 @@
 package grace.websocket
 
+import grace.app.GraceApp
 import grace.util.ClassUtil
-import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 import groovy.util.logging.Slf4j
 import javax.websocket.Session
@@ -109,7 +109,7 @@ class WebSocketHandler {
         }
 
         String toJson(Object obj) {
-            JsonOutput.toJson(obj)
+            GraceApp.instance.jsonGenerator.toJson(obj)
         }
     }
 }

@@ -353,7 +353,7 @@ class GraceServletRequest extends WebRequest {
     StreamingJsonBuilder getJson() {
         response.setHeader("Content-Type", "application/json;charset=UTF-8")
         if (json) return json
-        json = new StreamingJsonBuilder(response.getWriter())
+        json = new StreamingJsonBuilder(response.getWriter(),app.jsonGenerator)
         return json
     }
 

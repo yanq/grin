@@ -6,6 +6,7 @@ import com.alibaba.druid.filter.stat.StatFilter
 import com.alibaba.druid.pool.DruidDataSource
 import com.alibaba.druid.sql.SQLUtils
 import grace.route.Routes
+import groovy.json.JsonGenerator
 import groovy.util.logging.Slf4j
 import javax.sql.DataSource
 import java.nio.file.FileSystems
@@ -45,6 +46,8 @@ class GraceApp {
     DataSource dataSource
     //engines for script
     GroovyScriptEngine scriptEngine
+    // json
+    JsonGenerator jsonGenerator;
     //dirs
     boolean refreshing = false
     File projectDir, appDir, domainsDir, controllersDir, viewsDir, interceptorsDir, configDir, initDir, assetDir, assetBuildDir, staticDir, scriptDir
@@ -228,6 +231,21 @@ class GraceApp {
         if (scriptEngine) return scriptEngine
         scriptEngine = new GroovyScriptEngine(controllersDir.absolutePath, interceptorsDir.absolutePath, scriptDir.absolutePath)
         return scriptEngine
+    }
+
+    /**
+     * json generator
+     * @return
+     */
+    JsonGenerator getJsonGenerator() {
+        if (jsonGenerator) return jsonGenerator
+
+        jsonGenerator = new groovy.json.JsonGenerator.Options()
+                .addConverter(Date) { Date date ->
+                    date.format(instance.config.json.dateFormat ?: 'yyyy-MM-dd HH:mm:ss')
+                }
+                .build()
+        return jsonGenerator
     }
 
     /**
