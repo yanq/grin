@@ -50,8 +50,8 @@ class EntityUtil {
      */
     static void fetch(List list, String... names) {
         if (!list) return
-        def entityClass = list[0].class
-        if (!entityClass.interfaces.contains(Entity)) return //非 entity ，不作处理
+        def entityClass = list[0]?.class
+        if (!entityClass || !entityClass.interfaces.contains(Entity)) return //非 entity ，不作处理
 
         if (!names) {
             names = entityClass.declaredFields.findAll { it.type.interfaces.contains(Entity) }.name
