@@ -1,7 +1,5 @@
 package grace.datastore.entity
 
-import grace.common.Params
-
 /**
  * 提供实体类的基本功能
  */
@@ -139,7 +137,7 @@ trait Entity<D> {
      * @param params
      * @return
      */
-    D bind(Params params) {
+    D bind(Map params) {
         EntityImpl.bind(this, params)
     }
 
@@ -148,7 +146,7 @@ trait Entity<D> {
      * @param params
      * @return
      */
-    static from(Params params) {
+    static from(Map params) {
         EntityImpl.bind(this, params)
     }
 }

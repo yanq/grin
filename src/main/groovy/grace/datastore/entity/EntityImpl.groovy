@@ -1,6 +1,5 @@
 package grace.datastore.entity
 
-import grace.common.Params
 import grace.datastore.DB
 import groovy.sql.GroovyRowResult
 import groovy.sql.Sql
@@ -356,13 +355,13 @@ class EntityImpl {
      * @param params
      * @return
      */
-    static bind(Class entityClass, Params params) {
+    static bind(Class entityClass, Map params) {
         def entity = entityClass.newInstance()
         bind(entity, params)
         return entity
     }
 
-    static bind(Object entity, Params params) {
+    static bind(Object entity, Map params) {
         Class entityClass = entity.class
         List props = findPropertiesToPersist(entityClass) - 'id'
         props.each {
