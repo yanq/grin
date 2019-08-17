@@ -31,13 +31,14 @@ class EntityImpl {
      */
     static get(Class target, Serializable id) {
         if (id == null) return null
-        Sql sql = DB.sql
-        String table = findTableName(target)
-        def tid = Transformer.toType(target, 'id', id) //pg must transform；mysql not need。
-        def result = sql.firstRow("select * from ${table} where id=?", tid)
-        def entity = bindResultToEntity(result, target)
-        sql.close()
-        return entity
+
+        DB.withSql { Sql sql ->
+            String table = findTableName(target)
+            def tid = Transformer.toType(target, 'id', id) //pg must transform；mysql not need。
+            def result = sql.firstRow("select * from ${table} where id=?", tid)
+            def entity = bindResultToEntity(result, target)
+            return entity
+        }
     }
 
     /**
@@ -47,14 +48,14 @@ class EntityImpl {
      * @return
      */
     static list(Class target, Map params) {
-        Sql sql = DB.sql
-        List list = []
-        List rows = sql.rows("select * from ${findTableName(target)} ${EntityUtil.params(params)}".toString())
-        rows.each { row ->
-            list << bindResultToEntity(row, target)
+        DB.withSql { Sql sql ->
+            List list = []
+            List rows = sql.rows("select * from ${findTableName(target)} ${EntityUtil.params(params)}".toString())
+            rows.each { row ->
+                list << bindResultToEntity(row, target)
+            }
+            return list
         }
-        sql.close()
-        return list
     }
 
     /**
@@ -72,44 +73,44 @@ class EntityImpl {
      * @param entity
      */
     static save(Object entity) {
-        Sql sql = DB.sql
-        //kvs
-        Map columnMap = columnMap(entity.class)
-        List ps = findPropertiesToPersist(entity.class)
-        Map kvs = [:]
-        ps.each {
-            def property = entity[it]
-            def propertyClass = entity.class.getDeclaredField(it).type
-            //如果是 Date，转换成 LocalDateTime，pg 当前的驱动不支持 Date 了。mysql 无影响。
-            if (property instanceof Date) property = java.time.LocalDateTime.ofInstant(property.toInstant(), ZoneId.systemDefault())
-            if (columnMap.containsKey(it)) {
-                kvs << [(columnMap[it]): property]
-            } else {
-                if (propertyClass.interfaces.contains(Entity)) {
-                    kvs << [(EntityUtil.toDbName(it) + '_id'): property?.id]
+        DB.withSql { Sql sql ->
+            //kvs
+            Map columnMap = columnMap(entity.class)
+            List ps = findPropertiesToPersist(entity.class)
+            Map kvs = [:]
+            ps.each {
+                def property = entity[it]
+                def propertyClass = entity.class.getDeclaredField(it).type
+                //如果是 Date，转换成 LocalDateTime，pg 当前的驱动不支持 Date 了。mysql 无影响。
+                if (property instanceof Date) property = java.time.LocalDateTime.ofInstant(property.toInstant(), ZoneId.systemDefault())
+                if (columnMap.containsKey(it)) {
+                    kvs << [(columnMap[it]): property]
                 } else {
-                    kvs << [(EntityUtil.toDbName(it)): property]
+                    if (propertyClass.interfaces.contains(Entity)) {
+                        kvs << [(EntityUtil.toDbName(it) + '_id'): property?.id]
+                    } else {
+                        kvs << [(EntityUtil.toDbName(it)): property]
+                    }
                 }
             }
-        }
-        kvs.remove('id')
+            kvs.remove('id')
 
-        String table = findTableName(entity.class)
-        if (entity.hasProperty('id') && entity['id']) {
-            //to update
-            def sets = kvs.keySet().collect { "${it} = ?" }.join(',').toString()
-            def sqlString = "update ${table} set ${sets} where id = ?".toString()
-            def params = kvs.values().toList() << entity.id
-            sql.executeUpdate(sqlString, params)
-        } else {
-            //to insert
-            def sqlString = "insert into ${table} (${kvs.keySet().join(',')}) values (?${',?' * (kvs.size() - 1)})".toString()
-            def result = sql.executeInsert(sqlString, kvs.values().toList())
-            entity.id = result[0][0]
-        }
+            String table = findTableName(entity.class)
+            if (entity.hasProperty('id') && entity['id']) {
+                //to update
+                def sets = kvs.keySet().collect { "${it} = ?" }.join(',').toString()
+                def sqlString = "update ${table} set ${sets} where id = ?".toString()
+                def params = kvs.values().toList() << entity.id
+                sql.executeUpdate(sqlString, params)
+            } else {
+                //to insert
+                def sqlString = "insert into ${table} (${kvs.keySet().join(',')}) values (?${',?' * (kvs.size() - 1)})".toString()
+                def result = sql.executeInsert(sqlString, kvs.values().toList())
+                entity.id = result[0][0]
+            }
 
-        sql.close()
-        return entity
+            return entity
+        }
     }
 
     /**
@@ -154,8 +155,8 @@ class EntityImpl {
         list.each {
             def value = entity[it]
             if (value instanceof Entity) {
-                def prefix = it+'.'
-                def subExcludes = excludes.findAll { it.startsWith(prefix) }.collect { it.replaceFirst(prefix,'') }
+                def prefix = it + '.'
+                def subExcludes = excludes.findAll { it.startsWith(prefix) }.collect { it.replaceFirst(prefix, '') }
                 value = value.toMap(subExcludes)
             }
             result.put(it, value)
