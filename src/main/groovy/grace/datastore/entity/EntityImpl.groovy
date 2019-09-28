@@ -1,6 +1,8 @@
 package grace.datastore.entity
 
 import grace.datastore.DB
+import groovy.json.JsonOutput
+import groovy.json.JsonSlurper
 import groovy.sql.GroovyRowResult
 import groovy.sql.Sql
 import groovy.util.logging.Slf4j
@@ -79,17 +81,19 @@ class EntityImpl {
             List ps = findPropertiesToPersist(entity.class)
             Map kvs = [:]
             ps.each {
-                def property = entity[it]
+                def propertyValue = entity[it]
                 def propertyClass = entity.class.getDeclaredField(it).type
                 //如果是 Date，转换成 LocalDateTime，pg 当前的驱动不支持 Date 了。mysql 无影响。
-                if (property instanceof Date) property = java.time.LocalDateTime.ofInstant(property.toInstant(), ZoneId.systemDefault())
+                if (propertyValue instanceof Date) propertyValue = java.time.LocalDateTime.ofInstant(propertyValue.toInstant(), ZoneId.systemDefault())
+                if (propertyValue instanceof List) propertyValue = JsonOutput.toJson(propertyValue)
+                if (propertyValue instanceof Map) propertyValue = JsonOutput.toJson(propertyValue)
                 if (columnMap.containsKey(it)) {
-                    kvs << [(columnMap[it]): property]
+                    kvs << [(columnMap[it]): propertyValue]
                 } else {
                     if (propertyClass.interfaces.contains(Entity)) {
-                        kvs << [(EntityUtil.toDbName(it) + '_id'): property?.id]
+                        kvs << [(EntityUtil.toDbName(it) + '_id'): propertyValue?.id]
                     } else {
-                        kvs << [(EntityUtil.toDbName(it)): property]
+                        kvs << [(EntityUtil.toDbName(it)): propertyValue]
                     }
                 }
             }
@@ -227,6 +231,12 @@ class EntityImpl {
                         break
                     case LocalDateTime:
                         entity[(it)] = result[key].toLocalDateTime()
+                        break
+                    case List:
+                        entity[(it)] = new JsonSlurper().parseText(result[key] ?: '[]')
+                        break
+                    case Map:
+                        entity[(it)] = new JsonSlurper().parseText(result[key] ?: '{}')
                         break
                     case Entity:
                         if (result[key]) {

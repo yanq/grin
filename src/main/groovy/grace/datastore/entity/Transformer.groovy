@@ -1,5 +1,6 @@
 package grace.datastore.entity
 
+import groovy.json.JsonSlurper
 import groovy.util.logging.Slf4j
 
 import java.sql.Timestamp
@@ -79,6 +80,10 @@ class Transformer {
                 return toLoaclDate(propValue, formats)
             case LocalDateTime:
                 return toLocalDateTime(propValue, formats)
+            case List:
+                return (propValue instanceof List) ? propValue : new JsonSlurper().parseText(propValue.toString() ?: '[]')
+            case Map:
+                return (propValue instanceof Map) ? propValue : new JsonSlurper().parseText(propValue.toString() ?: '{}')
         }
         //如果不是上述情况，返回原值
         return propValue
