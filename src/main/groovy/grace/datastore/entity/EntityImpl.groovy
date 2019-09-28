@@ -49,7 +49,7 @@ class EntityImpl {
      * @param params
      * @return
      */
-    static list(Class target, Map params, String selects) {
+    static list(Class target, Map params, String selects = '*') {
         DB.withSql { Sql sql ->
             List list = []
             List rows = sql.rows("select ${selects} from ${findTableName(target)} ${EntityUtil.params(params)}".toString())
@@ -65,7 +65,7 @@ class EntityImpl {
      * @param target
      * @return
      */
-    static int count(Class target, String selects) {
+    static int count(Class target, String selects = '*') {
         return DB.withSql { Sql sql -> sql.firstRow("select count(${selects}) as num from ${findTableName(target)}".toString()).num }
     }
 
@@ -266,7 +266,7 @@ class EntityImpl {
             return null
         }
 
-        List<D> list(Map pageParams, String selects = '*') {
+        List<D> list(Map pageParams = [:], String selects = '*') {
             preDealParams()
             return DB.withSql { Sql sql ->
                 List list = []
