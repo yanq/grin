@@ -246,7 +246,6 @@ class EntityImpl {
      * where 查询
      */
     static class Where<D> {
-        String selects = '*'
         String whereSql
         List params
         Class entityClass
@@ -257,7 +256,7 @@ class EntityImpl {
             return null
         }
 
-        List<D> list(Map pageParams) {
+        List<D> list(Map pageParams, String selects = '*') {
             preDealParams()
             return DB.withSql { Sql sql ->
                 List list = []
@@ -270,7 +269,7 @@ class EntityImpl {
             }
         }
 
-        int count() {
+        int count(String selects = '*') {
             preDealParams()
             DB.withSql { Sql sql -> sql.firstRow("select count(${selects}) as num from ${findTableName(entityClass)} ${whereSql ? 'where ' + whereSql : ''}".toString(), params).num }
         }

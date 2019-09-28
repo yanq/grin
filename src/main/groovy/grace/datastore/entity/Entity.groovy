@@ -25,7 +25,7 @@ trait Entity<D> {
      */
     static List<D> getAll(List<Serializable> ids, String selects = '*') {
         if (!ids) return []
-        new EntityImpl.Where(selects: selects, whereSql: "id in (${ids.collect { '?' }.join(',')})", params: ids, entityClass: this).list()
+        new EntityImpl.Where(whereSql: "id in (${ids.collect { '?' }.join(',')})", params: ids, entityClass: this).list([:], selects)
     }
 
     static List<D> getAll(Serializable... ids) {
@@ -80,8 +80,8 @@ trait Entity<D> {
      * where 自定义条件查询
      * @param sql
      */
-    static EntityImpl.Where<D> where(String sql, List params = [], String selects = '*') {
-        new EntityImpl.Where(selects: selects, whereSql: sql, params: params ?: [], entityClass: this)
+    static EntityImpl.Where<D> where(String sql, List params = []) {
+        new EntityImpl.Where(whereSql: sql, params: params ?: [], entityClass: this)
     }
 
     static EntityImpl.Where<D> where(String sql, Object... params) {
