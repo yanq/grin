@@ -4,7 +4,7 @@ package grace.datastore.entity
  * 提供实体类的基本功能
  */
 trait Entity<D> {
-    List errorList = []
+    List<List> errorList = []
 
     /**
      * get

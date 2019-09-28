@@ -299,7 +299,7 @@ class EntityImpl {
     static boolean validate(Entity entity) {
         if (!entity.hasProperty('id')) throw new Exception("该类没有 id 属性，差评")
 
-        entity.errorList = [] //置空
+        entity.errorList = entity.errorList.findAll { it.contains('type') } // 保留绑定错误，清空其他错误
         Map constraints = getConstraintMap(entity.class)
 
         findPropertiesToPersist(entity.class).each {
