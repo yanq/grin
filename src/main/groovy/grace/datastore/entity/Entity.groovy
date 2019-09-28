@@ -12,9 +12,9 @@ trait Entity<D> {
      * @param id
      * @return
      */
-    static D get(Serializable id) {
+    static D get(Serializable id, String selects = '*') {
         if (!id) return null
-        EntityImpl.get(this, id)
+        EntityImpl.get(this, id, selects)
     }
 
     /**
@@ -23,14 +23,14 @@ trait Entity<D> {
      * @param ids
      * @return
      */
-    static List<D> getAll(Serializable... ids) {
+    static List<D> getAll(List<Serializable> ids, String selects = '*') {
         if (!ids) return []
-        new EntityImpl.Where(whereSql: "id in (${ids.collect { '?' }.join(',')})", params: ids.toList(), entityClass: this).list()
+        new EntityImpl.Where(selects: selects, whereSql: "id in (${ids.collect { '?' }.join(',')})", params: ids, entityClass: this).list()
     }
 
-    static List<D> getAll(List<Serializable> ids) {
+    static List<D> getAll(Serializable... ids) {
         if (!ids) return []
-        new EntityImpl.Where(whereSql: "id in (${ids.collect { '?' }.join(',')})", params: ids, entityClass: this).list()
+        getAll(ids.toList())
     }
 
     /**
@@ -38,16 +38,16 @@ trait Entity<D> {
      * @param params
      * @return
      */
-    static List<D> list(Map params = null) {
-        EntityImpl.list(this, params)
+    static List<D> list(Map params = null, String selects = '*') {
+        EntityImpl.list(this, params, selects)
     }
 
     /**
      * 计数
      * @return
      */
-    static int count() {
-        EntityImpl.count(this)
+    static int count(String selects = '*') {
+        EntityImpl.count(this, selects)
     }
 
     /**
@@ -80,12 +80,12 @@ trait Entity<D> {
      * where 自定义条件查询
      * @param sql
      */
-    static EntityImpl.Where<D> where(String sql, List params = []) {
-        new EntityImpl.Where(whereSql: sql, params: params ?: [], entityClass: this)
+    static EntityImpl.Where<D> where(String sql, List params = [], String selects = '*') {
+        new EntityImpl.Where(selects: selects, whereSql: sql, params: params ?: [], entityClass: this)
     }
 
     static EntityImpl.Where<D> where(String sql, Object... params) {
-        new EntityImpl.Where(whereSql: sql, params: params.toList(), entityClass: this)
+        where(sql, params.toList())
     }
 
     /**
@@ -129,7 +129,7 @@ trait Entity<D> {
      * @return
      */
     Map toMap(List<String> excludes) {
-        EntityImpl.toMap(excludes,this)
+        EntityImpl.toMap(excludes, this)
     }
 
     /**

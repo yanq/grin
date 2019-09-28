@@ -29,13 +29,13 @@ class EntityImpl {
      * @param id
      * @return
      */
-    static get(Class target, Serializable id) {
+    static get(Class target, Serializable id, String selects) {
         if (id == null) return null
 
         DB.withSql { Sql sql ->
             String table = findTableName(target)
             def tid = Transformer.toType(target, 'id', id) //pg must transform；mysql not need。
-            def result = sql.firstRow("select * from ${table} where id=?", tid)
+            def result = sql.firstRow("select ${selects} from ${table} where id=?", tid)
             def entity = bindResultToEntity(result, target)
             return entity
         }
@@ -47,10 +47,10 @@ class EntityImpl {
      * @param params
      * @return
      */
-    static list(Class target, Map params) {
+    static list(Class target, Map params, String selects) {
         DB.withSql { Sql sql ->
             List list = []
-            List rows = sql.rows("select * from ${findTableName(target)} ${EntityUtil.params(params)}".toString())
+            List rows = sql.rows("select ${selects} from ${findTableName(target)} ${EntityUtil.params(params)}".toString())
             rows.each { row ->
                 list << bindResultToEntity(row, target)
             }
@@ -63,8 +63,8 @@ class EntityImpl {
      * @param target
      * @return
      */
-    static int count(Class target) {
-        return DB.withSql { Sql sql -> sql.firstRow("select count(*) as num from ${findTableName(target)}".toString()).num }
+    static int count(Class target, String selects) {
+        return DB.withSql { Sql sql -> sql.firstRow("select count(${selects}) as num from ${findTableName(target)}".toString()).num }
     }
 
     /**
@@ -246,6 +246,7 @@ class EntityImpl {
      * where 查询
      */
     static class Where<D> {
+        String selects = '*'
         String whereSql
         List params
         Class entityClass
@@ -260,7 +261,7 @@ class EntityImpl {
             preDealParams()
             return DB.withSql { Sql sql ->
                 List list = []
-                List rows = sql.rows("select * from ${findTableName(entityClass)} ${whereSql ? 'where ' + whereSql : ''} ${EntityUtil.params(pageParams)}".toString(), params)
+                List rows = sql.rows("select ${selects} from ${findTableName(entityClass)} ${whereSql ? 'where ' + whereSql : ''} ${EntityUtil.params(pageParams)}".toString(), params)
                 rows.each { row ->
                     list << bindResultToEntity(row, entityClass)
                 }
@@ -271,7 +272,7 @@ class EntityImpl {
 
         int count() {
             preDealParams()
-            DB.withSql { Sql sql -> sql.firstRow("select count(*) as num from ${findTableName(entityClass)} ${whereSql ? 'where ' + whereSql : ''}".toString(), params).num }
+            DB.withSql { Sql sql -> sql.firstRow("select count(${selects}) as num from ${findTableName(entityClass)} ${whereSql ? 'where ' + whereSql : ''}".toString(), params).num }
         }
 
         private preDealParams() {
