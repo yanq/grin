@@ -35,7 +35,7 @@ class Transformer {
         if (!aClass || !propName || propValue == null) return null
         try {
             Class propClass = aClass.getDeclaredField(propName)?.type
-            return toType(propClass, propValue, formats)
+            return valueToType(propClass, propValue, formats)
         } catch (Exception e) {
             log.debug("Exception :${e.getMessage()}")
             // e.printStackTrace()
@@ -50,7 +50,7 @@ class Transformer {
      * @param formats
      * @return
      */
-    static toType(Class propClass, Object propValue, List<String> formats = []) {
+    static valueToType(Class propClass, Object propValue, List<String> formats = []) {
         switch (propClass) {
             case boolean:
                 return propValue.toString().toBoolean()
