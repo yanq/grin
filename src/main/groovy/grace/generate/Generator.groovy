@@ -68,7 +68,7 @@ class Generator {
         Class entityClass = Class.forName(className)
         String propName = ClassUtil.propertyName(className)
         File template = new File(templateDir, 'servicecontroller')
-        File target = new File(controllersDir, ClassUtil.classPath(className) + 'Controller.groovy')
+        File target = new File(controllersDir, ClassUtil.classPath(className) + 'ServiceController.groovy')
         generate(template, target, ClassUtil.toMap(entityClass))
     }
 
