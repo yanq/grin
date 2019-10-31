@@ -146,7 +146,7 @@ class EntityImpl {
      */
     static List<String> findPropertiesToPersist(Class target) {
         List fields = target.declaredFields.findAll { !Modifier.isStatic(it.modifiers) }*.name
-        fields - excludeProperties - (target.hasProperty(TRANSIENTS) ? target[TRANSIENTS] : [])
+        fields - excludeProperties - target[TRANSIENTS] ?: []
     }
 
     /**
