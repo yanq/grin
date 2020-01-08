@@ -134,7 +134,7 @@ class GraceExpression {
     def pagination(int offset, int limit, int total, String params = '') {
         if (total == 0) return ''
         int current = (offset / limit as int) + 1
-        int pageCount = (total / limit as int) + 1
+        int pageCount = (total % limit == 0) ? (total / limit as int) : (total / limit as int) + 1
         def pre, next
         if (current != 1) {
             pre = [title: current - 1, link: link('', [offset: offset - limit, limit: limit]) + "${params ? '&' + params : ''}"]
