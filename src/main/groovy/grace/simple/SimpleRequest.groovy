@@ -185,4 +185,7 @@ class SimpleRequest extends WebRequest {
 
     @Override
     void dumpInfos(OutputStream out) { throw new Exception("没有实现的方法") }
+
+    @Override
+    boolean actionStartWith(List<String> actions) { throw new Exception("没有实现的方法") }
 }

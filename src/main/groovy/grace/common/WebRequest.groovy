@@ -82,4 +82,7 @@ abstract class WebRequest {
 
     // dump infos  headers,params ...
     abstract void dumpInfos(OutputStream out)
+
+    // action start with
+    abstract boolean actionStartWith(List<String> actions)
 }

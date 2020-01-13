@@ -353,7 +353,7 @@ class GraceServletRequest extends WebRequest {
     StreamingJsonBuilder getJson() {
         response.setHeader("Content-Type", "application/json;charset=UTF-8")
         if (json) return json
-        json = new StreamingJsonBuilder(response.getWriter(),app.jsonGenerator)
+        json = new StreamingJsonBuilder(response.getWriter(), app.jsonGenerator)
         return json
     }
 
@@ -381,5 +381,13 @@ class GraceServletRequest extends WebRequest {
             out.println("${it.key} : ${it.key == 'password' ? '*********' : it.value}")
         }
         out.println(title)
+    }
+
+    @Override
+    boolean actionStartWith(List<String> actions) {
+        actions.find {
+            if (it == 'index') return request.requestURI == "/${controllerName}" || request.requestURI == "/${controllerName}/" || request.requestURI == "/${controllerName}/index"
+            return request.requestURI.startsWith(it.startsWith('/') ? it : "/${controllerName}/${it}")
+        }
     }
 }
