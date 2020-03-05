@@ -156,8 +156,8 @@ class Routes {
         //简单排序，确切的靠前
         routes.sort {
             String path = it.path
-            if (path.count('*')) return 'zz' * path.count('*') + path
-            if (path.count('@')) return 'z' * path.count('@') + path
+            path = path.replaceAll('@', 'ÿ')
+            path = path.replaceAll('\\*', 'Ā')
             return path
         }
         beforeInterceptors.sort { it.order }
