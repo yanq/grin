@@ -67,14 +67,25 @@ class ClassUtil {
     }
 
     /**
+     * 从文件名生词类名
+     * @return
+     */
+    static String pathToClassName(String name) {
+        name.substring(0, name.lastIndexOf('.')).replace('/', '.')
+    }
+
+    /**
      * 是否是 Java/Groovy 类
      * @param file
      * @return
      */
     static boolean isJavaClass(File file) {
-        return file.name.endsWith(".java") || file.name.endsWith(".groovy")
+        return isJavaClass(file.name)
     }
 
+    static boolean isJavaClass(String fileName) {
+        return fileName.endsWith(".java") || fileName.endsWith(".groovy")
+    }
     /**
      * 去掉必要的后缀
      * 如 Controller，Interceptor
