@@ -1,5 +1,5 @@
 group 'xyz.itbang'
-version '0.1'
+version '2.0.0-dev'
 
 apply plugin: 'java'
 apply plugin: 'groovy'
