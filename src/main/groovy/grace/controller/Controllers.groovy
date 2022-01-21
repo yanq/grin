@@ -20,6 +20,7 @@ class Controllers {
             if (ClassUtil.isJavaClass(it.name)) {
                 def name = ClassUtil.reduce(it.name.split('\\.')[0].uncapitalize())
                 def className = ClassUtil.pathToClassName(it.canonicalPath.replace(dir.canonicalPath, '').substring(1))
+                if (controllerMap.containsKey(name)) throw new Exception("控制器 ${name} 已经存在: ${controllerMap.get(name)},新的 ${className}")
                 controllerMap.put(name, className)
             }
         }
