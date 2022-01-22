@@ -24,12 +24,14 @@ class Controllers {
      * @param dir
      */
     void reload(File dir) {
-        log.info('start load controllers')
+        log.info('start load interceptor and controllers')
 
         controllerMap.clear()
         methodMap.clear()
+        interceptor = null
 
         dir.eachFileRecurse {
+            if (!it.name.endsWith('.groovy')) return //忽略非目标文件
             def name = ClassUtil.reduce(it.name.split('\\.')[0].uncapitalize())
             def className = ClassUtil.pathToClassName(it.canonicalPath.replace(dir.canonicalPath, '').substring(1))
             if (it.name.matches('.+Controller.groovy')) {
@@ -38,13 +40,17 @@ class Controllers {
             }
             if (it.name.matches('.+Interceptor.groovy')) {
                 if (interceptor) throw new Exception("已经存在拦截器 ${interceptor.class.name}, 又有：${it.name}")
-                interceptor = Class.forName(className).newInstance()
+                Class clazz = Class.forName(className)
+                if (!Interceptor.isAssignableFrom(clazz)) throw new Exception("拦截器 ${clazz} 不是 ${Interceptor.class}")
+                interceptor = clazz.newInstance()
             }
         }
 
         if (!interceptor) interceptor = new Interceptor()
 
         controllerMap.each { name, className ->
+            Class clazz = Class.forName(className)
+            if (!Controller.isAssignableFrom(clazz)) throw new Exception("控制器 ${clazz} 不是 ${Controller.class}")
             Class.forName(className).getDeclaredMethods()
                     .findAll {
                         def methodName = it.name
@@ -55,7 +61,7 @@ class Controllers {
                     }
         }
 
-        log.info("loaded, controllers ${controllerMap.keySet()}")
+        log.info("loaded, interceptor ${interceptor.class.simpleName}, controllers ${controllerMap.keySet()}")
     }
 
     /**
@@ -68,12 +74,14 @@ class Controllers {
         Method method = methodMap.get("${controllerName}-${actionName}")
         if (method) {
             if (!interceptor.before(request, response, controllerName, actionName, id)) return
-            def instance = method.class.newInstance(request, response)
+            Controller instance = method.declaringClass.newInstance()
+            instance.request = request
+            instance.response = response
             method.invoke(instance)
             interceptor.after(request, response, controllerName, actionName, id)
         } else {
-            log.warn("不存在 ${controllerName}-${actionName}")
-            new Controller(request, response).notFound()
+            log.warn("页面不存在 ${controllerName}.${actionName}")
+            // new Controller(request, response).notFound()
         }
     }
 }

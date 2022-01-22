@@ -39,8 +39,8 @@ class GraceServlet extends GenericServlet {
             try {
                 app.controllers.executeAction(request, response, params[0], params[1], params[2])
             } catch (Exception e) {
-                new Controller(request, response).error(e)
                 e.printStackTrace()
+                throw e
             }
         }
 

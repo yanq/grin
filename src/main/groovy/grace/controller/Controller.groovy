@@ -45,16 +45,6 @@ class Controller {
     String controllerName = '' //当前控制器
 
     /**
-     * 构造函数，初始化
-     * @param request
-     * @param response
-     */
-    Controller(HttpServletRequest request, HttpServletResponse response) {
-        this.request = request
-        this.response = response
-    }
-
-    /**
      * forward
      */
     void forward(String path) throws ServletException, IOException {
