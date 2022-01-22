@@ -5,6 +5,7 @@ import com.alibaba.druid.filter.logging.Slf4jLogFilter
 import com.alibaba.druid.filter.stat.StatFilter
 import com.alibaba.druid.pool.DruidDataSource
 import com.alibaba.druid.sql.SQLUtils
+import grace.controller.Controllers
 import grace.route.Routes
 import groovy.json.JsonGenerator
 import groovy.util.logging.Slf4j
@@ -23,35 +24,33 @@ import static java.nio.file.StandardWatchEventKinds.*
 class GraceApp {
     //元数据
     public static final String VERSION = '0.1.1'
+    //instance
+    private static GraceApp instance
+    //env
+    public static final String ENV_PROD = 'prod'
+    public static final String ENV_DEV = 'dev'
     //目录结构
     public static final String APP_DIR = 'grace-app'
     public static final String APP_DOMAINS = 'domains'
     public static final String APP_CONTROLLERS = 'controllers'
     public static final String APP_VIEWS = 'views'
-    public static final String APP_INTERCEPTORS = 'interceptors'
     public static final String APP_CONFIG = 'conf'
     public static final String APP_INIT = 'init'
     public static final String APP_ASSETS = 'assets'
     public static final String APP_STATIC = 'static'
     public static final String APP_SCRIPTS = 'scripts'
-    //env
-    public static final String ENV_PROD = 'prod'
-    public static final String ENV_DEV = 'dev'
-    //instance
-    private static GraceApp instance
-    //config
+
+    String environment = ENV_DEV // dev,prod
     ConfigObject config
-    String environment = 'dev' // dev,prod
-    //datastore
+    Controllers controllers = new Controllers()
     DataSource dataSource
-    //engines for script
     GroovyScriptEngine scriptEngine
-    // json
     JsonGenerator jsonGenerator;
-    //dirs
     boolean refreshing = false
+
     File projectDir, appDir, domainsDir, controllersDir, viewsDir, interceptorsDir, configDir, initDir, assetDir, assetBuildDir, staticDir, scriptDir
     List<File> allDirs
+
 
     /**
      * 构造并初始化
@@ -65,7 +64,6 @@ class GraceApp {
         domainsDir = new File(appDir, APP_DOMAINS)
         controllersDir = new File(appDir, APP_CONTROLLERS)
         viewsDir = new File(appDir, APP_VIEWS)
-        interceptorsDir = new File(appDir, APP_INTERCEPTORS)
         configDir = new File(appDir, APP_CONFIG)
         initDir = new File(appDir, APP_INIT)
         assetDir = new File(appDir, APP_ASSETS)
@@ -92,7 +90,7 @@ class GraceApp {
      * 获取单例
      * @return
      */
-    static GraceApp getInstance() {
+    static synchronized GraceApp getInstance() {
         if (instance) return instance
         instance = new GraceApp()
         return instance
@@ -147,15 +145,42 @@ class GraceApp {
     }
 
     /**
-     * 运行 Bootstrap
-     * 方便应用在服务启动器，初始化自己的内容。
-     * @param context 根据需要传递参数，如 undertow 传递 DeploymentInfo；后续会支持其他模式。
+     * 数据源
+     * @return
      */
-    void init(Object context) {
-        def bootstrap = new File(initDir, 'BootStrap.groovy')
-        if (bootstrap.exists()) {
-            new GroovyClassLoader().parseClass(bootstrap).newInstance().init(context)
+    DataSource getDataSource() {
+        if (dataSource) return dataSource
+        dataSource = new DruidDataSource(config.dataSource)
+        if (config.logSql) {
+            Filter sqlLog = new Slf4jLogFilter(statementExecutableSqlLogEnable: true)
+            sqlLog.setStatementSqlFormatOption(new SQLUtils.FormatOption(true, false))
+            dataSource.setProxyFilters([sqlLog, new StatFilter()])
         }
+        return dataSource
+    }
+
+    /**
+     * GSE 延时加载
+     */
+    GroovyScriptEngine getScriptEngine() {
+        if (scriptEngine) return scriptEngine
+        scriptEngine = new GroovyScriptEngine(controllersDir.absolutePath, interceptorsDir.absolutePath, scriptDir.absolutePath)
+        return scriptEngine
+    }
+
+    /**
+     * json generator
+     * @return
+     */
+    JsonGenerator getJsonGenerator() {
+        if (jsonGenerator) return jsonGenerator
+
+        jsonGenerator = new groovy.json.JsonGenerator.Options()
+                .addConverter(Date) { Date date ->
+                    date.format(instance.config.json.dateFormat ?: 'yyyy-MM-dd HH:mm:ss')
+                }
+                .build()
+        return jsonGenerator
     }
 
     /**
@@ -207,45 +232,6 @@ class GraceApp {
             sleep(100)
             if (!refreshing) return
         }
-    }
-
-    /**
-     * 数据源
-     * @return
-     */
-    DataSource getDataSource() {
-        if (dataSource) return dataSource
-        dataSource = new DruidDataSource(config.dataSource)
-        if (config.logSql) {
-            Filter sqlLog = new Slf4jLogFilter(statementExecutableSqlLogEnable: true)
-            sqlLog.setStatementSqlFormatOption(new SQLUtils.FormatOption(true, false))
-            dataSource.setProxyFilters([sqlLog, new StatFilter()])
-        }
-        return dataSource
-    }
-
-    /**
-     * GSE 延时加载
-     */
-    GroovyScriptEngine getScriptEngine() {
-        if (scriptEngine) return scriptEngine
-        scriptEngine = new GroovyScriptEngine(controllersDir.absolutePath, interceptorsDir.absolutePath, scriptDir.absolutePath)
-        return scriptEngine
-    }
-
-    /**
-     * json generator
-     * @return
-     */
-    JsonGenerator getJsonGenerator() {
-        if (jsonGenerator) return jsonGenerator
-
-        jsonGenerator = new groovy.json.JsonGenerator.Options()
-                .addConverter(Date) { Date date ->
-                    date.format(instance.config.json.dateFormat ?: 'yyyy-MM-dd HH:mm:ss')
-                }
-                .build()
-        return jsonGenerator
     }
 
     /**
