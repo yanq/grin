@@ -17,6 +17,7 @@ class Controllers {
 
     Map<String, String> controllerMap = [:]
     Map<String, Method> methodMap = [:]
+    Interceptor interceptor
 
     /**
      * 加载所有的控制器
@@ -29,16 +30,21 @@ class Controllers {
         methodMap.clear()
 
         dir.eachFileRecurse {
+            def name = ClassUtil.reduce(it.name.split('\\.')[0].uncapitalize())
+            def className = ClassUtil.pathToClassName(it.canonicalPath.replace(dir.canonicalPath, '').substring(1))
             if (it.name.matches('.+Controller.groovy')) {
-                def name = ClassUtil.reduce(it.name.split('\\.')[0].uncapitalize())
-                def className = ClassUtil.pathToClassName(it.canonicalPath.replace(dir.canonicalPath, '').substring(1))
                 if (controllerMap.containsKey(name)) throw new Exception("控制器 ${name} 已经存在: ${controllerMap.get(name)},新的 ${className}")
                 controllerMap.put(name, className)
             }
+            if (it.name.matches('.+Interceptor.groovy')) {
+                if (interceptor) throw new Exception("已经存在拦截器 ${interceptor.class.name}, 又有：${it.name}")
+                interceptor = Class.forName(className).newInstance()
+            }
         }
 
-        controllerMap.each { name, className ->
+        if (!interceptor) interceptor = new Interceptor()
 
+        controllerMap.each { name, className ->
             Class.forName(className).getDeclaredMethods()
                     .findAll {
                         def methodName = it.name
@@ -61,8 +67,10 @@ class Controllers {
     void executeAction(HttpServletRequest request, HttpServletResponse response, String controllerName, String actionName, String id) {
         Method method = methodMap.get("${controllerName}-${actionName}")
         if (method) {
+            if (!interceptor.before(request, response, controllerName, actionName, id)) return
             def instance = method.class.newInstance(request, response)
             method.invoke(instance)
+            interceptor.after(request, response, controllerName, actionName, id)
         } else {
             log.warn("不存在 ${controllerName}-${actionName}")
             new Controller(request, response).notFound()
