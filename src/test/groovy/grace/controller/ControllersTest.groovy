@@ -6,4 +6,11 @@ class ControllersTest extends GroovyTestCase {
         def c = new Controllers()
         c.reload(new File("/Users/yan/projects/grace-dev/grace/src/main/groovy"))
     }
+
+    void testLoadSplit() {
+        def s = "/Users/yan/projects/grace-dev/grace/src/main/groovy".split('/')
+        def s1 = '/'.split('/')
+        def s2 = ''.split('/')
+        println('ok')
+    }
 }

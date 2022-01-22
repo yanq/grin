@@ -2,7 +2,9 @@ package grace.servlet
 
 import grace.app.GraceApp
 import grace.common.WebRequest
+import grace.controller.Controller
 import grace.route.Processor
+import grace.util.GraceUtils
 import grace.util.RegexUtil
 import groovy.util.logging.Slf4j
 import javax.servlet.GenericServlet
@@ -16,8 +18,11 @@ import javax.servlet.http.HttpServletResponse
 class GraceServlet extends GenericServlet {
     @Override
     void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {
+        long startAt = System.nanoTime()
+
         //等待刷新，如果系统在刷新中
-        GraceApp.instance.waitingForRefresh()
+        GraceApp app = GraceApp.instance
+        app.waitingForRefresh()
 
         //设置默认编码
         req.setCharacterEncoding('utf-8')
@@ -27,16 +32,18 @@ class GraceServlet extends GenericServlet {
         HttpServletRequest request = (HttpServletRequest) req
         HttpServletResponse response = (HttpServletResponse) res
 
-        String clearedURI = RegexUtil.toURI(request.requestURI, request.getContextPath())
-        WebRequest webRequest = new GraceServletRequest(request, response)
+        String clearedURI = GraceUtils.toURI(request.requestURI, request.getContextPath())
+        List params = GraceUtils.splitURI(clearedURI)
 
         use(GraceCategory.class) {
             try {
-                Processor.processRequest(clearedURI, webRequest)
+                app.controllers.executeAction(request, response, params[0], params[1], params[2])
             } catch (Exception e) {
-                webRequest.error(e)
+                new Controller(request, response).error(e)
                 e.printStackTrace()
             }
         }
+
+        log.info("time ${(System.nanoTime() - startAt) / 1000000}ms")
     }
 }
