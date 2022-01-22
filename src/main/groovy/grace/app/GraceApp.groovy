@@ -87,9 +87,10 @@ class GraceApp {
 
     /**
      * 获取单例
+     * todo 这里同步的话，是不是会影响性能？
      * @return
      */
-    static synchronized GraceApp getInstance() {
+    static GraceApp getInstance() {
         if (instance) return instance
         instance = new GraceApp()
         return instance
