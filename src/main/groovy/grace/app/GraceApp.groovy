@@ -6,7 +6,6 @@ import com.alibaba.druid.filter.stat.StatFilter
 import com.alibaba.druid.pool.DruidDataSource
 import com.alibaba.druid.sql.SQLUtils
 import grace.controller.Controllers
-import grace.route.Routes
 import groovy.json.JsonGenerator
 import groovy.util.logging.Slf4j
 import javax.sql.DataSource
@@ -48,7 +47,7 @@ class GraceApp {
     JsonGenerator jsonGenerator;
     boolean refreshing = false
 
-    File projectDir, appDir, domainsDir, controllersDir, viewsDir, interceptorsDir, configDir, initDir, assetDir, assetBuildDir, staticDir, scriptDir
+    File projectDir, appDir, domainsDir, controllersDir, viewsDir, configDir, initDir, assetDir, assetBuildDir, staticDir, scriptDir
     List<File> allDirs
 
 
@@ -70,7 +69,7 @@ class GraceApp {
         assetBuildDir = new File(projectDir, 'build/assets')
         staticDir = new File(appDir, APP_STATIC)
         scriptDir = new File(appDir, APP_SCRIPTS)
-        allDirs = [appDir, domainsDir, controllersDir, viewsDir, interceptorsDir, configDir, initDir, assetDir, staticDir, scriptDir]
+        allDirs = [appDir, domainsDir, controllersDir, viewsDir, configDir, initDir, assetDir, staticDir, scriptDir]
         //config
         config = config()
         environment = env
@@ -164,7 +163,7 @@ class GraceApp {
      */
     GroovyScriptEngine getScriptEngine() {
         if (scriptEngine) return scriptEngine
-        scriptEngine = new GroovyScriptEngine(controllersDir.absolutePath, interceptorsDir.absolutePath, scriptDir.absolutePath)
+        scriptEngine = new GroovyScriptEngine(controllersDir.absolutePath, scriptDir.absolutePath)
         return scriptEngine
     }
 
@@ -188,36 +187,11 @@ class GraceApp {
      */
     synchronized void refresh(List<String> dirs = null) {
         refreshing = true
-        log.info("refresh request @ ${dirs ?: 'start'}")
-
+        log.info("refresh app @ ${dirs ?: 'start'}")
         //重载控制器，拦截器
         if (dirs == null || dirs?.find { it.endsWith('.groovy') }) {
-            //refresh routes
-            Routes.clear()
-
-            //重载文件相关配置项
             config = config()
-            if (config.fileUpload.upload) Routes.post(config.fileUpload.upload) { json(upload()) }
-            if (config.fileUpload.download) Routes.get(config.fileUpload.download + '/@file**') { download() }
-            if (config.assets.uri) Routes.get(config.assets.uri + '/@file**') { asset() }
-            if (config.files.uri) Routes.get(config.files.uri + '/@file**') { files() }
-
-            //控制器
-            controllersDir.eachFileRecurse {
-                if (it.name.endsWith('.groovy')) {
-                    log.info("run controller script ${it.absolutePath}")
-                    scriptEngine.run(it.absolutePath.substring(controllersDir.absolutePath.length() + 1), '')
-                }
-            }
-            //拦截器
-            interceptorsDir.eachFileRecurse {
-                if (it.name.endsWith('.groovy')) {
-                    log.info("run interceptor script ${it.absolutePath}")
-                    scriptEngine.run(it.absolutePath.substring(interceptorsDir.absolutePath.length() + 1), '')
-                }
-            }
-            //sort
-            Routes.sort()
+            controllers.reload(controllersDir)
         }
         refreshing = false
     }

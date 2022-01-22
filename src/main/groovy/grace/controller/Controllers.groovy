@@ -10,7 +10,7 @@ import java.lang.reflect.Method
 
 /**
  * 控制器工具类
- * 加载控制器，以及处理等。
+ * 加载控制器，全局的拦截器，执行操作等。
  */
 @Slf4j
 class Controllers {
@@ -23,7 +23,7 @@ class Controllers {
      * 加载所有的控制器
      * @param dir
      */
-    void loadControllers(File dir) {
+    void reload(File dir) {
         log.info('start load controllers')
 
         controllerMap.clear()
