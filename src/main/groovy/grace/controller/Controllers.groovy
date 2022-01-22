@@ -1,6 +1,6 @@
 package grace.controller
 
-
+import grace.app.GraceApp
 import grace.util.ClassUtil
 import groovy.util.logging.Slf4j
 
@@ -81,7 +81,10 @@ class Controllers {
             interceptor.after(request, response, controllerName, actionName, id)
         } else {
             log.warn("页面不存在 ${controllerName}.${actionName}")
-            // new Controller(request, response).notFound()
+            Controller instance = GraceApp.instance.errorControllerClass.newInstance()
+            instance.request = request
+            instance.response = response
+            instance.notFound()
         }
     }
 }

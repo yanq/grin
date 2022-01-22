@@ -5,6 +5,7 @@ import com.alibaba.druid.filter.logging.Slf4jLogFilter
 import com.alibaba.druid.filter.stat.StatFilter
 import com.alibaba.druid.pool.DruidDataSource
 import com.alibaba.druid.sql.SQLUtils
+import grace.controller.Controller
 import grace.controller.Controllers
 import groovy.json.JsonGenerator
 import groovy.util.logging.Slf4j
@@ -46,6 +47,8 @@ class GraceApp {
     GroovyScriptEngine scriptEngine
     JsonGenerator jsonGenerator;
     boolean refreshing = false
+
+    Class<Controller> errorControllerClass = Controller
 
     File projectDir, appDir, domainsDir, controllersDir, viewsDir, configDir, initDir, assetDir, assetBuildDir, staticDir, scriptDir
     List<File> allDirs
@@ -193,6 +196,8 @@ class GraceApp {
         if (dirs == null || dirs?.find { it.endsWith('.groovy') }) {
             config = config()
             controllers.reload(controllersDir)
+
+            if (config.errorClass) errorControllerClass = config.errorClass
         }
         refreshing = false
     }
