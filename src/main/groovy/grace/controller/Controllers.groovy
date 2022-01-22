@@ -59,7 +59,13 @@ class Controllers {
      * @param id
      */
     void executeAction(HttpServletRequest request, HttpServletResponse response, String controllerName, String actionName, String id) {
-
+        Method method = methodMap.get("${controllerName}-${actionName}")
+        if (method) {
+            def instance = method.class.newInstance(request, response)
+            method.invoke(instance)
+        } else {
+            log.warn("不存在 ${controllerName}-${actionName}")
+            new Controller(request, response).notFound()
+        }
     }
-
 }
