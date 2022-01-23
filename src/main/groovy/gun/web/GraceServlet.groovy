@@ -15,10 +15,7 @@ class GraceServlet extends GenericServlet {
     @Override
     void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {
         long startAt = System.nanoTime()
-
-        //等待刷新，如果系统在刷新中
         GraceApp app = GraceApp.instance
-        app.waitingForRefresh()
 
         //设置默认编码
         req.setCharacterEncoding('utf-8')

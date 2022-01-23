@@ -7,16 +7,11 @@ import com.alibaba.druid.pool.DruidDataSource
 import com.alibaba.druid.sql.SQLUtils
 import groovy.json.JsonGenerator
 import groovy.util.logging.Slf4j
+import gun.datastore.DB
 import gun.web.Controller
 import gun.web.Controllers
 
 import javax.sql.DataSource
-import java.nio.file.FileSystems
-import java.nio.file.Paths
-import java.nio.file.WatchKey
-import java.nio.file.WatchService
-
-import static java.nio.file.StandardWatchEventKinds.*
 
 /**
  * Grace App
@@ -47,8 +42,7 @@ class GraceApp {
     Controllers controllers = new Controllers()
     DataSource dataSource
     GroovyScriptEngine scriptEngine
-    JsonGenerator jsonGenerator;
-    boolean refreshing = false
+    JsonGenerator jsonGenerator
 
     Class<Controller> errorControllerClass = Controller
 
@@ -78,6 +72,10 @@ class GraceApp {
         //config
         config = config()
         environment = env
+        // 初始化数据库，控制器，错误处理
+        DB.dataSource = getDataSource()
+        controllers.load(controllersDir)
+        if (config.errorClass) errorControllerClass = config.errorClass
     }
 
     /**
@@ -186,70 +184,5 @@ class GraceApp {
                 }
                 .build()
         return jsonGenerator
-    }
-
-    /**
-     * 刷新应用
-     */
-    synchronized void refresh(List<String> dirs = null) {
-        refreshing = true
-        log.info("refresh app @ ${dirs ?: 'start'}")
-        //重载控制器，拦截器
-        if (dirs == null || dirs?.find { it.endsWith('.groovy') }) {
-            config = config()
-            controllers.reload(controllersDir)
-
-            if (config.errorClass) errorControllerClass = config.errorClass
-        }
-        refreshing = false
-    }
-
-    /**
-     * 等待刷新完成
-     * 用于 servlet 中，避免更新过程中可能出现的不确定性
-     */
-    void waitingForRefresh() {
-        if (!refreshing) return
-        while (true) {
-            sleep(100)
-            if (!refreshing) return
-        }
-    }
-
-    /**
-     * 启动文件监控，变化更新
-     */
-    void startFileWatcher() {
-        log.info("start watch ${appDir.absolutePath}")
-
-        GroovyClassLoader loader = new GroovyClassLoader()
-        WatchService watchService = FileSystems.getDefault().newWatchService()
-
-        //目录极其子目录，监控只有一级
-        Paths.get(appDir.absolutePath).register(watchService, ENTRY_CREATE, ENTRY_MODIFY, ENTRY_DELETE)
-        appDir.absoluteFile.eachFileRecurse {
-            if (it.isDirectory()) Paths.get(it.absolutePath).register(watchService, ENTRY_CREATE, ENTRY_MODIFY, ENTRY_DELETE)
-        }
-
-        Thread watcher = new Thread(new Runnable() {
-            @Override
-            void run() {
-                while (true) {
-                    WatchKey key = watchService.take()
-                    try {
-                        List<String> names = key.pollEvents()*.context()*.toString()
-                        refresh(names)
-                    } catch (Exception e) {
-                        log.warn("file change deal fail")
-                        e.printStackTrace()
-                    } finally {
-                        key.reset()
-                    }
-                }
-            }
-        })
-        watcher.setName('GraceApp file watch service')
-        watcher.setDaemon(true)
-        watcher.start()
     }
 }

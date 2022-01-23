@@ -23,7 +23,7 @@ class Controllers {
      * 加载所有的控制器
      * @param dir
      */
-    void reload(File dir) {
+    void load(File dir) {
         log.info('start load interceptor and controllers')
 
         controllerMap.clear()

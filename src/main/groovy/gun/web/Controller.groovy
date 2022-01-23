@@ -136,7 +136,7 @@ class Controller {
      * @return
      */
     Map toMap() {
-        return [app: app, request: request, response: response, session: session, flash: flash, context: context, params: params, headers: headers, g: g]
+        return [app: app, request: request, response: response, session: session, context: context, params: params, headers: headers, g: g]
     }
 
     /**
