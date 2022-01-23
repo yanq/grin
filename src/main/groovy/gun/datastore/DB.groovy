@@ -3,7 +3,7 @@ package gun.datastore
 
 import groovy.sql.Sql
 import groovy.util.logging.Slf4j
-import gun.app.GraceApp
+import gun.app.GunApp
 
 import javax.sql.DataSource
 
@@ -12,7 +12,7 @@ import javax.sql.DataSource
  */
 @Slf4j
 class DB {
-    static DataSource dataSource //datasource,提供一个配置的入口，方便 grace 外部使用。
+    static DataSource dataSource //datasource,提供一个配置的入口，方便 gun 外部使用。
     static ThreadLocal<Sql> localSql = new ThreadLocal<>() // 线程内的 sql，主要用来控制事务
 
     /**
@@ -25,7 +25,7 @@ class DB {
             log.debug('use local sql')
         } else {
             log.debug('create new sql')
-            sql = new Sql(dataSource ?: GraceApp.instance.dataSource)
+            sql = new Sql(dataSource ?: GunApp.instance.dataSource)
         }
         return sql
     }

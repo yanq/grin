@@ -4,14 +4,14 @@ package gun.app
 import gun.generate.Generator
 
 /**
- * Grace 入口
+ * Gun 入口
  * 启动服务器，执行命令等。
  */
-class GraceMain {
+class GunMain {
     //支持的命令
     static cmds = [
-            'init'             : ['init grace dirs'],
-            'run'              : ['run [dev|prod]?', 'run grace server'],
+            'init'             : ['init gun dirs'],
+            'run'              : ['run [dev|prod]?', 'run gun server'],
             'create-domain'    : ['create domain class'],
             'create-controller': ['create controller class'],
             'generate-all'     : ['generate controller and views from domain class'],
@@ -24,7 +24,7 @@ class GraceMain {
      * @return
      */
     static usage() {
-        println 'Welcome to use Grace!'
+        println 'Welcome to use Gun!'
         println 'command available:'
         cmds.each {
             println "$it.key ${it.value.join('  ')}"
@@ -70,9 +70,9 @@ class GraceMain {
 
         //run
         if (cmd == 'run') {
-            def server = new GraceServer()
+            def server = new GunServer()
             if (args.contains('prod')) {
-                GraceApp.init(null, GraceApp.ENV_PROD)
+                GunApp.init(null, GunApp.ENV_PROD)
                 server.start()
             } else {
                 server.start()
@@ -81,7 +81,7 @@ class GraceMain {
 
         //init
         if (cmd == 'init') {
-            GraceApp.instance.initDirs()
+            GunApp.instance.initDirs()
         }
 
         //create domain
@@ -113,7 +113,7 @@ class GraceMain {
             mustOrFail args.size() > 1, "缺少类名"
             String script = args[1].endsWith('.groovy') ? args[1] : args[1] + '.groovy'
             def start = System.currentTimeMillis()
-            GraceApp.instance.scriptEngine.run(script, '')
+            GunApp.instance.scriptEngine.run(script, '')
             println("Run script ${script},use time ${(System.currentTimeMillis() - start) / 1000}s.")
         }
     }

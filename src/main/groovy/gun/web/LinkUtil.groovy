@@ -1,7 +1,7 @@
 package gun.web
 
 
-import gun.app.GraceApp;
+import gun.app.GunApp;
 
 public class LinkUtil {
 
@@ -12,7 +12,7 @@ public class LinkUtil {
      */
     static String absolute(String file) {
         if (file && !(file.startsWith('http://') || file.startsWith('https://'))) {
-            return GraceApp.instance.config.serverURL + file
+            return GunApp.instance.config.serverURL + file
         } else {
             return file
         }

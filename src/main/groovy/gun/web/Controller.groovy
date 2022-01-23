@@ -4,7 +4,7 @@ import groovy.json.JsonSlurper
 import groovy.json.StreamingJsonBuilder
 import groovy.util.logging.Slf4j
 import groovy.xml.MarkupBuilder
-import gun.app.GraceApp
+import gun.app.GunApp
 import org.thymeleaf.TemplateEngine
 import org.thymeleaf.context.Context
 import org.thymeleaf.templateresolver.FileTemplateResolver
@@ -30,9 +30,9 @@ class Controller {
     Params params
     Map<String, String> headers
     //app
-    GraceApp app = GraceApp.instance
+    GunApp app = GunApp.instance
     @Lazy
-    GraceExpression g = new GraceExpression()
+    GunExpression g = new GunExpression()
     //html json
     MarkupBuilder html
     StreamingJsonBuilder json

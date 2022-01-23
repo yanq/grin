@@ -1,14 +1,14 @@
 package gun.web
 
-import gun.app.GraceApp
+import gun.app.GunApp
 import gun.generate.Generator
 
 /**
- * grace 表达式
+ * gun 表达式
  * 提供一些方法，处理一些东西。如 asset,link。
  */
-class GraceExpression {
-    GraceApp app = GraceApp.instance
+class GunExpression {
+    GunApp app = GunApp.instance
     def assetsPath = app.config.assets.uri ?: '/assets'
     /**
      * 处理 application.js
@@ -17,7 +17,7 @@ class GraceExpression {
      * @param js
      */
     def assetJs(String js) {
-        def app = GraceApp.instance
+        def app = GunApp.instance
         if (app.isDev()) {
             File jsDir = new File(app.assetDir, 'javascripts')
             File jsFile = new File(jsDir, js)
@@ -64,7 +64,7 @@ class GraceExpression {
      * @return
      */
     def assetCss(String css) {
-        def app = GraceApp.instance
+        def app = GunApp.instance
         if (app.isDev()) {
             File cssDir = new File(app.assetDir, 'stylesheets')
             File cssFile = new File(cssDir, css)
@@ -111,7 +111,7 @@ class GraceExpression {
      * @return
      */
     def file(String f) {
-        "${GraceApp.instance.config.files.uri ?: '/files'}/$f"
+        "${GunApp.instance.config.files.uri ?: '/files'}/$f"
     }
 
     /**

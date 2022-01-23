@@ -1,7 +1,7 @@
 package gun.web
 
 import groovy.util.logging.Slf4j
-import gun.app.GraceApp
+import gun.app.GunApp
 
 import javax.servlet.GenericServlet
 import javax.servlet.ServletException
@@ -11,11 +11,11 @@ import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
 @Slf4j
-class GraceServlet extends GenericServlet {
+class GunServlet extends GenericServlet {
     @Override
     void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {
         long startAt = System.nanoTime()
-        GraceApp app = GraceApp.instance
+        GunApp app = GunApp.instance
 
         //设置默认编码
         req.setCharacterEncoding('utf-8')
@@ -28,12 +28,12 @@ class GraceServlet extends GenericServlet {
         String clearedURI = toURI(request.requestURI, request.getContextPath())
         List params = splitURI(clearedURI)
 
-        use(GraceCategory.class) {
+        use(GunCategory.class) {
             try {
                 app.controllers.executeAction(request, response, params[0], params[1], params[2])
             } catch (Exception e) {
                 e.printStackTrace()
-                Controller instance = GraceApp.instance.errorControllerClass.newInstance()
+                Controller instance = GunApp.instance.errorControllerClass.newInstance()
                 instance.request = request
                 instance.response = response
                 instance.error(e)

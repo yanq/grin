@@ -14,20 +14,20 @@ import gun.web.Controllers
 import javax.sql.DataSource
 
 /**
- * Grace App
+ * Gun App
  * 定义规约目录等。
  */
 @Slf4j
-class GraceApp {
+class GunApp {
     //元数据
     public static final String VERSION = '0.1.1'
     //instance
-    private static GraceApp instance
+    private static GunApp instance
     //env
     public static final String ENV_PROD = 'prod'
     public static final String ENV_DEV = 'dev'
     //目录结构
-    public static final String APP_DIR = 'grace-app'
+    public static final String APP_DIR = 'gun-app'
     public static final String APP_DOMAINS = 'domains'
     public static final String APP_CONTROLLERS = 'controllers'
     public static final String APP_VIEWS = 'views'
@@ -54,7 +54,7 @@ class GraceApp {
      * 构造并初始化
      * @param projectRoot
      */
-    GraceApp(File projectRoot = null, String env = ENV_DEV) {
+    GunApp(File projectRoot = null, String env = ENV_DEV) {
         //init dirs
         if (!projectRoot) projectRoot = new File('.')
         projectDir = projectRoot
@@ -86,8 +86,8 @@ class GraceApp {
      * @return
      */
     static synchronized init(File root = null, String env = ENV_DEV) {
-        if (instance) throw new Exception("Grace app has inited")
-        instance = new GraceApp(root, env)
+        if (instance) throw new Exception("Gun app has inited")
+        instance = new GunApp(root, env)
     }
 
     /**
@@ -95,9 +95,9 @@ class GraceApp {
      * todo 这里同步的话，是不是会影响性能？
      * @return
      */
-    static GraceApp getInstance() {
+    static GunApp getInstance() {
         if (instance) return instance
-        instance = new GraceApp()
+        instance = new GunApp()
         return instance
     }
 
@@ -127,7 +127,7 @@ class GraceApp {
      * @return
      */
     void initDirs() {
-        log.info("init grace app dirs @ ${projectDir.absolutePath}")
+        log.info("init gun app dirs @ ${projectDir.absolutePath}")
         allDirs.each {
             if (it.exists()) {
                 log.info("${it.name} exists")
@@ -143,7 +143,7 @@ class GraceApp {
      * @return
      */
     void checkDirs() {
-        log.info("check grace app dirs @ ${projectDir.absolutePath}")
+        log.info("check gun app dirs @ ${projectDir.absolutePath}")
         allDirs.each {
             if (!it.exists()) throw new Exception("目录不存在：${it.canonicalPath}")
         }

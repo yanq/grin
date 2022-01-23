@@ -2,7 +2,7 @@ package gun.web
 
 
 import groovy.util.logging.Slf4j
-import gun.app.GraceApp
+import gun.app.GunApp
 
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
@@ -84,7 +84,7 @@ class Controllers {
             interceptor.after(request, response, controllerName, actionName, id)
         } else {
             log.warn("页面不存在 ${controllerName}.${actionName}")
-            Controller instance = GraceApp.instance.errorControllerClass.newInstance()
+            Controller instance = GunApp.instance.errorControllerClass.newInstance()
             instance.request = request
             instance.response = response
             instance.notFound()
