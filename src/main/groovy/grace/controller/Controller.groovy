@@ -4,7 +4,6 @@ import grace.app.GraceApp
 import grace.common.FlashScope
 import grace.common.GraceExpression
 import grace.common.Params
-import grace.common.WebRequest
 import grace.util.FileUtil
 import groovy.json.JsonSlurper
 import groovy.json.StreamingJsonBuilder

@@ -1,12 +1,10 @@
 package grace.servlet
 
 import grace.app.GraceApp
-import grace.common.WebRequest
 import grace.controller.Controller
-import grace.route.Processor
 import grace.util.GraceUtils
-import grace.util.RegexUtil
 import groovy.util.logging.Slf4j
+
 import javax.servlet.GenericServlet
 import javax.servlet.ServletException
 import javax.servlet.ServletRequest
