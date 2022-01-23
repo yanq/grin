@@ -1,6 +1,7 @@
 package grace.util
 
-import grace.datastore.entity.Transformer
+import gun.datastore.entity.Transformer
+import gun.util.ClassUtil
 
 class ClassUtilTest extends GroovyTestCase {
     void testPropertyName() {

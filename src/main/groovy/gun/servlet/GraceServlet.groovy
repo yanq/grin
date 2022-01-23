@@ -1,0 +1,50 @@
+package gun.servlet
+
+import groovy.util.logging.Slf4j
+import gun.app.GraceApp
+import gun.controller.Controller
+import gun.util.GraceUtils
+
+import javax.servlet.GenericServlet
+import javax.servlet.ServletException
+import javax.servlet.ServletRequest
+import javax.servlet.ServletResponse
+import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.HttpServletResponse
+
+@Slf4j
+class GraceServlet extends GenericServlet {
+    @Override
+    void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {
+        long startAt = System.nanoTime()
+
+        //等待刷新，如果系统在刷新中
+        GraceApp app = GraceApp.instance
+        app.waitingForRefresh()
+
+        //设置默认编码
+        req.setCharacterEncoding('utf-8')
+        res.setCharacterEncoding('utf-8')
+        res.setContentType('text/html;charset=UTF-8')
+
+        HttpServletRequest request = (HttpServletRequest) req
+        HttpServletResponse response = (HttpServletResponse) res
+
+        String clearedURI = GraceUtils.toURI(request.requestURI, request.getContextPath())
+        List params = GraceUtils.splitURI(clearedURI)
+
+        use(GraceCategory.class) {
+            try {
+                app.controllers.executeAction(request, response, params[0], params[1], params[2])
+            } catch (Exception e) {
+                e.printStackTrace()
+                Controller instance = GraceApp.instance.errorControllerClass.newInstance()
+                instance.request = request
+                instance.response = response
+                instance.error(e)
+            }
+        }
+
+        log.info("time ${(System.nanoTime() - startAt) / 1000000}ms")
+    }
+}

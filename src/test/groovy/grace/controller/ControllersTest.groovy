@@ -1,5 +1,7 @@
 package grace.controller
 
+import gun.controller.Controllers
+
 class ControllersTest extends GroovyTestCase {
     void testLoadControllers() {
         println(new File('.').absolutePath)

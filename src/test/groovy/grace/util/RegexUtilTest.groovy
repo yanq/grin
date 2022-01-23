@@ -1,5 +1,7 @@
 package grace.util
 
+import gun.util.RegexUtil
+
 class RegexUtilTest extends GroovyTestCase {
     void testTransformPathIntoRegex() {
         'ab'

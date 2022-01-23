@@ -1,5 +1,7 @@
 package grace.util
 
+import gun.util.GraceUtils
+
 class GraceUtilsTest extends GroovyTestCase {
     void testSplitURI() {
         def p1 = GraceUtils.splitURI('/')
