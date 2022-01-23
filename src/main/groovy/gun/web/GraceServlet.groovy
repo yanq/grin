@@ -39,8 +39,8 @@ class GunServlet extends GenericServlet {
                 instance.error(e)
             }
         }
-
-        log.info("time ${(System.nanoTime() - startAt) / 1000000}ms")
+        def ip = request.getHeader("X-Real-Ip") ?: request.getRemoteAddr()
+        log.info("${response.status} ${ip} ${clearedURI}(${params[0]}.${params[1]}) time ${(System.nanoTime() - startAt) / 1000000}ms")
     }
 
     /**

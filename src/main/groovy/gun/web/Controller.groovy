@@ -132,70 +132,6 @@ class Controller {
     }
 
     /**
-     * 转成 Map ，方便其他地方注入使用，如注入到模板绑定中
-     * @return
-     */
-    Map toMap() {
-        return [app: app, request: request, response: response, session: session, context: context, params: params, headers: headers, g: g]
-    }
-
-    /**
-     * accept header
-     * @param contents
-     * @return
-     */
-    boolean accept(List<String> contents) {
-        contents.find { headers['Accept']?.contains(it) } || contents.find { headers['accept']?.contains(it) }
-    }
-
-    /**
-     * 获取客户端 IP 地址
-     * @return
-     */
-    def remoteIP() {
-        request.getHeader("X-Real-Ip") ?: request.getRemoteAddr()
-    }
-
-    /**
-     * 获取响应状态码
-     * @return
-     */
-    int status() {
-        response.status
-    }
-
-    void sendMessage(int status, String message) {
-        response.setStatus(status)
-        render(message)
-    }
-/**
- * 不存在页面
- */
-    void notFound() {
-        response.status = 404
-
-        if (app.config.views.notFound) {
-            render(app.config.views.notFound, [:])
-        } else {
-            response.writer.write("No page found for ${request.requestURI}")
-        }
-    }
-
-    /**
-     * 错误页面处理
-     * @param e
-     */
-    void error(Exception e) {
-        response.status = 500
-
-        if (app.config.views.error) {
-            render(app.config.views.error, [exception: e])
-        } else {
-            response.writer.write("Error: ${e.getMessage()}")
-        }
-    }
-
-    /**
      * 返回string
      * @param string
      */
@@ -221,9 +157,7 @@ class Controller {
         Context ctx = new Context()
         model.putAll(toMap())
         ctx.setVariables(model)
-
         String path = view.startsWith('/') ? view : "/${controllerName}/${view}"
-
         templateEngine().process(path, ctx, response.getWriter())
     }
 
@@ -249,23 +183,6 @@ class Controller {
     }
 
     /**
-     * template engine by thymeleaf
-     * 默认是缓存的。
-     * @return
-     */
-    TemplateEngine templateEngine() {
-        if (templateEngine) return templateEngine
-        templateEngine = new TemplateEngine()
-        FileTemplateResolver resolver = new FileTemplateResolver()
-        resolver.setPrefix(app.viewsDir.canonicalPath)
-        resolver.setSuffix('.html')
-        resolver.setCharacterEncoding('utf-8')
-        resolver.setCacheable(!app.isDev())
-        templateEngine.setTemplateResolver(resolver)
-        return templateEngine
-    }
-
-    /**
      * json builder
      * @return
      */
@@ -286,25 +203,55 @@ class Controller {
         return html
     }
 
-    void dumpInfos(OutputStream out = System.out) {
-        String title = ' request infos '.center(60, '-')
-        out.println(title)
-        out.println("---------- method : $request.method")
-        out.println("---------- headers :")
-        getHeaders().each {
-            out.println("${it.key} : ${it.value}")
+    /**
+     * 不存在页面
+     */
+    void notFound() {
+        response.status = 404
+
+        if (app.config.views.notFound) {
+            render(app.config.views.notFound, [:])
+        } else {
+            response.writer.write("No page found for ${request.requestURI}")
         }
-        out.println('---------- params :')
-        getParams().each {
-            out.println("${it.key} : ${it.key == 'password' ? '*********' : it.value}")
-        }
-        out.println(title)
     }
 
-    boolean actionStartWith(List<String> actions) {
-        actions.find {
-            if (it == 'index') return request.requestURI == "/${controllerName}" || request.requestURI == "/${controllerName}/" || request.requestURI == "/${controllerName}/index"
-            return request.requestURI.startsWith(it.startsWith('/') ? it : "/${controllerName}/${it}")
+    /**
+     * 错误页面处理
+     * @param e
+     */
+    void error(Exception e) {
+        response.status = 500
+
+        if (app.config.views.error) {
+            render(app.config.views.error, [exception: e])
+        } else {
+            response.writer.write("Error: ${e.getMessage()}")
         }
+    }
+
+    /**
+     * template engine by thymeleaf
+     * 默认是缓存的。
+     * @return
+     */
+    TemplateEngine templateEngine() {
+        if (templateEngine) return templateEngine
+        templateEngine = new TemplateEngine()
+        FileTemplateResolver resolver = new FileTemplateResolver()
+        resolver.setPrefix(app.viewsDir.canonicalPath)
+        resolver.setSuffix('.html')
+        resolver.setCharacterEncoding('utf-8')
+        resolver.setCacheable(!app.isDev())
+        templateEngine.setTemplateResolver(resolver)
+        return templateEngine
+    }
+
+    /**
+     * 转成 Map ，方便其他地方注入使用，如注入到模板绑定中
+     * @return
+     */
+    Map toMap() {
+        return [app: app, request: request, response: response, session: session, context: context, params: params, headers: headers, g: g]
     }
 }
