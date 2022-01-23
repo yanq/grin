@@ -58,6 +58,7 @@ class GraceApp {
         //init dirs
         if (!projectRoot) projectRoot = new File('.')
         projectDir = projectRoot
+        log.info("start app @ ${projectDir.absolutePath} ...")
         appDir = new File(projectDir, APP_DIR)
         domainsDir = new File(appDir, APP_DOMAINS)
         controllersDir = new File(appDir, APP_CONTROLLERS)
@@ -76,6 +77,7 @@ class GraceApp {
         DB.dataSource = getDataSource()
         controllers.load(controllersDir)
         if (config.errorClass) errorControllerClass = config.errorClass
+        log.info("started app @ ${environment}")
     }
 
     /**
@@ -83,7 +85,7 @@ class GraceApp {
      * @param root
      * @return
      */
-    static synchronized setRootAndEnv(File root, String env = ENV_DEV) {
+    static synchronized init(File root = null, String env = ENV_DEV) {
         if (instance) throw new Exception("Grace app has inited")
         instance = new GraceApp(root, env)
     }
@@ -108,7 +110,7 @@ class GraceApp {
         if (configFile.exists()) {
             return new ConfigSlurper(environment).parse(configFile.text)
         } else {
-            log.warn("No config file found!")
+            throw new Exception("配置文件不存在")
         }
     }
 

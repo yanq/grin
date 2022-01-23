@@ -24,7 +24,7 @@ class Controllers {
      * @param dir
      */
     void load(File dir) {
-        log.info('start load interceptor and controllers')
+        log.info('load interceptor and controllers ...')
 
         controllerMap.clear()
         methodMap.clear()
@@ -64,7 +64,7 @@ class Controllers {
                     }
         }
 
-        log.info("loaded, interceptor ${interceptor.class.simpleName}, controllers ${controllerMap.keySet()}")
+        log.info("loaded interceptor ${interceptor.class.simpleName} and controllers ${controllerMap.keySet()}")
     }
 
     /**
