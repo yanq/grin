@@ -80,6 +80,8 @@ class Controllers {
             Controller instance = method.declaringClass.newInstance()
             instance.request = request
             instance.response = response
+            //flash next
+            FlashScope.next(instance.session.id)
             method.invoke(instance)
             interceptor.after(request, response, controllerName, actionName, id)
         } else {
