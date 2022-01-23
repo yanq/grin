@@ -1,6 +1,6 @@
 package grace.controller
 
-import gun.controller.Controllers
+import gun.web.Controllers
 
 class ControllersTest extends GroovyTestCase {
     void testLoadControllers() {

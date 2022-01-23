@@ -1,9 +1,8 @@
-package gun.controller
+package gun.web
 
 
 import groovy.util.logging.Slf4j
 import gun.app.GraceApp
-import gun.util.ClassUtil
 
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
@@ -33,8 +32,11 @@ class Controllers {
 
         dir.eachFileRecurse {
             if (!it.name.endsWith('.groovy')) return //忽略非目标文件
-            def name = ClassUtil.reduce(it.name.split('\\.')[0].uncapitalize())
-            def className = ClassUtil.pathToClassName(it.canonicalPath.replace(dir.canonicalPath, '').substring(1))
+            def name = it.name.split('\\.')[0].uncapitalize()
+                    .replaceAll("Controller", '')
+                    .replaceAll('Interceptor', '')
+            def className = it.canonicalPath.replace(dir.canonicalPath, '').substring(1)
+            className = className.substring(0, className.lastIndexOf('.')).replace('/', '.')
             if (it.name.matches('.+Controller.groovy')) {
                 if (controllerMap.containsKey(name)) throw new Exception("控制器 ${name} 已经存在: ${controllerMap.get(name)},新的 ${className}")
                 controllerMap.put(name, className)

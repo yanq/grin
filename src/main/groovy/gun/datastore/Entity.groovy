@@ -1,4 +1,4 @@
-package gun.datastore.entity
+package gun.datastore
 
 /**
  * 提供实体类的基本功能

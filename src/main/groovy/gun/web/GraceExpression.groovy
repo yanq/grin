@@ -1,4 +1,4 @@
-package gun.common
+package gun.web
 
 import gun.app.GraceApp
 import gun.generate.Generator

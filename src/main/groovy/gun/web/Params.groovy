@@ -1,7 +1,7 @@
-package gun.common
+package gun.web
 
 import groovy.transform.CompileStatic
-import gun.datastore.entity.Transformer
+import gun.datastore.Transformer
 
 import java.time.LocalDate
 import java.time.LocalDateTime

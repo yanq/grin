@@ -7,8 +7,8 @@ import com.alibaba.druid.pool.DruidDataSource
 import com.alibaba.druid.sql.SQLUtils
 import groovy.json.JsonGenerator
 import groovy.util.logging.Slf4j
-import gun.controller.Controller
-import gun.controller.Controllers
+import gun.web.Controller
+import gun.web.Controllers
 
 import javax.sql.DataSource
 import java.nio.file.FileSystems

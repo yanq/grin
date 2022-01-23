@@ -1,4 +1,4 @@
-package gun.util
+package gun.generate
 
 class ClassUtil {
 

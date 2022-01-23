@@ -1,4 +1,4 @@
-package gun.datastore.entity
+package gun.datastore
 
 
 import groovy.json.JsonOutput
@@ -6,7 +6,6 @@ import groovy.json.JsonSlurper
 import groovy.sql.GroovyRowResult
 import groovy.sql.Sql
 import groovy.util.logging.Slf4j
-import gun.datastore.DB
 
 import java.lang.reflect.Modifier
 import java.time.LocalDate
@@ -54,7 +53,7 @@ class EntityImpl {
     static list(Class target, Map params, String selects = '*') {
         DB.withSql { Sql sql ->
             List list = []
-            List rows = sql.rows("select ${selects} from ${findTableName(target)} ${EntityUtil.params(params)}".toString())
+            List rows = sql.rows("select ${selects} from ${findTableName(target)} ${params(params)}".toString())
             rows.each { row ->
                 list << bindResultToEntity(row, target)
             }
@@ -93,9 +92,9 @@ class EntityImpl {
                     kvs << [(columnMap[it]): propertyValue]
                 } else {
                     if (propertyClass.interfaces.contains(Entity)) {
-                        kvs << [(EntityUtil.toDbName(it) + '_id'): propertyValue?.id]
+                        kvs << [(toDbName(it) + '_id'): propertyValue?.id]
                     } else {
-                        kvs << [(EntityUtil.toDbName(it)): propertyValue]
+                        kvs << [(toDbName(it)): propertyValue]
                     }
                 }
             }
@@ -176,7 +175,7 @@ class EntityImpl {
      * @return
      */
     static String findTableName(Class target) {
-        target[MAPPING]?.table ?: EntityUtil.toDbName(target.simpleName)
+        target[MAPPING]?.table ?: toDbName(target.simpleName)
     }
 
     /**
@@ -220,7 +219,7 @@ class EntityImpl {
             if (columnMap.containsKey(key)) {
                 key = columnMap[key]
             } else {
-                key = EntityUtil.toDbName(key)
+                key = toDbName(key)
                 if (propClass.interfaces.contains(Entity)) {
                     key = key + "_id"
                 }
@@ -272,7 +271,7 @@ class EntityImpl {
             preDealParams()
             return DB.withSql { Sql sql ->
                 List list = []
-                List rows = sql.rows("select ${selects} from ${findTableName(entityClass)} ${whereSql ? 'where ' + whereSql : ''} ${EntityUtil.params(pageParams)}".toString(), params)
+                List rows = sql.rows("select ${selects} from ${findTableName(entityClass)} ${whereSql ? 'where ' + whereSql : ''} ${params(pageParams)}".toString(), params)
                 rows.each { row ->
                     list << bindResultToEntity(row, entityClass)
                 }
@@ -400,5 +399,34 @@ class EntityImpl {
             }
         }
         return entity
+    }
+
+    /**
+     * 将属性名称编程数据库风格名称
+     * @param propName
+     * @return
+     */
+    static String toDbName(String propName) {
+        propName = propName.uncapitalize()
+        String result = ''
+        propName.toCharArray().each {
+            if (Character.isUpperCase(it)) {
+                result += '_' + Character.toLowerCase(it)
+            } else {
+                result += it
+            }
+        }
+        return result.toString()
+    }
+
+    /**
+     * 处理参数，包括分页和排序
+     * 貌似 pg 的 offset 是可以独立的，mysql 不可以。先以 mysql 为准。
+     * @param params [offset:0,limit:10,order:'id desc']
+     * @return
+     */
+    static String params(Map params) {
+        if (!params) return ''
+        return "${params.order ? 'order by ' + params.order : ''} ${params.limit ? 'limit ' + params.limit : ''} ${(params.limit && params.offset) ? 'offset ' + params.offset : ''}"
     }
 }

@@ -1,4 +1,4 @@
-package gun.datastore.entity
+package gun.datastore
 
 import groovy.util.logging.Slf4j
 

@@ -1,4 +1,4 @@
-package gun.controller
+package gun.web
 
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse

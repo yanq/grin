@@ -5,7 +5,6 @@ import groovy.text.StreamingTemplateEngine
 import groovy.text.Template
 import groovy.util.logging.Slf4j
 import gun.app.GraceApp
-import gun.util.ClassUtil
 
 /**
  * 生成器

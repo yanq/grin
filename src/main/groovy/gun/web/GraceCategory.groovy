@@ -1,4 +1,4 @@
-package gun.servlet
+package gun.web
 
 import groovy.transform.CompileStatic
 

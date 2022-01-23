@@ -1,4 +1,4 @@
-package gun.util
+package gun.web
 
 import groovy.util.logging.Slf4j
 

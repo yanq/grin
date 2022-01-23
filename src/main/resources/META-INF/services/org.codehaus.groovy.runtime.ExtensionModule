@@ -1,4 +1,0 @@
-moduleName=Grace Extension
-moduleVersion=1.0
-extensionClasses=grace.util.GraceExtension
-staticExtensionClasses=grace.util.GraceStaticExtension

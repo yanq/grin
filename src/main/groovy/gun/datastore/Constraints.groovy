@@ -1,4 +1,4 @@
-package gun.datastore.entity
+package gun.datastore
 /**
  * 约束组装成 map，方便使用
  */

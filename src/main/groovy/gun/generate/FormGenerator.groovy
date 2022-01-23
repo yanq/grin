@@ -1,7 +1,7 @@
 package gun.generate
 
-import gun.datastore.entity.Entity
-import gun.datastore.entity.EntityImpl
+import gun.datastore.Entity
+import gun.datastore.EntityImpl
 
 /**
  * 产生表单

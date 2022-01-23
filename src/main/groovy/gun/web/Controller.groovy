@@ -1,14 +1,10 @@
-package gun.controller
+package gun.web
 
 import groovy.json.JsonSlurper
 import groovy.json.StreamingJsonBuilder
 import groovy.util.logging.Slf4j
 import groovy.xml.MarkupBuilder
 import gun.app.GraceApp
-import gun.common.FlashScope
-import gun.common.GraceExpression
-import gun.common.Params
-import gun.util.FileUtil
 import org.thymeleaf.TemplateEngine
 import org.thymeleaf.context.Context
 import org.thymeleaf.templateresolver.FileTemplateResolver
@@ -64,14 +60,6 @@ class Controller {
      */
     HttpSession getSession() {
         request.getSession(true)
-    }
-
-    /**
-     * flash
-     * @return
-     */
-    FlashScope.Flash getFlash() {
-        FlashScope.getFlash(getSession().id)
     }
 
     /**
