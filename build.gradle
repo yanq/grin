@@ -1,5 +1,5 @@
 group 'xyz.itbang'
-version '2.0.0-dev'
+version "${new Date().format('yyyyMMddHHmm')}"
 
 apply plugin: 'java'
 apply plugin: 'groovy'
@@ -16,8 +16,8 @@ dependencies {
     compile 'io.undertow:undertow-servlet:2.0.13.Final'
     compile 'io.undertow:undertow-websockets-jsr:2.0.13.Final'
     compile 'javax.servlet:javax.servlet-api:4.0.1' // undertow included
-    compile 'org.thymeleaf:thymeleaf:3.0.9.RELEASE'    
-    compile 'com.alibaba:druid:1.1.10'    
+    compile 'org.thymeleaf:thymeleaf:3.0.9.RELEASE'
+    compile 'com.alibaba:druid:1.1.10'
     compile 'org.slf4j:slf4j-api:1.7.22'
     runtime 'ch.qos.logback:logback-classic:1.2.1'
 
@@ -27,4 +27,6 @@ dependencies {
 task sourcesJar(type: Jar) {
     classifier = 'sources'
     from sourceSets.main.allSource
+    exclude('logback.groovy')
 }
+assemble.dependsOn sourcesJar
