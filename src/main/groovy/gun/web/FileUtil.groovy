@@ -125,17 +125,4 @@ class FileUtil {
             out.close()
         }
     }
-
-    /**
-     * 产生一个 uuid 文件名，分析后缀
-     * @param fileName
-     * @return
-     */
-    static String fileUUIDName(String fileName) {
-        def index = fileName.lastIndexOf('.')
-        def postFix = ''
-        if (index > 0) postFix = fileName.substring(index + 1)
-        def uuid = UUID.randomUUID().toString().replace('-', '')
-        return postFix ? "${uuid}.${postFix}" : uuid
-    }
 }

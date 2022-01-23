@@ -1,19 +1,6 @@
 package gun.web
 
-
-import javax.servlet.http.HttpServletRequest
-import javax.servlet.http.HttpServletResponse
-
 class FilesController extends Controller {
-    /**
-     * 构造函数，初始化
-     * @param request
-     * @param response
-     */
-    FilesController(HttpServletRequest request, HttpServletResponse response) {
-        super(request, response)
-    }
-
 
     /**
      * asset
@@ -38,7 +25,7 @@ class FilesController extends Controller {
         List fileNames = []
         request.parts.each {
             if (it.submittedFileName) {
-                String fileName = FileUtil.fileUUIDName(it.submittedFileName)
+                String fileName = fileUUIDName(it.submittedFileName)
                 it.write(fileName)
                 fileNames << fileName
             }
@@ -66,5 +53,18 @@ class FilesController extends Controller {
         } else {
             render(new File(app.staticDir, params.file))
         }
+    }
+
+    /**
+     * 产生一个 uuid 文件名，分析后缀
+     * @param fileName
+     * @return
+     */
+    static String fileUUIDName(String fileName) {
+        def index = fileName.lastIndexOf('.')
+        def postFix = ''
+        if (index > 0) postFix = fileName.substring(index + 1)
+        def uuid = UUID.randomUUID().toString().replace('-', '')
+        return postFix ? "${uuid}.${postFix}" : uuid
     }
 }
