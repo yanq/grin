@@ -53,7 +53,7 @@ class EntityImpl {
     static list(Class target, Map params, String selects = '*') {
         DB.withSql { Sql sql ->
             List list = []
-            List rows = sql.rows("select ${selects} from ${findTableName(target)} ${params(params)}".toString())
+            List rows = sql.rows("select ${selects} from ${findTableName(target)} ${dealParams(params)}".toString())
             rows.each { row ->
                 list << bindResultToEntity(row, target)
             }
@@ -425,7 +425,7 @@ class EntityImpl {
      * @param params [offset:0,limit:10,order:'id desc']
      * @return
      */
-    static String params(Map params) {
+    static String dealParams(Map params) {
         if (!params) return ''
         return "${params.order ? 'order by ' + params.order : ''} ${params.limit ? 'limit ' + params.limit : ''} ${(params.limit && params.offset) ? 'offset ' + params.offset : ''}"
     }

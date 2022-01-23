@@ -149,4 +149,13 @@ trait Entity<D> {
     static from(Map params) {
         EntityImpl.bind(this, params)
     }
+
+    /**
+     * 加载关联
+     * @param names
+     * @return
+     */
+    def fetch(String... names) {
+        EntityFetch.fetch(this, names)
+    }
 }
