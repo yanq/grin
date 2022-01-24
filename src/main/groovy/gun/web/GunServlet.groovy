@@ -9,13 +9,15 @@ import javax.servlet.ServletRequest
 import javax.servlet.ServletResponse
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
+import java.lang.reflect.Method
 
 @Slf4j
 class GunServlet extends GenericServlet {
+    GunApp app = GunApp.instance
+
     @Override
     void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {
         long startAt = System.nanoTime()
-        GunApp app = GunApp.instance
 
         //设置默认编码
         req.setCharacterEncoding('utf-8')
@@ -26,21 +28,52 @@ class GunServlet extends GenericServlet {
         HttpServletResponse response = (HttpServletResponse) res
 
         String clearedURI = toURI(request.requestURI, request.getContextPath())
-        List params = splitURI(clearedURI)
+        List cai = splitURI(clearedURI)
+        String controllerName = cai[0], actionName = cai[1], id = cai[2]
 
         use(GunCategory.class) {
             try {
-                app.controllers.executeAction(request, response, params[0], params[1], params[2])
+                Controller controller
+                Method method
+                if (app.isDev()) {
+                    app.controllers.load(app.controllersDir)
+                    if (app.controllers.controllerMap.get(controllerName)) {
+                        controller = app.scriptEngine.loadScriptByName(app.controllers.controllerMap.get(controllerName) + ".groovy").newInstance()
+                        method = controller.class.getDeclaredMethod(actionName)
+                    }
+                } else {
+                    method = app.controllers.methodMap.get("${controllerName}-${actionName}")
+                    controller = method?.declaringClass?.newInstance()
+                }
+                if (method) {
+                    FlashScope.next(request.getSession(false)?.getId())
+                    if (!app.controllers.interceptor.before(request, response, controllerName, actionName, id)) return
+                    controller.request = request
+                    controller.response = response
+                    method.invoke(controller)
+                    app.controllers.interceptor.after(request, response, controllerName, actionName, id)
+                } else {
+                    log.warn("页面不存在 ${controllerName}.${actionName}")
+                    Controller instance = getErrorController()
+                    instance.request = request
+                    instance.response = response
+                    instance.notFound()
+                }
             } catch (Exception e) {
                 e.printStackTrace()
-                Controller instance = GunApp.instance.errorControllerClass.newInstance()
+                Controller instance = getErrorController()
                 instance.request = request
                 instance.response = response
                 instance.error(e)
             }
         }
+
         def ip = request.getHeader("X-Real-Ip") ?: request.getRemoteAddr()
-        log.info("${response.status} ${ip} ${clearedURI}(${params[0]}.${params[1]}) time ${(System.nanoTime() - startAt) / 1000000}ms")
+        log.info("${response.status} ${ip} ${clearedURI}(${cai[0]}.${cai[1]}) time ${(System.nanoTime() - startAt) / 1000000}ms")
+    }
+
+    Controller getErrorController() {
+        app.errorControllerClass.newInstance()
     }
 
     /**

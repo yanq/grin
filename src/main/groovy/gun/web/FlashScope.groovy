@@ -28,6 +28,7 @@ class FlashScope {
      * @param key
      */
     static void next(String key) {
+        if (!key) return
         flashes.get(key)?.next()
     }
 

@@ -1,11 +1,7 @@
 package gun.web
 
-
 import groovy.util.logging.Slf4j
-import gun.app.GunApp
 
-import javax.servlet.http.HttpServletRequest
-import javax.servlet.http.HttpServletResponse
 import java.lang.reflect.Method
 
 /**
@@ -23,7 +19,7 @@ class Controllers {
      * 加载所有的控制器
      * @param dir
      */
-    void load(File dir) {
+    synchronized void load(File dir) {
         log.info('load interceptor and controllers ...')
 
         controllerMap.clear()
@@ -65,31 +61,5 @@ class Controllers {
         }
 
         log.info("loaded interceptor ${interceptor.class.simpleName} and controllers ${controllerMap.keySet()}")
-    }
-
-    /**
-     * 执行 action
-     * @param controllerName
-     * @param actionName
-     * @param id
-     */
-    void executeAction(HttpServletRequest request, HttpServletResponse response, String controllerName, String actionName, String id) {
-        Method method = methodMap.get("${controllerName}-${actionName}")
-        if (method) {
-            if (!interceptor.before(request, response, controllerName, actionName, id)) return
-            Controller instance = method.declaringClass.newInstance()
-            instance.request = request
-            instance.response = response
-            //flash next
-            FlashScope.next(instance.session.id)
-            method.invoke(instance)
-            interceptor.after(request, response, controllerName, actionName, id)
-        } else {
-            log.warn("页面不存在 ${controllerName}.${actionName}")
-            Controller instance = GunApp.instance.errorControllerClass.newInstance()
-            instance.request = request
-            instance.response = response
-            instance.notFound()
-        }
     }
 }

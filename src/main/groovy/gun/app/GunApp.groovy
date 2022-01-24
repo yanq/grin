@@ -155,6 +155,7 @@ class GunApp {
      */
     DataSource getDataSource() {
         if (dataSource) return dataSource
+        log.info("初始化 data source")
         dataSource = new DruidDataSource(config.dataSource)
         if (config.logSql) {
             Filter sqlLog = new Slf4jLogFilter(statementExecutableSqlLogEnable: true)
@@ -169,7 +170,8 @@ class GunApp {
      */
     GroovyScriptEngine getScriptEngine() {
         if (scriptEngine) return scriptEngine
-        scriptEngine = new GroovyScriptEngine(controllersDir.absolutePath, scriptDir.absolutePath)
+        log.info("初始化 GroovyScriptEngine")
+        scriptEngine = new GroovyScriptEngine(domainsDir.absolutePath, controllersDir.absolutePath, scriptDir.absolutePath)
         return scriptEngine
     }
 
@@ -179,7 +181,7 @@ class GunApp {
      */
     JsonGenerator getJsonGenerator() {
         if (jsonGenerator) return jsonGenerator
-
+        log.info("初始化 JsonGenerator")
         jsonGenerator = new groovy.json.JsonGenerator.Options()
                 .addConverter(Date) { Date date ->
                     date.format(instance.config.json.dateFormat ?: 'yyyy-MM-dd HH:mm:ss')
