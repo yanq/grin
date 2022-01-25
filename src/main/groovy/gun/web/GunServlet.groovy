@@ -36,7 +36,6 @@ class GunServlet extends GenericServlet {
                 Controller controller
                 Method method
                 if (app.isDev()) {
-                    app.controllers.load(app.controllersDir)
                     if (app.controllers.controllerMap.get(controllerName)) {
                         controller = app.scriptEngine.loadScriptByName(app.controllers.controllerMap.get(controllerName).replaceAll('\\.', '/') + ".groovy").newInstance()
                         method = controller.class.getDeclaredMethod(actionName)
@@ -53,12 +52,14 @@ class GunServlet extends GenericServlet {
                     app.controllers.interceptor.after(request, response, controllerName, actionName, id)
                 } else {
                     log.warn("页面不存在 ${controllerName}.${actionName}")
+                    response.reset()
                     Controller instance = getErrorController()
                     instance.init(request, response, controllerName, actionName, id)
                     instance.notFound()
                 }
             } catch (Exception e) {
                 e.printStackTrace()
+                response.reset()
                 Controller instance = getErrorController()
                 instance.init(request, response, controllerName, actionName, id)
                 instance.error(e)
