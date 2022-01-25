@@ -38,7 +38,7 @@ class GunServlet extends GenericServlet {
                 if (app.isDev()) {
                     app.controllers.load(app.controllersDir)
                     if (app.controllers.controllerMap.get(controllerName)) {
-                        controller = app.scriptEngine.loadScriptByName(app.controllers.controllerMap.get(controllerName) + ".groovy").newInstance()
+                        controller = app.scriptEngine.loadScriptByName(app.controllers.controllerMap.get(controllerName).replaceAll('\\.', '/') + ".groovy").newInstance()
                         method = controller.class.getDeclaredMethod(actionName)
                     }
                 } else {
