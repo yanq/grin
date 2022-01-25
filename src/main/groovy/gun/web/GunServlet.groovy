@@ -48,22 +48,19 @@ class GunServlet extends GenericServlet {
                 if (method) {
                     FlashScope.next(request.getSession(false)?.getId())
                     if (!app.controllers.interceptor.before(request, response, controllerName, actionName, id)) return
-                    controller.request = request
-                    controller.response = response
+                    controller.init(request, response, controllerName, actionName, id)
                     method.invoke(controller)
                     app.controllers.interceptor.after(request, response, controllerName, actionName, id)
                 } else {
                     log.warn("页面不存在 ${controllerName}.${actionName}")
                     Controller instance = getErrorController()
-                    instance.request = request
-                    instance.response = response
+                    instance.init(request, response, controllerName, actionName, id)
                     instance.notFound()
                 }
             } catch (Exception e) {
                 e.printStackTrace()
                 Controller instance = getErrorController()
-                instance.request = request
-                instance.response = response
+                instance.init(request, response, controllerName, actionName, id)
                 instance.error(e)
             }
         }

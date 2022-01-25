@@ -36,8 +36,22 @@ class Controller {
     //html json
     MarkupBuilder html
     StreamingJsonBuilder json
-    //some share value
-    String controllerName = '' //当前控制器
+
+    //控制器三大要素
+    String controllerName
+    String actionName
+    String id
+
+    /**
+     * 初始化数据
+     */
+    void init(HttpServletRequest request, HttpServletResponse response, String controllerName, String actionName, String id) {
+        this.request = request
+        this.response = response
+        this.controllerName = controllerName
+        this.actionName = actionName
+        this.id = id
+    }
 
     /**
      * forward
@@ -103,6 +117,7 @@ class Controller {
         if (params) return params
 
         params = new Params();
+        if (id) params.id = id
         for (Enumeration names = request.getParameterNames(); names.hasMoreElements();) {
             String name = (String) names.nextElement();
             if (!params.containsKey(name)) {

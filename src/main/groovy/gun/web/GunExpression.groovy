@@ -8,8 +8,7 @@ import gun.generate.Generator
  * 提供一些方法，处理一些东西。如 asset,link。
  */
 class GunExpression {
-    GunApp app = GunApp.instance
-    def assetsPath = app.config.assets.uri ?: '/assets'
+    def assetsPath = '/files/assets'
     /**
      * 处理 application.js
      * 解析文件中的指令，并产生 js 链接
