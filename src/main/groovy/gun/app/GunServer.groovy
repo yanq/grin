@@ -18,8 +18,7 @@ class GunServer {
     String host = 'localhost'
     String context = '/'
     int port = 8080
-    //fileUpload,默认大小不限制，磁盘存储
-    String location = ''
+    String uploadLocation = ''
     long maxFileSize = -1L
     long maxRequestSize = -1L
     int fileSizeThreshold = 0
@@ -35,7 +34,7 @@ class GunServer {
         // webSockets.addEndpoint(WebSocketEntry)
         DeploymentInfo deploymentInfo = Servlets.deployment()
                 .setClassLoader(GunServer.class.getClassLoader())
-                .setDefaultMultipartConfig(new MultipartConfigElement(location, maxFileSize, maxRequestSize, fileSizeThreshold))
+                .setDefaultMultipartConfig(new MultipartConfigElement(uploadLocation, maxFileSize, maxRequestSize, fileSizeThreshold))
                 .setTempDir(File.createTempDir()) //这里上传文件的时候，如果 location 空，会用到。但设置了 location，这里就必须设置。
                 .setContextPath(context)
                 .setDeploymentName("gun.war")
