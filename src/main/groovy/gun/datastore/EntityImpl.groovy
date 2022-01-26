@@ -271,7 +271,7 @@ class EntityImpl {
             preDealParams()
             return DB.withSql { Sql sql ->
                 List list = []
-                List rows = sql.rows("select ${selects} from ${findTableName(entityClass)} ${whereSql ? 'where ' + whereSql : ''} ${params(pageParams)}".toString(), params)
+                List rows = sql.rows("select ${selects} from ${findTableName(entityClass)} ${whereSql ? 'where ' + whereSql : ''} ${dealParams(pageParams)}".toString(), params)
                 rows.each { row ->
                     list << bindResultToEntity(row, entityClass)
                 }
