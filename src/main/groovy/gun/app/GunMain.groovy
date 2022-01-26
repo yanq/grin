@@ -73,6 +73,7 @@ class GunMain {
             def server = new GunServer()
             if (args.contains('prod')) {
                 GunApp.init(null, GunApp.ENV_PROD)
+                if (GunApp.instance.config.fileUpload.location) server.uploadLocation = GunApp.instance.config.fileUpload.location
                 server.start()
             } else {
                 server.start()
