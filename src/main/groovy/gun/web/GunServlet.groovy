@@ -51,7 +51,7 @@ class GunServlet extends GenericServlet {
                     method.invoke(controller)
                     app.controllers.interceptor.after(request, response, controllerName, actionName, id)
                 } else {
-                    log.warn("页面不存在 ${controllerName}.${actionName}")
+                    log.warn("页面不存在 ${clearedURI}(${controllerName}.${actionName})")
                     response.reset()
                     Controller instance = getErrorController()
                     instance.init(request, response, controllerName, actionName, id)
