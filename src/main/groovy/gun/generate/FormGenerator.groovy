@@ -16,6 +16,7 @@ class FormGenerator extends Generator {
         List<String> result = []
         props.each {
             Class propClass = entityClass.getDeclaredField(it)?.type
+            if (propClass in [List,Map]) return //有些类型明确处理不了的，略过
             String type = types[propClass.name] ?: 'text'
             if (propClass) {
                 result << generateItem(entityClass, it, type, constraints[it]) ?: ''
