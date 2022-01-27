@@ -111,7 +111,7 @@ trait Entity<D> {
     Map getErrors() {
         def errorMap = [:], constrains = constraintMap
         errorList.each {
-            errorMap[it[0]] = constrains[it[0]]?.comment
+            errorMap[it[0]] = constrains[it[0]]?.comment ?: 'Validate Fail'
         }
         return errorMap
     }
