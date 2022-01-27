@@ -52,14 +52,12 @@ class GunServlet extends GenericServlet {
                     app.controllers.interceptor.after(request, response, controllerName, actionName, id)
                 } else {
                     log.warn("页面不存在 ${clearedURI}(${controllerName}.${actionName})")
-                    response.reset()
                     Controller instance = getErrorController()
                     instance.init(request, response, controllerName, actionName, id)
                     instance.notFound()
                 }
             } catch (Exception e) {
                 e.printStackTrace()
-                response.reset()
                 Controller instance = getErrorController()
                 instance.init(request, response, controllerName, actionName, id)
                 instance.error(e)
