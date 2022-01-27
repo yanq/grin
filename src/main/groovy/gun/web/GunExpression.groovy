@@ -3,11 +3,15 @@ package gun.web
 import gun.app.GunApp
 import gun.generate.Generator
 
+import javax.servlet.http.HttpServletRequest
+
 /**
  * gun 表达式
  * 提供一些方法，处理一些东西。如 asset,link。
  */
 class GunExpression {
+    def app = GunApp.instance
+    HttpServletRequest request
     def assetsPath = '/files/assets'
     /**
      * 处理 application.js
@@ -16,7 +20,6 @@ class GunExpression {
      * @param js
      */
     def assetJs(String js) {
-        def app = GunApp.instance
         if (app.isDev()) {
             File jsDir = new File(app.assetDir, 'javascripts')
             File jsFile = new File(jsDir, js)
@@ -63,7 +66,6 @@ class GunExpression {
      * @return
      */
     def assetCss(String css) {
-        def app = GunApp.instance
         if (app.isDev()) {
             File cssDir = new File(app.assetDir, 'stylesheets')
             File cssFile = new File(cssDir, css)
@@ -105,12 +107,25 @@ class GunExpression {
     }
 
     /**
+     * assetImg
+     * @param f
+     * @return
+     */
+    def assetImg(String f) {
+        if (app.isDev()) {
+            "${assetsPath}/images/$f"
+        } else {
+            "${assetsPath}/$f"
+        }
+    }
+
+    /**
      * 文件链接处理 位于 static 目录下
      * @param f
      * @return
      */
-    def file(String f) {
-        "${GunApp.instance.config.files.uri ?: '/files'}/$f"
+    def 'static'(String f) {
+        "/files/static/$f"
     }
 
     /**

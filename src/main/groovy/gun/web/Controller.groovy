@@ -51,6 +51,7 @@ class Controller {
         this.controllerName = controllerName
         this.actionName = actionName
         this.id = id
+        this.g.request = request
     }
 
     /**
