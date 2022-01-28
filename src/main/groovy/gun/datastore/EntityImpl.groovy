@@ -388,20 +388,23 @@ class EntityImpl {
         List props = findPropertiesToPersist(entityClass) - 'id'
         props.each {
             try {
-                //绑定实体和其他是不一样的
                 def propClass = entity.class.getDeclaredField(it).type
-                if (propClass.interfaces.contains(Entity)) {
-                    String k = it + 'Id'
-                    if (params.containsKey(k)) {
-                        if (params[k]) {
+                def key = it
+                if (propClass.interfaces.contains(Entity)) key = key + "Id"
+                def keys = [it, toDbName(it)]
+                def value = params.find { it.key in keys }?.value
+                if (params.keySet().intersect(keys)) {
+                    //绑定实体和其他是不一样的
+                    if (propClass.interfaces.contains(Entity)) {
+                        if (value) {
                             entity[(it)] = propClass.newInstance()
                             entity[(it)]['id'] = Transformer.toType(propClass, 'id', params[k])
                         } else {
                             entity[(it)] = null
                         }
+                    } else {
+                        entity[it] = Transformer.toType(entityClass, it, value)
                     }
-                } else if (params.containsKey(it)) {
-                    entity[it] = Transformer.toType(entityClass, it, params[it])
                 }
             } catch (Exception e) {
                 entity.errorList << [(it), 'type'] //类型转换异常
