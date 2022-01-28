@@ -16,8 +16,8 @@ import javax.servlet.MultipartConfigElement
 @Slf4j
 class GunServer {
     String host = 'localhost'
-    String context = '/'
     int port = 8080
+    String context = '/'
     String uploadLocation = ''
     long maxFileSize = -1L
     long maxRequestSize = -1L

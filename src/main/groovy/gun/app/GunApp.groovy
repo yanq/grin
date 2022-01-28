@@ -189,4 +189,20 @@ class GunApp {
                 .build()
         return jsonGenerator
     }
+
+    /**
+     * 启动服务
+     * @param server
+     */
+    void startServer(GunServer server) {
+        if (config.server.host) server.host = config.server.host
+        if (config.server.port) server.port = config.server.port
+        if (config.server.context) server.context = config.server.context
+        if (config.server.uploadLocation) server.uploadLocation = config.server.uploadLocation
+        if (config.server.maxFileSize) server.maxFileSize = config.server.maxFileSize
+        if (config.server.maxRequestSize) server.maxRequestSize = config.server.maxRequestSize
+        if (config.server.ioThreads) server.ioThreads = config.server.ioThreads
+        if (config.server.workerThreads) server.workerThreads = config.server.workerThreads
+        server.start()
+    }
 }
