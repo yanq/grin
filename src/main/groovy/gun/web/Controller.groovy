@@ -242,7 +242,7 @@ class Controller {
 
     void success(String message, Map data = null) { json(data ? [success: true, message: message, data: data] : [success: true, message: message]) }
 
-    void fail(String message, Map errors = null) { json(errors ? [success: true, message: message, errors: errors] : [success: true, message: message]) }
+    void fail(String message, Map errors = null) { json(errors ? [success: false, message: message, errors: errors] : [success: true, message: message]) }
 
     /**
      * html builder
