@@ -88,6 +88,10 @@ trait Entity<D> {
         where(sql, params.toList())
     }
 
+    static EntityImpl.Where<D> where(Map kvs) {
+        where(kvs.keySet().collect { "${EntityImpl.toDbName(it)}=?" }.join(' and '), kvs.values().toList())
+    }
+
     /**
      * 约束 Map
      * @return

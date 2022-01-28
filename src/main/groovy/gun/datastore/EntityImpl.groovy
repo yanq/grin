@@ -70,6 +70,11 @@ class EntityImpl {
         return DB.withSql { Sql sql -> sql.firstRow("select count(${selects}) as num from ${findTableName(target)}".toString()).num }
     }
 
+    static int countDistinct(Class target, String selects = '*') {
+        return DB.withSql { Sql sql -> sql.firstRow("select count(distinct ${selects}) as num from ${findTableName(target)}".toString()).num }
+    }
+
+
     /**
      * save
      * 插入或更新
@@ -283,6 +288,11 @@ class EntityImpl {
         int count(String selects = '*') {
             preDealParams()
             DB.withSql { Sql sql -> sql.firstRow("select count(${selects}) as num from ${findTableName(entityClass)} ${whereSql ? 'where ' + whereSql : ''}".toString(), params).num }
+        }
+
+        int countDistinct(String selects = '*') {
+            preDealParams()
+            DB.withSql { Sql sql -> sql.firstRow("select count(distinct ${selects}) as num from ${findTableName(entityClass)} ${whereSql ? 'where ' + whereSql : ''}".toString(), params).num }
         }
 
         private preDealParams() {

@@ -103,4 +103,8 @@ class Validator {
     static boolean validateSize(String value, Range range) {
         return range.containsWithinBounds(value.size())
     }
+
+    static boolean validateSize(String value, Integer size) {
+        return size == value.length()
+    }
 }
