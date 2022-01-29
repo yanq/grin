@@ -71,8 +71,8 @@ class GunApp {
         scriptDir = new File(appDir, APP_SCRIPTS)
         allDirs = [appDir, domainsDir, controllersDir, viewsDir, configDir, initDir, assetDir, staticDir, scriptDir]
         //config
-        config = config()
         environment = env
+        config = config()
         // 初始化数据库，控制器，错误处理
         DB.dataSource = getDataSource()
         controllers.load(controllersDir)
