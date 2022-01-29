@@ -7,7 +7,11 @@ import io.undertow.servlet.Servlets
 import io.undertow.servlet.api.DeploymentInfo
 import io.undertow.servlet.api.DeploymentManager
 
+import javax.net.ssl.KeyManagerFactory
+import javax.net.ssl.SSLContext
+import javax.net.ssl.TrustManagerFactory
 import javax.servlet.MultipartConfigElement
+import java.security.KeyStore
 
 /**
  * Server
@@ -15,16 +19,18 @@ import javax.servlet.MultipartConfigElement
  */
 @Slf4j
 class GunServer {
-    String host = 'localhost'
-    int port = 8080
-    String context = '/'
-    String uploadLocation = ''
-    long maxFileSize = -1L
-    long maxRequestSize = -1L
-    int fileSizeThreshold = 0
-    // 规模
-    int ioThreads = 2
-    int workerThreads = 5
+    String host
+    int port
+    int httpsPort
+    String jksPath
+    String jksPwd
+    String context
+    String uploadLocation
+    long maxFileSize
+    long maxRequestSize
+    int fileSizeThreshold
+    int ioThreads
+    int workerThreads
 
     /**
      * 启动 Server
@@ -43,13 +49,27 @@ class GunServer {
         DeploymentManager manager = Servlets.defaultContainer().addDeployment(deploymentInfo);
         manager.deploy()
 
-        Undertow server = Undertow.builder()
-                .setIoThreads(ioThreads).setWorkerThreads(workerThreads)
-                .addHttpListener(port, host)
-                .setHandler(manager.start())
-                .build()
+        def buider = Undertow.builder()
+        buider.setIoThreads(ioThreads).setWorkerThreads(workerThreads)
+        if (port != -1) buider.addHttpListener(port, host)
+        if (httpsPort != -1) buider.addHttpsListener(httpsPort, host, buildSSL(jksPath, jksPwd))
+        buider.setHandler(manager.start())
+        Undertow server = buider.build()
         server.start()
 
-        log.info("start server @ http://${host}:${port}${context}")
+        if (port != -1) log.info("start server @ http://${host}:${port}${context}")
+        if (httpsPort != -1) log.info("start server @ https://${host}:${httpsPort}${context}")
+    }
+
+    SSLContext buildSSL(String jks, String pwd) {
+        KeyStore serverKeyStore = KeyStore.getInstance("JKS")
+        serverKeyStore.load(new FileInputStream(jks), pwd.toCharArray())
+        KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509")
+        kmf.init(serverKeyStore, pwd.toCharArray());//加载密钥储存器
+        TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
+        tmf.init(serverKeyStore)
+        SSLContext sslContext = SSLContext.getInstance("TLS");
+        sslContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
+        return sslContext
     }
 }
