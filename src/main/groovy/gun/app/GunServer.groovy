@@ -3,6 +3,8 @@ package gun.app
 import groovy.util.logging.Slf4j
 import gun.web.GunServlet
 import io.undertow.Undertow
+import io.undertow.server.HttpHandler
+import io.undertow.server.handlers.encoding.EncodingHandler
 import io.undertow.servlet.Servlets
 import io.undertow.servlet.api.DeploymentInfo
 import io.undertow.servlet.api.DeploymentManager
@@ -48,12 +50,14 @@ class GunServer {
         // .addServletContextAttribute(WebSocketDeploymentInfo.ATTRIBUTE_NAME, webSockets)
         DeploymentManager manager = Servlets.defaultContainer().addDeployment(deploymentInfo);
         manager.deploy()
+        HttpHandler handler = manager.start()
+        handler = new EncodingHandler.Builder().build([:]).wrap(handler)
 
         def buider = Undertow.builder()
         buider.setIoThreads(ioThreads).setWorkerThreads(workerThreads)
         if (port != -1) buider.addHttpListener(port, host)
         if (httpsPort != -1) buider.addHttpsListener(httpsPort, host, buildSSL(jksPath, jksPwd))
-        buider.setHandler(manager.start())
+        buider.setHandler(handler)
         Undertow server = buider.build()
         server.start()
 
