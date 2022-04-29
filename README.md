@@ -1,4 +1,7 @@
-# gun
+# Gun
+
 a groovy web framework.
 
-coming soon ~
+# How to use？
+
+just use gun-example project。
