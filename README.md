@@ -1,7 +1,7 @@
 # Gun
 
-a groovy web framework.
+A groovy web framework.
 
 # How to use？
 
-just use gun-example project。
+Just use gun-example project。
