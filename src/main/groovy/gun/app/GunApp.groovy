@@ -195,17 +195,17 @@ class GunApp {
      * @param server
      */
     void startServer(GunServer server) {
-        server.host = config.server.host
-        server.port = config.server.http.port
-        server.httpsPort = config.server.https.port
-        server.jksPath = config.server.https.jksPath
-        server.jksPwd = config.server.https.jksPwd
-        server.context = config.server.context
-        server.uploadLocation = config.server.uploadLocation
-        server.maxFileSize = config.server.maxFileSize
-        server.maxRequestSize = config.server.maxRequestSize
-        server.ioThreads = config.server.ioThreads
-        server.workerThreads = config.server.workerThreads
+        if (config.server.host) server.host = config.server.host
+        if (config.server.http.port) server.port = config.server.http.port
+        if (config.server.https.port) server.httpsPort = config.server.https.port
+        if (config.server.https.jksPath) server.jksPath = config.server.https.jksPath
+        if (config.server.https.jksPwd) server.jksPwd = config.server.https.jksPwd
+        if (config.server.context) server.context = config.server.context
+        if (config.server.uploadLocation) server.uploadLocation = config.server.uploadLocation
+        if (config.server.maxFileSize) server.maxFileSize = config.server.maxFileSize
+        if (config.server.maxRequestSize) server.maxRequestSize = config.server.maxRequestSize
+        if (config.server.ioThreads) server.ioThreads = config.server.ioThreads
+        if (config.server.workerThreads) server.workerThreads = config.server.workerThreads
         server.start()
     }
 }

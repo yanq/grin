@@ -21,18 +21,18 @@ import java.security.KeyStore
  */
 @Slf4j
 class GunServer {
-    String host
-    int port
-    int httpsPort
-    String jksPath
-    String jksPwd
-    String context
-    String uploadLocation
-    long maxFileSize
-    long maxRequestSize
-    int fileSizeThreshold
-    int ioThreads
-    int workerThreads
+    String host = 'localhost'
+    int port = 8080
+    int httpsPort = -1
+    String jksPath = ''
+    String jksPwd = ''
+    String context = '/'
+    String uploadLocation = ''
+    long maxFileSize = -1
+    long maxRequestSize = -1
+    int fileSizeThreshold = 0
+    int ioThreads = 2
+    int workerThreads = 5
 
     /**
      * 启动 Server
