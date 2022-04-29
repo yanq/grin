@@ -14,6 +14,7 @@ import java.lang.reflect.Method
 @Slf4j
 class GunServlet extends GenericServlet {
     GunApp app = GunApp.instance
+    Map<String, String> urlMapping = app.config.urlMapping ?: [:]
 
     @Override
     void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {
@@ -28,7 +29,7 @@ class GunServlet extends GenericServlet {
         HttpServletResponse response = (HttpServletResponse) res
 
         String clearedURI = toURI(request.requestURI, request.getContextPath())
-        List cai = splitURI(clearedURI)
+        List cai = splitURI(urlMapping.get(clearedURI) ?: clearedURI)
         String controllerName = cai[0], actionName = cai[1], id = cai[2]
 
         use(GunCategory.class) {
@@ -111,5 +112,9 @@ class GunServlet extends GenericServlet {
             if (l.size() > 2) id = l[2..-1].join('/')
         }
         return [controllerName, actionName, id]
+    }
+
+    void loadURLMapping() {
+
     }
 }

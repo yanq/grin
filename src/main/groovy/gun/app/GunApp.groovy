@@ -78,6 +78,7 @@ class GunApp {
         controllers.load(controllersDir)
         if (config.errorClass) errorControllerClass = config.errorClass
         log.info("started app @ ${environment}")
+        log.info("urlMapping: ${config.urlMapping}")
     }
 
     /**
