@@ -27,6 +27,7 @@ class Controller {
     //servlet
     HttpServletRequest request
     HttpServletResponse response
+    Map<String, Object> pathParams
     Params params
     Map<String, String> headers
     //app
@@ -40,17 +41,16 @@ class Controller {
     //控制器三大要素
     String controllerName
     String actionName
-    String id
 
     /**
      * 初始化数据
      */
-    void init(HttpServletRequest request, HttpServletResponse response, String controllerName, String actionName, String id) {
+    void init(HttpServletRequest request, HttpServletResponse response, String controllerName, String actionName, Map<String, Object> pathParams) {
         this.request = request
         this.response = response
         this.controllerName = controllerName
         this.actionName = actionName
-        this.id = id
+        this.pathParams = pathParams
         this.g.request = request
     }
 
@@ -118,7 +118,7 @@ class Controller {
         if (params) return params
 
         params = new Params();
-        if (id) params.id = id
+        if (pathParams) params.putAll(pathParams)
         for (Enumeration names = request.getParameterNames(); names.hasMoreElements();) {
             String name = (String) names.nextElement();
             if (!params.containsKey(name)) {
@@ -306,6 +306,6 @@ class Controller {
         return [app           : app,
                 context       : context, request: request, response: response, session: session,
                 flash         : flash, params: params, headers: headers, g: g,
-                controllerName: controllerName, actionName: actionName, id: id,]
+                controllerName: controllerName, actionName: actionName,]
     }
 }

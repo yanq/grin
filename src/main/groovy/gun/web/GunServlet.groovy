@@ -14,7 +14,6 @@ import java.lang.reflect.Method
 @Slf4j
 class GunServlet extends GenericServlet {
     GunApp app = GunApp.instance
-    Map<String, String> urlMapping = app.config.urlMapping ?: [:]
 
     @Override
     void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {
@@ -28,9 +27,21 @@ class GunServlet extends GenericServlet {
         HttpServletRequest request = (HttpServletRequest) req
         HttpServletResponse response = (HttpServletResponse) res
 
+        // 路由
+        String controllerName, actionName
         String clearedURI = toURI(request.requestURI, request.getContextPath())
-        List cai = splitURI(urlMapping.get(clearedURI) ?: clearedURI)
-        String controllerName = cai[0], actionName = cai[1], id = cai[2]
+        Route route = app.controllers.routeList.find { it.matches(clearedURI) }
+        if (!route) {
+            log.warn("找不到匹配的路由：${clearedURI}")
+            Controller instance = getErrorController()
+            instance.init(request, response, null, null, [:])
+            instance.notFound()
+            return
+        }
+        Map<String, Object> pathParams = route.getPathParams(clearedURI)
+        controllerName = route.controllerName ?: pathParams.get('controllerName')
+        actionName = route.actionName ?: pathParams.get('actionName') ?: 'index'
+
 
         use(GunCategory.class) {
             try {
@@ -38,35 +49,35 @@ class GunServlet extends GenericServlet {
                 Method method
                 if (app.isDev()) {
                     if (app.controllers.controllerMap.get(controllerName)) {
-                        controller = app.scriptEngine.loadScriptByName(app.controllers.controllerMap.get(controllerName).replaceAll('\\.', '/') + ".groovy").newInstance()
+                        controller = (Controller) app.scriptEngine.loadScriptByName(app.controllers.controllerMap.get(controllerName).replaceAll('\\.', '/') + ".groovy").newInstance()
                         method = controller.class.getDeclaredMethod(actionName)
                     }
                 } else {
                     method = app.controllers.methodMap.get("${controllerName}-${actionName}")
-                    controller = method?.declaringClass?.newInstance()
+                    controller = method?.declaringClass?.newInstance() as Controller
                 }
                 if (method) {
                     FlashScope.next(request.getSession(false)?.getId())
-                    if (!app.controllers.interceptor.before(request, response, controllerName, actionName, id)) return
-                    controller.init(request, response, controllerName, actionName, id)
+                    if (!app.controllers.interceptor.before(request, response, controllerName, actionName)) return
+                    controller.init(request, response, controllerName, actionName, pathParams)
                     method.invoke(controller)
-                    app.controllers.interceptor.after(request, response, controllerName, actionName, id)
+                    app.controllers.interceptor.after(request, response, controllerName, actionName)
                 } else {
                     log.warn("页面不存在 ${clearedURI}(${controllerName}.${actionName})")
                     Controller instance = getErrorController()
-                    instance.init(request, response, controllerName, actionName, id)
+                    instance.init(request, response, controllerName, actionName, pathParams)
                     instance.notFound()
                 }
             } catch (Exception e) {
                 e.printStackTrace()
                 Controller instance = getErrorController()
-                instance.init(request, response, controllerName, actionName, id)
+                instance.init(request, response, controllerName, actionName, pathParams)
                 instance.error(e)
             }
         }
 
         def ip = request.getHeader("X-Real-Ip") ?: request.getRemoteAddr()
-        log.info("${response.status} ${ip} ${clearedURI}(${cai[0]}.${cai[1]}) time ${(System.nanoTime() - startAt) / 1000000}ms")
+        log.info("${response.status} ${ip} ${clearedURI}(${controllerName}.${actionName}) time ${(System.nanoTime() - startAt) / 1000000}ms")
     }
 
     Controller getErrorController() {
@@ -95,26 +106,5 @@ class GunServlet extends GenericServlet {
         if (requestURI.indexOf('?') > 0) return requestURI.substring(0, requestURI.indexOf('?'))
         if (requestURI.endsWith('/')) return requestURI.substring(0, requestURI.length() - 1)
         return requestURI
-    }
-
-    /**
-     * 从 url 解析出来控制器，操作，id 等内容。
-     * @param uri 处理后的 uri
-     */
-    static splitURI(String uri) {
-        String controllerName = 'home' //默认用 home 路径，现在还没有地方定义首页
-        String actionName = 'index' // 默认 action
-        String id = null
-        if (uri) {
-            def l = uri.substring(1).split('/')
-            if (l.size() > 0 && l[0]) controllerName = l[0]
-            if (l.size() > 1 && l[1]) actionName = l[1]
-            if (l.size() > 2) id = l[2..-1].join('/')
-        }
-        return [controllerName, actionName, id]
-    }
-
-    void loadURLMapping() {
-
     }
 }

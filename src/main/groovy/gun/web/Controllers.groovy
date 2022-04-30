@@ -14,6 +14,7 @@ class Controllers {
     Map<String, String> controllerMap = [:]
     Map<String, Method> methodMap = [:]
     Interceptor interceptor
+    List<Route> routeList = []
 
     /**
      * 加载所有的控制器
@@ -61,5 +62,17 @@ class Controllers {
         }
 
         log.info("loaded interceptor ${interceptor.class.simpleName} and controllers ${controllerMap.keySet()}")
+    }
+
+    /**
+     * 加载路由定义
+     * @param urlMapping
+     */
+    void loadURLMapping(Map<String, String> urlMapping) {
+        routeList.clear()
+        urlMapping.each {
+            routeList.add(new Route(it.key, it.value))
+        }
+        if (!routeList) throw new Exception("缺少必要的路由配置，至少有一个默认的 '/@controllerName/?@actionName?/@id?'")
     }
 }

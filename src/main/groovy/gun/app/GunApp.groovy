@@ -72,10 +72,11 @@ class GunApp {
         allDirs = [appDir, domainsDir, controllersDir, viewsDir, configDir, initDir, assetDir, staticDir, scriptDir]
         //config
         environment = env
-        config = config()
+        config = loadConfig()
         // 初始化数据库，控制器，错误处理
         DB.dataSource = getDataSource()
         controllers.load(controllersDir)
+        controllers.loadURLMapping(config.urlMapping ?: [:])
         if (config.errorClass) errorControllerClass = config.errorClass
         log.info("started app @ ${environment}")
         log.info("urlMapping: ${config.urlMapping}")
@@ -106,7 +107,7 @@ class GunApp {
      * 获取配置
      * @return
      */
-    ConfigObject config() {
+    ConfigObject loadConfig() {
         def configFile = new File(configDir, 'config.groovy')
         if (configFile.exists()) {
             return new ConfigSlurper(environment).parse(configFile.text)
@@ -169,7 +170,7 @@ class GunApp {
     /**
      * GSE 延时加载
      */
-    GroovyScriptEngine getScriptEngine() {
+    synchronized GroovyScriptEngine getScriptEngine() {
         if (scriptEngine) return scriptEngine
         log.info("初始化 GroovyScriptEngine")
         scriptEngine = new GroovyScriptEngine(domainsDir.absolutePath, controllersDir.absolutePath, scriptDir.absolutePath)

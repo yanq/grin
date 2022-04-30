@@ -8,11 +8,11 @@ import javax.servlet.http.HttpServletResponse
  */
 class Interceptor {
 
-    boolean before(HttpServletRequest request, HttpServletResponse response, String controllerName, String actionName, String id) {
+    boolean before(HttpServletRequest request, HttpServletResponse response, String controllerName, String actionName) {
         return true
     }
 
-    boolean after(HttpServletRequest request, HttpServletResponse response, String controllerName, String actionName, String id) {
+    boolean after(HttpServletRequest request, HttpServletResponse response, String controllerName, String actionName) {
         return true
     }
 
