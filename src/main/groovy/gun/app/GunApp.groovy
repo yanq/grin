@@ -164,6 +164,8 @@ class GunApp {
             sqlLog.setStatementSqlFormatOption(new SQLUtils.FormatOption(true, false))
             dataSource.setProxyFilters([sqlLog, new StatFilter()])
         }
+        // 测试连接是否正常，fail fast
+        dataSource.getConnection()
         return dataSource
     }
 
@@ -181,7 +183,7 @@ class GunApp {
      * json generator
      * @return
      */
-    JsonGenerator getJsonGenerator() {
+    synchronized JsonGenerator getJsonGenerator() {
         if (jsonGenerator) return jsonGenerator
         log.info("初始化 JsonGenerator")
         jsonGenerator = new groovy.json.JsonGenerator.Options()
