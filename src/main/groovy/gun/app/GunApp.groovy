@@ -210,6 +210,7 @@ class GunApp {
         if (config.server.maxRequestSize) server.maxRequestSize = config.server.maxRequestSize
         if (config.server.ioThreads) server.ioThreads = config.server.ioThreads
         if (config.server.workerThreads) server.workerThreads = config.server.workerThreads
+        if (config.webSocketEntryList) server.webSocketEntryList = config.webSocketEntryList
         server.start()
     }
 }

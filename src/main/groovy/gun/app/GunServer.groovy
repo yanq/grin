@@ -8,6 +8,7 @@ import io.undertow.server.handlers.encoding.EncodingHandler
 import io.undertow.servlet.Servlets
 import io.undertow.servlet.api.DeploymentInfo
 import io.undertow.servlet.api.DeploymentManager
+import io.undertow.websockets.jsr.WebSocketDeploymentInfo
 
 import javax.net.ssl.KeyManagerFactory
 import javax.net.ssl.SSLContext
@@ -33,13 +34,14 @@ class GunServer {
     int fileSizeThreshold = 0
     int ioThreads = 2
     int workerThreads = 5
+    List webSocketEntryList = []
 
     /**
      * 启动 Server
      */
     void start() {
-        // WebSocketDeploymentInfo webSockets = new WebSocketDeploymentInfo()
-        // webSockets.addEndpoint(WebSocketEntry)
+        WebSocketDeploymentInfo webSockets = new WebSocketDeploymentInfo()
+        webSocketEntryList.each { webSockets.addEndpoint(it) }
         DeploymentInfo deploymentInfo = Servlets.deployment()
                 .setClassLoader(GunServer.class.getClassLoader())
                 .setDefaultMultipartConfig(new MultipartConfigElement(uploadLocation, maxFileSize, maxRequestSize, fileSizeThreshold))
@@ -47,7 +49,7 @@ class GunServer {
                 .setContextPath(context)
                 .setDeploymentName("gun.war")
                 .addServlets(Servlets.servlet("GunServlet", GunServlet.class).addMapping("/*"))
-        // .addServletContextAttribute(WebSocketDeploymentInfo.ATTRIBUTE_NAME, webSockets)
+                .addServletContextAttribute(WebSocketDeploymentInfo.ATTRIBUTE_NAME, webSockets)
         DeploymentManager manager = Servlets.defaultContainer().addDeployment(deploymentInfo);
         manager.deploy()
         HttpHandler handler = manager.start()
