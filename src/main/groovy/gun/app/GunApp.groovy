@@ -75,6 +75,7 @@ class GunApp {
         config = loadConfig()
         // 初始化数据库，控制器，错误处理
         DB.dataSource = getDataSource()
+        if (config.dbSql) DB.executeSqlFile(new File(scriptDir, config.dbSql as String))
         controllers.load(controllersDir)
         controllers.loadURLMapping(config.urlMapping ?: [:])
         if (config.errorClass) errorControllerClass = config.errorClass
@@ -164,8 +165,6 @@ class GunApp {
             sqlLog.setStatementSqlFormatOption(new SQLUtils.FormatOption(true, false))
             dataSource.setProxyFilters([sqlLog, new StatFilter()])
         }
-        // 测试连接是否正常，fail fast
-        dataSource.getConnection()
         return dataSource
     }
 
