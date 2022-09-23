@@ -28,6 +28,7 @@ class Constraints {
      */
     private buildConstraint(String name, Map conditions) {
         constraints << [(name): conditions]
+        // 这个闭包稍后被调用，重新赋值 comment
         constraints[(name)].comment = { String comment -> constraints[(name)].comment = comment }
         return constraints[(name)]
     }
@@ -51,6 +52,7 @@ class Constraints {
         Constraints builder = new Constraints(entityClass: entityClass)
         builder.build()
         builder.constraints.each {
+            // 如果没有被调用，这里仍然是个闭包，赋值为空字符串
             if (it.value.comment instanceof Closure) it.value.comment = ''
         }
         return builder.constraints
