@@ -30,7 +30,7 @@ class GunServlet extends GenericServlet {
         // 路由
         String controllerName, actionName
         String clearedURI = toURI(request.requestURI, request.getContextPath())
-        Route route = app.controllers.routeList.find { it.matches(clearedURI) }
+        Route route = app.routes.find { it.matches(clearedURI) }
         if (!route) {
             log.warn("找不到匹配的路由：${clearedURI}")
             Controller instance = getErrorController()
@@ -48,20 +48,20 @@ class GunServlet extends GenericServlet {
                 Controller controller
                 Method method
                 if (app.isDev()) {
-                    if (app.controllers.controllerMap.get(controllerName)) {
-                        controller = (Controller) app.scriptEngine.loadScriptByName(app.controllers.controllerMap.get(controllerName).replaceAll('\\.', '/') + ".groovy").newInstance()
+                    if (app.controllers.get(controllerName)) {
+                        controller = (Controller) app.scriptEngine.loadScriptByName(app.controllers.get(controllerName).replaceAll('\\.', '/') + ".groovy").newInstance()
                         method = controller.class.getDeclaredMethod(actionName)
                     }
                 } else {
-                    method = app.controllers.methodMap.get("${controllerName}-${actionName}")
+                    method = app.actions.get("${controllerName}-${actionName}")
                     controller = method?.declaringClass?.newInstance() as Controller
                 }
                 if (method) {
                     FlashScope.next(request.getSession(false)?.getId())
-                    if (!app.controllers.interceptor.before(request, response, controllerName, actionName)) return
+                    if (!app.interceptor.before(request, response, controllerName, actionName)) return
                     controller.init(request, response, controllerName, actionName, pathParams)
                     method.invoke(controller)
-                    app.controllers.interceptor.after(request, response, controllerName, actionName)
+                    app.interceptor.after(request, response, controllerName, actionName)
                 } else {
                     log.warn("页面不存在 ${clearedURI}(${controllerName}.${actionName})")
                     Controller instance = getErrorController()

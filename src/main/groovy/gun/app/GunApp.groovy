@@ -9,9 +9,12 @@ import groovy.json.JsonGenerator
 import groovy.util.logging.Slf4j
 import gun.datastore.DB
 import gun.web.Controller
-import gun.web.Controllers
+import gun.web.GunUtil
+import gun.web.Interceptor
+import gun.web.Route
 
 import javax.sql.DataSource
+import java.lang.reflect.Method
 
 /**
  * Gun App
@@ -42,7 +45,6 @@ class GunApp {
 
     String environment
     ConfigObject config
-    Controllers controllers = new Controllers()
     DataSource dataSource
     GroovyScriptEngine scriptEngine
     JsonGenerator jsonGenerator
@@ -52,6 +54,12 @@ class GunApp {
     File projectDir, appDir, domainsDir, controllersDir, websocketsDir, viewsDir, configDir, initDir, assetDir, assetBuildDir, staticDir, scriptDir
     List<File> allDirs
 
+    // web 组件
+    Map<String, String> controllers = [:]
+    Map<String, Method> actions = [:]
+    Interceptor interceptor
+    List<Class> websockets = []
+    List<Route> routes = []
 
     /**
      * 构造并初始化
@@ -81,9 +89,13 @@ class GunApp {
         // 初始化数据库，控制器，错误处理
         DB.dataSource = getDataSource()
         if (config.dbSql) DB.executeSqlFile(new File(scriptDir, config.dbSql as String))
-        controllers.load(controllersDir)
-        controllers.loadURLMapping(config.urlMapping ?: [:])
-        controllers.loadWebsockets(websocketsDir)
+        // web 组件
+        routes = GunUtil.loadRoutes(config.urlMapping)
+        controllers = GunUtil.loadControllers(controllersDir)
+        actions = GunUtil.loadActions(controllers)
+        interceptor = GunUtil.findInterceptor(controllersDir) ?: new Interceptor()
+        websockets = GunUtil.loadWebsockets(websocketsDir)
+        log.info("初始化 web\nroutes:${routes}\ncontrollers:${controllers}\nactions:${actions}\nintercepter:${interceptor?.class}\nwebsockets:${websockets}")
         if (config.errorClass) errorControllerClass = config.errorClass
         log.info("started app @ ${environment}")
     }

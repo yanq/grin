@@ -95,6 +95,6 @@ class Route {
 
     @Override
     String toString() {
-        return "${pathReg} - ${pattern} -- ${resource}"
+        return "${pathReg}(${pattern}) -> ${resource}"
     }
 }
