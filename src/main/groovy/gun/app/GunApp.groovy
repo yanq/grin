@@ -19,14 +19,16 @@ import javax.sql.DataSource
  */
 @Slf4j
 class GunApp {
-    //元数据
+    // 元数据
     public static final String VERSION = '0.1.1'
-    //instance
+    // instance
     private static GunApp instance
-    //env
+    // env
     public static final String ENV_PROD = 'prod'
     public static final String ENV_DEV = 'dev'
-    //目录结构
+    public static final String GUN_ENV_NAME = 'GUN_ENV'
+    public static final List<String> GUN_ENV_LIST = [ENV_DEV, ENV_PROD]
+    // 目录结构
     public static final String APP_DIR = 'gun-app'
     public static final String APP_DOMAINS = 'domains'
     public static final String APP_CONTROLLERS = 'controllers'
@@ -55,8 +57,8 @@ class GunApp {
      * 构造并初始化
      * @param projectRoot
      */
-    GunApp(File projectRoot = null, String env = ENV_DEV) {
-        //init dirs
+    private GunApp(File projectRoot = null, String env = null) {
+        // init dirs
         if (!projectRoot) projectRoot = new File('.')
         projectDir = projectRoot
         log.info("start app @ ${projectDir.absolutePath} ...")
@@ -72,8 +74,9 @@ class GunApp {
         staticDir = new File(appDir, APP_STATIC)
         scriptDir = new File(appDir, APP_SCRIPTS)
         allDirs = [appDir, domainsDir, controllersDir, websocketsDir, viewsDir, configDir, initDir, assetDir, staticDir, scriptDir]
-        //config
-        environment = env
+        environment = (env ?: System.getenv(GUN_ENV_NAME)) ?: ENV_DEV
+        if (!(environment in GUN_ENV_LIST)) throw new Exception("错误的运行环境值：${environment}，值必须是 ${GUN_ENV_LIST} 之一。")
+        // config
         config = loadConfig()
         // 初始化数据库，控制器，错误处理
         DB.dataSource = getDataSource()
@@ -83,7 +86,6 @@ class GunApp {
         controllers.loadWebsockets(websocketsDir)
         if (config.errorClass) errorControllerClass = config.errorClass
         log.info("started app @ ${environment}")
-        log.info("urlMapping: ${config.urlMapping}")
     }
 
     /**
@@ -91,7 +93,7 @@ class GunApp {
      * @param root
      * @return
      */
-    static synchronized init(File root = null, String env = ENV_DEV) {
+    static synchronized init(File root = null, String env = null) {
         if (instance) throw new Exception("Gun app has inited")
         instance = new GunApp(root, env)
     }
@@ -194,25 +196,5 @@ class GunApp {
                 }
                 .build()
         return jsonGenerator
-    }
-
-    /**
-     * 启动服务
-     * @param server
-     */
-    void startServer(GunServer server) {
-        if (config.server.host) server.host = config.server.host
-        if (config.server.http.port) server.port = config.server.http.port
-        if (config.server.https.port) server.httpsPort = config.server.https.port
-        if (config.server.https.jksPath) server.jksPath = config.server.https.jksPath
-        if (config.server.https.jksPwd) server.jksPwd = config.server.https.jksPwd
-        if (config.server.context) server.context = config.server.context
-        if (config.server.uploadLocation) server.uploadLocation = config.server.uploadLocation
-        if (config.server.maxFileSize) server.maxFileSize = config.server.maxFileSize
-        if (config.server.maxRequestSize) server.maxRequestSize = config.server.maxRequestSize
-        if (config.server.ioThreads) server.ioThreads = config.server.ioThreads
-        if (config.server.workerThreads) server.workerThreads = config.server.workerThreads
-        if (controllers.websockets) server.webSocketEntryList = controllers.websockets
-        server.start()
     }
 }

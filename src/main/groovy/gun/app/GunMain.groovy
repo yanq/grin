@@ -1,6 +1,4 @@
 package gun.app
-
-
 import gun.generate.Generator
 
 /**
@@ -11,7 +9,6 @@ class GunMain {
     //支持的命令
     static cmds = [
             'init'             : ['init gun dirs'],
-            'run'              : ['run [dev|prod]?', 'run gun server'],
             'create-domain'    : ['create domain class'],
             'create-controller': ['create controller class'],
             'generate-all'     : ['generate controller and views from domain class'],
@@ -66,16 +63,6 @@ class GunMain {
             println("command error : ${args}")
             usage()
             return
-        }
-
-        //run
-        if (cmd == 'run') {
-            if (args.contains('prod')) {
-                GunApp.init(null, GunApp.ENV_PROD)
-                GunApp.instance.startServer(new GunServer())
-            } else {
-                GunApp.instance.startServer(new GunServer())
-            }
         }
 
         //init
