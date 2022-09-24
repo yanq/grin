@@ -40,7 +40,7 @@ class GunApp {
     public static final String APP_STATIC = 'static'
     public static final String APP_SCRIPTS = 'scripts'
 
-    String environment = ENV_DEV // dev,prod
+    String environment
     ConfigObject config
     Controllers controllers = new Controllers()
     DataSource dataSource
@@ -179,7 +179,7 @@ class GunApp {
     synchronized GroovyScriptEngine getScriptEngine() {
         if (scriptEngine) return scriptEngine
         log.info("初始化 GroovyScriptEngine")
-        scriptEngine = new GroovyScriptEngine(domainsDir.absolutePath, controllersDir.absolutePath, scriptDir.absolutePath)
+        scriptEngine = new GroovyScriptEngine(domainsDir.absolutePath, controllersDir.absolutePath, websocketsDir.absolutePath, scriptDir.absolutePath)
         return scriptEngine
     }
 
