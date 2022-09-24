@@ -105,14 +105,13 @@ class GunApp {
      * @param root
      * @return
      */
-    static synchronized init(File root = null, String env = null) {
+    static init(File root = null, String env = null) {
         if (instance) throw new Exception("Gun app has inited")
         instance = new GunApp(root, env)
     }
 
     /**
      * 获取单例
-     * todo 这里同步的话，是不是会影响性能？
      * @return
      */
     static GunApp getInstance() {
