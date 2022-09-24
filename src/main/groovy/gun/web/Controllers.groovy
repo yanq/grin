@@ -14,6 +14,7 @@ class Controllers {
     Map<String, String> controllerMap = [:]
     Map<String, Method> methodMap = [:]
     Interceptor interceptor
+    List<Class> websockets = []
     List<Route> routeList = []
 
     /**
@@ -74,5 +75,35 @@ class Controllers {
             routeList.add(new Route(it.key, it.value))
         }
         if (!routeList) throw new Exception("缺少必要的路由配置，至少有一个默认的 '/@controllerName/?@actionName?/@id?'")
+        log.info("load routes: ${routeList}")
+    }
+
+    /**
+     * 加载 websocket
+     * @param dir
+     */
+    void loadWebsockets(File dir) {
+        websockets.clear()
+        if (dir.exists())
+            dir.eachFileRecurse {
+                String className = fileToClassName(it, dir, '.groovy')
+                if (className) websockets.add(Class.forName(className))
+            }
+        log.info("load websockets: ${websockets}")
+    }
+
+    /**
+     * 从文件解析类名
+     * @param file
+     * @param dir
+     * @param suffix
+     * @return
+     */
+    static String fileToClassName(File file, File dir, String suffix) {
+        if (file.name.endsWith(suffix)) {
+            String name = file.canonicalPath.replace(dir.canonicalPath, '').substring(1)
+            String className = name.substring(0, name.length() - suffix.length()).replaceAll('/', '.')
+            return className
+        }
     }
 }

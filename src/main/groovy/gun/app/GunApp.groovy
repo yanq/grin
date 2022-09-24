@@ -30,6 +30,7 @@ class GunApp {
     public static final String APP_DIR = 'gun-app'
     public static final String APP_DOMAINS = 'domains'
     public static final String APP_CONTROLLERS = 'controllers'
+    public static final String APP_WEBSOCKETS = 'websockets'
     public static final String APP_VIEWS = 'views'
     public static final String APP_CONFIG = 'conf'
     public static final String APP_INIT = 'init'
@@ -46,7 +47,7 @@ class GunApp {
 
     Class<Controller> errorControllerClass = Controller
 
-    File projectDir, appDir, domainsDir, controllersDir, viewsDir, configDir, initDir, assetDir, assetBuildDir, staticDir, scriptDir
+    File projectDir, appDir, domainsDir, controllersDir, websocketsDir, viewsDir, configDir, initDir, assetDir, assetBuildDir, staticDir, scriptDir
     List<File> allDirs
 
 
@@ -62,6 +63,7 @@ class GunApp {
         appDir = new File(projectDir, APP_DIR)
         domainsDir = new File(appDir, APP_DOMAINS)
         controllersDir = new File(appDir, APP_CONTROLLERS)
+        websocketsDir = new File(appDir, APP_WEBSOCKETS)
         viewsDir = new File(appDir, APP_VIEWS)
         configDir = new File(appDir, APP_CONFIG)
         initDir = new File(appDir, APP_INIT)
@@ -69,7 +71,7 @@ class GunApp {
         assetBuildDir = new File(projectDir, 'build/assets')
         staticDir = new File(appDir, APP_STATIC)
         scriptDir = new File(appDir, APP_SCRIPTS)
-        allDirs = [appDir, domainsDir, controllersDir, viewsDir, configDir, initDir, assetDir, staticDir, scriptDir]
+        allDirs = [appDir, domainsDir, controllersDir, websocketsDir, viewsDir, configDir, initDir, assetDir, staticDir, scriptDir]
         //config
         environment = env
         config = loadConfig()
@@ -78,6 +80,7 @@ class GunApp {
         if (config.dbSql) DB.executeSqlFile(new File(scriptDir, config.dbSql as String))
         controllers.load(controllersDir)
         controllers.loadURLMapping(config.urlMapping ?: [:])
+        controllers.loadWebsockets(websocketsDir)
         if (config.errorClass) errorControllerClass = config.errorClass
         log.info("started app @ ${environment}")
         log.info("urlMapping: ${config.urlMapping}")
@@ -209,7 +212,7 @@ class GunApp {
         if (config.server.maxRequestSize) server.maxRequestSize = config.server.maxRequestSize
         if (config.server.ioThreads) server.ioThreads = config.server.ioThreads
         if (config.server.workerThreads) server.workerThreads = config.server.workerThreads
-        if (config.webSocketEntryList) server.webSocketEntryList = config.webSocketEntryList
+        if (controllers.websockets) server.webSocketEntryList = controllers.websockets
         server.start()
     }
 }
