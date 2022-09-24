@@ -1,9 +1,7 @@
 package gun.datastore
 
-
 import groovy.sql.Sql
 import groovy.util.logging.Slf4j
-import gun.app.GunApp
 
 import javax.sql.DataSource
 
@@ -25,7 +23,7 @@ class DB {
             log.debug('use local sql')
         } else {
             log.debug('create new sql')
-            sql = new Sql(dataSource ?: GunApp.instance.dataSource)
+            sql = new Sql(dataSource)
         }
         return sql
     }
