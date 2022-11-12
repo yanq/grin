@@ -7,6 +7,7 @@ import javax.sql.DataSource
 
 /**
  * DB 数据库
+ * todo 验证完善，表更新 等
  */
 @Slf4j
 class DB {

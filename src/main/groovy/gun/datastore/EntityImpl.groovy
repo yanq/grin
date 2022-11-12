@@ -6,6 +6,9 @@ import groovy.json.JsonSlurper
 import groovy.sql.GroovyRowResult
 import groovy.sql.Sql
 import groovy.util.logging.Slf4j
+import gun.datastore.validate.Blank
+import gun.datastore.validate.Nullable
+import gun.datastore.validate.Validators
 
 import java.lang.reflect.Modifier
 import java.time.LocalDate
@@ -18,12 +21,12 @@ import java.time.ZoneId
  */
 @Slf4j
 class EntityImpl {
-    //保留变量
-    public static final String MAPPING = 'mapping' //mapping 定义实体类与表之间的映射关系,table,columns
-    public static final String TRANSIENTS = 'transients' //不持久化的类属性
-    public static final String CONSTRAINTS = 'constraints' //约束
+    // 保留变量
+    public static final String MAPPING = 'mapping' // mapping 定义实体类与表之间的映射关系,table,columns
+    public static final String TRANSIENTS = 'transients' // 不持久化的类属性
+    public static final String CONSTRAINTS = 'constraints' // 约束
     // 系统级忽略的内容
-    public static final List<String> excludeProperties = ['metaClass', 'gun_datastore_Entity__errorList']
+    public static final List<String> excludeProperties = ['metaClass', 'gun_datastore_Entity__errors']
 
     /**
      * get
@@ -37,7 +40,7 @@ class EntityImpl {
 
         DB.withSql { Sql sql ->
             String table = findTableName(target)
-            def tid = Transformer.toType(target, 'id', id) //pg must transform；mysql not need。
+            def tid = Transformer.toType(target, 'id', id) // pg must transform；mysql not need。
             def result = sql.firstRow("select ${selects} from ${table} where id=?", tid)
             def entity = bindResultToEntity(result, target)
             return entity
@@ -82,14 +85,14 @@ class EntityImpl {
      */
     static save(Object entity) {
         DB.withSql { Sql sql ->
-            //kvs
+            // kvs
             Map columnMap = columnMap(entity.class)
             List ps = findPropertiesToPersist(entity.class)
             Map kvs = [:]
             ps.each {
                 def propertyValue = entity[it]
                 def propertyClass = entity.class.getDeclaredField(it).type
-                //如果是 Date，转换成 LocalDateTime，pg 当前的驱动不支持 Date 了。mysql 无影响。
+                // 如果是 Date，转换成 LocalDateTime，pg 当前的驱动不支持 Date 了。mysql 无影响。
                 if (propertyValue instanceof Date) propertyValue = java.time.LocalDateTime.ofInstant(propertyValue.toInstant(), ZoneId.systemDefault())
                 if (propertyValue instanceof List) propertyValue = JsonOutput.toJson(propertyValue)
                 if (propertyValue instanceof Map) propertyValue = JsonOutput.toJson(propertyValue)
@@ -107,13 +110,13 @@ class EntityImpl {
 
             String table = findTableName(entity.class)
             if (entity.hasProperty('id') && entity['id']) {
-                //to update
+                // to update
                 def sets = kvs.keySet().collect { "${it} = ?" }.join(',').toString()
                 def sqlString = "update ${table} set ${sets} where id = ?".toString()
                 def params = kvs.values().toList() << entity.id
                 sql.executeUpdate(sqlString, params)
             } else {
-                //to insert
+                // to insert
                 def sqlString = "insert into ${table} (${kvs.keySet().join(',')}) values (?${',?' * (kvs.size() - 1)})".toString()
                 def result = sql.executeInsert(sqlString, kvs.values().toList())
                 entity.id = result[0][0]
@@ -151,7 +154,7 @@ class EntityImpl {
      * @return
      */
     static List<String> findPropertiesToPersist(Class target) {
-        List fields = target.declaredFields.findAll { !Modifier.isStatic(it.modifiers) }*.name
+        List fields = target.declaredFields.findAll { !Modifier.isStatic(it.modifiers) && !it.name.contains('$') }*.name
         fields - excludeProperties - target[TRANSIENTS] ?: []
     }
 
@@ -220,7 +223,7 @@ class EntityImpl {
         properties.each {
             String key = it
             Class propClass = clasz.getDeclaredField(it)?.type
-            //处理属性对表列的映射
+            // 处理属性对表列的映射
             if (columnMap.containsKey(key)) {
                 key = columnMap[key]
             } else {
@@ -229,7 +232,7 @@ class EntityImpl {
                     key = key + "_id"
                 }
             }
-            //从 result 中取值并赋值给实体
+            // 从 result 中取值并赋值给实体
             if (result.containsKey(key)) {
                 switch (propClass) {
                     case LocalDate:
@@ -308,57 +311,22 @@ class EntityImpl {
      * @return
      */
     static boolean validate(Entity entity) {
-        if (!entity.hasProperty('id')) throw new Exception("该类没有 id 属性，差评")
+        if (!entity.hasProperty('id')) throw new Exception("实体类缺少 id 属性")
+        entity.errors.clear()
+        findPropertiesToPersist(entity.class).each { String name ->
+            if (name == 'id') return
+            Object value = entity[name]
+            List<gun.datastore.validate.Validator> constraints = entity.constraints[name]
+            if (!constraints) constraints = [Validators.nullable(false), Validators.blank(false)]
 
-        entity.errorList = entity.errorList.findAll { it.contains('type') } // 保留绑定错误，清空其他错误
-        Map constraints = getConstraintMap(entity.class)
+            if (value == null && constraints.find { it instanceof Nullable && it.canNull }) return true
+            if (value instanceof String && value.trim() == '' && constraints.find { it instanceof Blank && it.canBlank }) return true
 
-        findPropertiesToPersist(entity.class).each {
-            if (!constraints.containsKey(it)) {
-                constraints << [(it): [blank: false, nullable: false]] //默认约束，不能为空 //貌似这里不需要内容也是一样的效果，后面是判断 true 才通过
-            }
+            def v = constraints.find { !it.validate(name, value, entity) }
+            if (v) entity.errors[(name)] = v.message
         }
 
-        constraints.each {
-            def propertyConstraints = it
-            def propertyName = propertyConstraints.key
-            def propertyValue = entity[propertyName]
-            Map constraintsToValidate = propertyConstraints.value
-
-            //comment
-            constraintsToValidate.remove('comment')
-
-            //null 处理
-            if (null == propertyValue) {
-                if (!constraintsToValidate.nullable) entity.errorList << [propertyName, 'nullable']
-                return
-            }
-            constraintsToValidate.remove('nullable')
-
-            //blank
-            if ('' == propertyValue) {
-                if (!constraintsToValidate.blank) entity.errorList << [propertyName, 'blank']
-                return
-            }
-            constraintsToValidate.remove('blank')
-
-            //validator
-            def validator = constraintsToValidate.get('validator')
-            if (validator) {
-                Closure closure = ((Closure) validator).clone()
-                def result = closure.call(propertyValue, entity)
-                if (result == false) entity.errorList << [propertyName, 'validator']
-                constraintsToValidate.remove('validator')
-            }
-
-            constraintsToValidate.each {
-                if (!Validator.validate(propertyValue, it)) {
-                    entity.errorList << [propertyName, it.key]
-                }
-            }
-        }
-
-        entity.errorList ? false : true
+        entity.errors ? false : true
     }
 
     /**
@@ -387,28 +355,23 @@ class EntityImpl {
         Class entityClass = entity.class
         List props = findPropertiesToPersist(entityClass) - 'id'
         props.each {
-            try {
-                def propClass = entity.class.getDeclaredField(it).type
-                def key = it
-                if (propClass.interfaces.contains(Entity)) key = key + "Id"
-                def keys = [it, toDbName(it)]
-                def value = params.find { it.key in keys }?.value
-                if (params.keySet().intersect(keys)) {
-                    //绑定实体和其他是不一样的
-                    if (propClass.interfaces.contains(Entity)) {
-                        if (value) {
-                            entity[(it)] = propClass.newInstance()
-                            entity[(it)]['id'] = Transformer.toType(propClass, 'id', params[k])
-                        } else {
-                            entity[(it)] = null
-                        }
+            def propClass = entity.class.getDeclaredField(it).type
+            def key = it
+            if (propClass.interfaces.contains(Entity)) key = key + "Id"
+            def keys = [it, toDbName(it)]
+            def value = params.find { it.key in keys }?.value
+            if (params.keySet().intersect(keys)) {
+                // 绑定实体和其他是不一样的
+                if (propClass.interfaces.contains(Entity)) {
+                    if (value) {
+                        entity[(it)] = propClass.newInstance()
+                        entity[(it)]['id'] = Transformer.toType(propClass, 'id', params[k])
                     } else {
-                        entity[it] = Transformer.toType(entityClass, it, value)
+                        entity[(it)] = null
                     }
+                } else {
+                    entity[it] = Transformer.toType(entityClass, it, value)
                 }
-            } catch (Exception e) {
-                entity.errorList << [(it), 'type'] //类型转换异常
-                e.printStackTrace()
             }
         }
         return entity
