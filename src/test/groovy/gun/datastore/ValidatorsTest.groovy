@@ -28,17 +28,9 @@ class ValidatorsTest extends GroovyTestCase {
         ]
     }
 
-    void testMin() {
+    void testValidator() {
         Book book = new Book(price: 3)
         book.validate()
         print(book.errors)
-    }
-
-    void testMax() {
-        assert true
-    }
-
-
-    void testValidator() {
     }
 }
