@@ -15,6 +15,7 @@ class ValidatorsTest extends GroovyTestCase {
         String author = 'Yan'
         String description = ''
         double price
+        String forPeople = '青少年'
 
         static transients = []
         static constraints = [
@@ -24,7 +25,8 @@ class ValidatorsTest extends GroovyTestCase {
                 price      : [max(5.5), min(1.0),
                               validator('就是不通') { String fieldName, Object fieldValue, Entity<?> entity ->
                                   return false
-                              }]
+                              }],
+                forPeople  : [inList(['儿童', '青少年', '成年人'])]
         ]
     }
 

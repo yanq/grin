@@ -24,6 +24,14 @@ class Validators {
         new MaxLength(length: length, message: message)
     }
 
+    static Validator matches(String pattern, String message = "字符串模式不匹配") {
+        matches(Pattern.compile(pattern))
+    }
+
+    static Validator matches(Pattern pattern, String message = "字符串模式不匹配") {
+        new Matcher(pattern: pattern, message: message)
+    }
+
     static Validator min(Number number, String message = "不能小于 $number") {
         new Min(number: number, message: message)
     }
@@ -32,12 +40,8 @@ class Validators {
         new Max(number: number, message: message)
     }
 
-    static Validator matches(String pattern, String message = "字符串模式不匹配") {
-        matches(Pattern.compile(pattern))
-    }
-
-    static Validator matches(Pattern pattern, String message = "字符串模式不匹配") {
-        new Matcher(pattern: pattern, message: message)
+    static Validator inList(List list, String message = "请在 ${list} 中选择") {
+        new InList(list: list, message: message)
     }
 
     static Validator validator(String message, Closure closure) {
