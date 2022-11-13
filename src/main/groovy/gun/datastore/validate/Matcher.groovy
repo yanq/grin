@@ -5,10 +5,10 @@ import gun.datastore.Entity
 import java.util.regex.Pattern
 
 class Matcher extends Validator {
-    Pattern pattern
+    Pattern value
 
     @Override
     boolean validate(String fieldName, Object fieldValue, Entity<?> entity) {
-        pattern.matcher(fieldValue).matches()
+        value.matcher(fieldValue).matches()
     }
 }

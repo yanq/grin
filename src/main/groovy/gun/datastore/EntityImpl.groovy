@@ -319,8 +319,8 @@ class EntityImpl {
             List<gun.datastore.validate.Validator> constraints = entity.constraints[name]
             if (!constraints) constraints = [Validators.nullable(false), Validators.blank(false)]
 
-            if (value == null && constraints.find { it instanceof Nullable && it.canNull }) return true
-            if (value instanceof String && value.trim() == '' && constraints.find { it instanceof Blank && it.canBlank }) return true
+            if (value == null && constraints.find { it instanceof Nullable && it.value }) return true
+            if (value instanceof String && value.trim() == '' && constraints.find { it instanceof Blank && it.value }) return true
 
             def v = constraints.find { !it.validate(name, value, entity) }
             if (v) entity.errors[(name)] = v.message

@@ -3,10 +3,10 @@ package gun.datastore.validate
 import gun.datastore.Entity
 
 class Blank extends Validator {
-    boolean canBlank = true
+    Boolean value = true
 
     @Override
     boolean validate(String fieldName, Object fieldValue, Entity<?> entity) {
-        canBlank ? true : !!fieldValue.toString().trim()
+        value ? true : !!fieldValue.toString().trim()
     }
 }

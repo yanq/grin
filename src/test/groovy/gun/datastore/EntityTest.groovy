@@ -4,7 +4,7 @@ import gun.datastore.validate.Validators
 
 import static gun.datastore.validate.Validators.*
 
-class ValidatorsTest extends GroovyTestCase {
+class EntityTest extends GroovyTestCase {
 
     /**
      * 书
@@ -33,6 +33,12 @@ class ValidatorsTest extends GroovyTestCase {
     void testValidator() {
         Book book = new Book(price: 3)
         book.validate()
-        print(book.errors)
+        println(book.errors)
+    }
+
+    void testGetConstraints() {
+        println(EntityUtils.getEntityConstraintValue(Book, 'title', 'Nullable'))
+        println(EntityUtils.getEntityConstraintValue(Book, 'author', 'MaxLength'))
+        println(EntityUtils.getEntityConstraintValue(Book, 'forPeople', 'InList'))
     }
 }

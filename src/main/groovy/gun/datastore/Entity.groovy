@@ -4,6 +4,10 @@ package gun.datastore
  * 提供实体类的基本功能
  */
 trait Entity<D> {
+    static List<String> transients = []
+    static Map<String, Object> mapping = [:]
+    static Map<String, List> constraints = [:]
+
     Map<String, String> errors = [:]
 
     /**

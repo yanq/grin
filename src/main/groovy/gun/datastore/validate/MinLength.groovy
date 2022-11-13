@@ -6,10 +6,10 @@ import gun.datastore.Entity
  * 字符串最小长度
  */
 class MinLength extends Validator {
-    int length
+    Integer value
 
     @Override
     boolean validate(String fieldName, Object fieldValue, Entity<?> entity) {
-        fieldValue.toString().length() >= length
+        fieldValue.toString().length() >= value
     }
 }
