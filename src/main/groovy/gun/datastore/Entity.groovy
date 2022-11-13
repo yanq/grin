@@ -97,14 +97,6 @@ trait Entity<D> {
     }
 
     /**
-     * 约束 Map
-     * @return
-     */
-    static Map getConstraintMap() {
-        EntityImpl.getConstraintMap(this)
-    }
-
-    /**
      * 验证约束
      * @return
      */

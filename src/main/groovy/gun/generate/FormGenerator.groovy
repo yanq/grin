@@ -11,7 +11,7 @@ class FormGenerator extends Generator {
 
     static String generateForm(Class entityClass) {
         List<String> props = EntityImpl.findPropertiesToPersist(entityClass) - 'id'
-        Map constraints = EntityImpl.getConstraintMap(entityClass)
+        Map constraints = entityClass.constraints
 
         List<String> result = []
         props.each {

@@ -330,16 +330,6 @@ class EntityImpl {
     }
 
     /**
-     * 获取约束表
-     * todo 缓存一下更好
-     * @param entityClass
-     * @return
-     */
-    static Map<String, Map> getConstraintMap(Class entityClass) {
-        Constraints.buildToMapFromEntityClass(entityClass)
-    }
-
-    /**
      * 绑定参数到实体
      * @param entityClass
      * @param params
