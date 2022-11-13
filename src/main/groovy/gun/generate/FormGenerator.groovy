@@ -26,11 +26,11 @@ class FormGenerator extends Generator {
     }
 
     static String generateItem(Class entityClass, String propName, String propType, Map constraints) {
-        if (entityClass.getDeclaredField(propName).type.interfaces.contains(Entity)) {//entity
+        if (entityClass.getDeclaredField(propName).type.interfaces.contains(Entity)) {// entity
             entity(entityClass, propName, propType, constraints)
-        } else if (constraints?.inList) { //select
+        } else if (constraints?.find { it.class.simpleName == 'InList' }) { // select
             select(entityClass, propName, propType, constraints)
-        } else {//text
+        } else {// text
             input(entityClass, propName, propType, constraints)
         }
     }
