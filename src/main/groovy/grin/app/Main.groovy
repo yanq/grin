@@ -3,7 +3,7 @@ package grin.app
 import grin.generate.Generator
 
 /**
- * Gun 入口
+ * Grin 入口
  * 启动服务器，执行命令等。
  */
 class Main {
@@ -22,7 +22,7 @@ class Main {
      * @return
      */
     static usage() {
-        println 'Welcome to use Gun!'
+        println 'Welcome to use Grin!'
         println 'command available:'
         cmds.each {
             println "$it.key ${it.value.join('  ')}"

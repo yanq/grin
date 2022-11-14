@@ -17,7 +17,7 @@ import javax.sql.DataSource
 import java.lang.reflect.Method
 
 /**
- * Gun App
+ * Grin App
  * 定义规约目录等。
  */
 @Slf4j
@@ -106,7 +106,7 @@ class App {
      * @return
      */
     static init(File root = null, String env = null) {
-        if (instance) throw new Exception("Gun app has inited")
+        if (instance) throw new Exception("Grin app has inited")
         instance = new App(root, env)
     }
 

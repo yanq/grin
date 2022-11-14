@@ -1,6 +1,6 @@
 package grin.datastore
 /**
- * Gun Entity 扩展类的实例方法
+ * Grin Entity 扩展类的实例方法
  */
 class EntityExtension {
     /**
