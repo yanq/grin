@@ -10,6 +10,5 @@ out/
 .project
 .settings
 .classpath
-/src/test/groovy/gun/datastore/test.mv.db
-/src/test/groovy/gun/datastore/test.trace.db
 /src/test/groovy/grin/datastore/test.mv.db
+/src/test/groovy/grin/datastore/test.trace.db

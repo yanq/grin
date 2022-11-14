@@ -146,7 +146,7 @@ class App {
      * @return
      */
     void initDirs() {
-        log.info("init gun app dirs @ ${projectDir.absolutePath}")
+        log.info("init grin app dirs @ ${projectDir.absolutePath}")
         allDirs.each {
             if (it.exists()) {
                 log.info("${it.name} exists")
@@ -162,7 +162,7 @@ class App {
      * @return
      */
     void checkDirs() {
-        log.info("check gun app dirs @ ${projectDir.absolutePath}")
+        log.info("check grin app dirs @ ${projectDir.absolutePath}")
         allDirs.each {
             if (!it.exists()) throw new Exception("目录不存在：${it.canonicalPath}")
         }

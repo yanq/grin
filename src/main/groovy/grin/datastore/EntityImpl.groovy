@@ -26,7 +26,7 @@ class EntityImpl {
     public static final String TRANSIENTS = 'transients' // 不持久化的类属性
     public static final String CONSTRAINTS = 'constraints' // 约束
     // 系统级忽略的内容
-    public static final List<String> excludeProperties = ['metaClass', 'gun_datastore_Entity__errors']
+    public static final List<String> excludeProperties = ['metaClass', 'grin_datastore_Entity__errors']
 
     /**
      * get

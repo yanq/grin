@@ -9,7 +9,7 @@ import grin.generate.Generator
 class Main {
     // 支持的命令
     static cmds = [
-            'init'             : ['init gun dirs'],
+            'init'             : ['init grin dirs'],
             'create-domain'    : ['create domain class'],
             'create-controller': ['create controller class'],
             'generate-all'     : ['generate controller and views from domain class'],
