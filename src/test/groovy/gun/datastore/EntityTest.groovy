@@ -1,6 +1,7 @@
 package gun.datastore
 
 import gun.datastore.validate.Validators
+import org.h2.jdbcx.JdbcDataSource
 
 import static gun.datastore.validate.Validators.*
 
@@ -40,5 +41,11 @@ class EntityTest extends GroovyTestCase {
         println(EntityUtils.getEntityConstraintValue(Book, 'title', 'Nullable'))
         println(EntityUtils.getEntityConstraintValue(Book, 'author', 'MaxLength'))
         println(EntityUtils.getEntityConstraintValue(Book, 'forPeople', 'InList'))
+    }
+
+    void testDDL() {
+        DB.dataSource = new JdbcDataSource(url: "jdbc:h2:./src/test/groovy/gun/datastore/test;MODE=PostgreSQL", user: 'sa', password: '')
+        println DDL.dbStatus()
+        println DDL.entityCreateSql(Book)
     }
 }
