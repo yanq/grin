@@ -7,7 +7,7 @@ import com.alibaba.druid.pool.DruidDataSource
 import com.alibaba.druid.sql.SQLUtils
 import grin.datastore.DB
 import grin.web.Controller
-import grin.web.GunUtil
+import grin.web.WebUtils
 import grin.web.Interceptor
 import grin.web.Route
 import groovy.json.JsonGenerator
@@ -21,18 +21,18 @@ import java.lang.reflect.Method
  * 定义规约目录等。
  */
 @Slf4j
-class GunApp {
+class App {
     // 元数据
     public static final String VERSION = '0.1.1'
     // instance
-    private static GunApp instance
+    private static App instance
     // env
     public static final String ENV_PROD = 'prod'
     public static final String ENV_DEV = 'dev'
-    public static final String GUN_ENV_NAME = 'GUN_ENV'
-    public static final List<String> GUN_ENV_LIST = [ENV_DEV, ENV_PROD]
+    public static final String GRIN_ENV_NAME = 'GRIN_ENV'
+    public static final List<String> GRIN_ENV_LIST = [ENV_DEV, ENV_PROD]
     // 目录结构
-    public static final String APP_DIR = 'gun-app'
+    public static final String APP_DIR = 'grin-app'
     public static final String APP_DOMAINS = 'domains'
     public static final String APP_CONTROLLERS = 'controllers'
     public static final String APP_WEBSOCKETS = 'websockets'
@@ -65,7 +65,7 @@ class GunApp {
      * 构造并初始化
      * @param projectRoot
      */
-    private GunApp(File projectRoot = null, String env = null) {
+    private App(File projectRoot = null, String env = null) {
         // init dirs
         if (!projectRoot) projectRoot = new File('.')
         projectDir = projectRoot
@@ -82,19 +82,19 @@ class GunApp {
         staticDir = new File(appDir, APP_STATIC)
         scriptDir = new File(appDir, APP_SCRIPTS)
         allDirs = [appDir, domainsDir, controllersDir, websocketsDir, viewsDir, configDir, initDir, assetDir, staticDir, scriptDir]
-        environment = (env ?: System.getenv(GUN_ENV_NAME)) ?: ENV_DEV
-        if (!(environment in GUN_ENV_LIST)) throw new Exception("错误的运行环境值：${environment}，值必须是 ${GUN_ENV_LIST} 之一。")
+        environment = (env ?: System.getenv(GRIN_ENV_NAME)) ?: ENV_DEV
+        if (!(environment in GRIN_ENV_LIST)) throw new Exception("错误的运行环境值：${environment}，值必须是 ${GRIN_ENV_LIST} 之一。")
         // config
         config = loadConfig()
         // 初始化数据库，控制器，错误处理
         DB.dataSource = getDataSource()
         if (config.dbSql) DB.executeSqlFile(new File(scriptDir, config.dbSql as String))
         // web 组件
-        routes = GunUtil.loadRoutes(config.urlMapping)
-        controllers = GunUtil.loadControllers(controllersDir)
-        actions = GunUtil.loadActions(controllers)
-        interceptor = GunUtil.findInterceptor(controllersDir) ?: new Interceptor()
-        websockets = GunUtil.loadWebsockets(websocketsDir)
+        routes = WebUtils.loadRoutes(config.urlMapping)
+        controllers = WebUtils.loadControllers(controllersDir)
+        actions = WebUtils.loadActions(controllers)
+        interceptor = WebUtils.findInterceptor(controllersDir) ?: new Interceptor()
+        websockets = WebUtils.loadWebsockets(websocketsDir)
         log.info("初始化 web\nroutes:${routes}\ncontrollers:${controllers}\nactions:${actions}\nintercepter:${interceptor?.class}\nwebsockets:${websockets}")
         if (config.errorClass) errorControllerClass = config.errorClass
         log.info("started app @ ${environment}")
@@ -107,16 +107,16 @@ class GunApp {
      */
     static init(File root = null, String env = null) {
         if (instance) throw new Exception("Gun app has inited")
-        instance = new GunApp(root, env)
+        instance = new App(root, env)
     }
 
     /**
      * 获取单例
      * @return
      */
-    static GunApp getInstance() {
+    static App getInstance() {
         if (instance) return instance
-        instance = new GunApp()
+        instance = new App()
         return instance
     }
 

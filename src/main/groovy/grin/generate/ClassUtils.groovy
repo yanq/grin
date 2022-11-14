@@ -1,6 +1,6 @@
 package grin.generate
 
-class ClassUtil {
+class ClassUtils {
 
     /**
      * 获取类名称

@@ -1,16 +1,16 @@
 package grin.web
 
-import grin.app.GunApp
+import grin.app.App
 import grin.generate.Generator
 
 import javax.servlet.http.HttpServletRequest
 
 /**
- * gun 表达式
+ * 表达式
  * 提供一些方法，处理一些东西。如 asset,link。
  */
-class GunExpression {
-    def app = GunApp.instance
+class GExpression {
+    def app = App.instance
     HttpServletRequest request
     def assetsPath = '/files/assets'
     /**

@@ -1,6 +1,6 @@
 package grin.web
 
-import grin.app.GunApp
+import grin.app.App
 import groovy.json.JsonSlurper
 import groovy.json.StreamingJsonBuilder
 import groovy.util.logging.Slf4j
@@ -31,9 +31,9 @@ class Controller {
     Params params
     Map<String, String> headers
     //app
-    GunApp app = GunApp.instance
+    App app = App.instance
     @Lazy
-    GunExpression g = new GunExpression()
+    GExpression g = new GExpression()
     //html json
     MarkupBuilder html
     StreamingJsonBuilder json
@@ -203,7 +203,7 @@ class Controller {
      */
     void render(File file, int cacheTime = ONE_DAY) {
         response.reset()
-        FileUtil.serveFile(request, response, file, cacheTime)
+        FileUtils.serveFile(request, response, file, cacheTime)
     }
 
     /**

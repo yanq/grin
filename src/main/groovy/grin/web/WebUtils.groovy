@@ -10,7 +10,7 @@ import java.lang.reflect.Modifier
  * 加载控制器，全局的拦截器，执行操作等。
  */
 @Slf4j
-class GunUtil {
+class WebUtils {
     /**
      * 加载所有的控制器
      * @param dir

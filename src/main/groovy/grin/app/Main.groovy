@@ -6,7 +6,7 @@ import grin.generate.Generator
  * Gun 入口
  * 启动服务器，执行命令等。
  */
-class GunMain {
+class Main {
     // 支持的命令
     static cmds = [
             'init'             : ['init gun dirs'],
@@ -68,7 +68,7 @@ class GunMain {
 
         //init
         if (cmd == 'init') {
-            GunApp.instance.initDirs()
+            App.instance.initDirs()
         }
 
         //create domain
@@ -100,7 +100,7 @@ class GunMain {
             mustOrFail args.size() > 1, "缺少类名"
             String script = args[1].endsWith('.groovy') ? args[1] : args[1] + '.groovy'
             def start = System.currentTimeMillis()
-            GunApp.instance.scriptEngine.run(script, '')
+            App.instance.scriptEngine.run(script, '')
             println("Run script ${script},use time ${(System.currentTimeMillis() - start) / 1000}s.")
         }
     }

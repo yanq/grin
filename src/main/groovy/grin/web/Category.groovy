@@ -7,7 +7,7 @@ import javax.servlet.ServletRequest
 import javax.servlet.http.HttpSession
 
 @CompileStatic
-class GunCategory {
+class Category {
     public static Object get(ServletContext context, String key) {
         return context.getAttribute(key);
     }

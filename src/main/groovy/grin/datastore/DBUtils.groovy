@@ -2,7 +2,7 @@ package grin.datastore
 /**
  * 实体类工具包
  */
-class EntityUtils {
+class DBUtils {
     static List<String> CONSTRAINT_NAMES = ['Nullable', 'MaxLength', 'InList']
 
     /**

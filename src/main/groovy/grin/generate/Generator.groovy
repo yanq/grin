@@ -1,6 +1,6 @@
 package grin.generate
 
-import grin.app.GunApp
+import grin.app.App
 import groovy.text.StreamingTemplateEngine
 import groovy.text.Template
 import groovy.util.logging.Slf4j
@@ -19,8 +19,8 @@ class Generator {
      */
     static createDomain(String className) {
         File template = new File(templateDir, 'domain')
-        File target = new File(GunApp.instance.domainsDir, ClassUtil.classPath(className) + '.groovy')
-        generate(template, target, ClassUtil.toMap(className))
+        File target = new File(App.instance.domainsDir, ClassUtils.classPath(className) + '.groovy')
+        generate(template, target, ClassUtils.toMap(className))
     }
 
     /**
@@ -32,8 +32,8 @@ class Generator {
      */
     static createController(String className) {
         File template = new File(templateDir, 'controller')
-        File target = new File(controllersDir, ClassUtil.classPath(className) + 'Controller.groovy')
-        generate(template, target, ClassUtil.toMap(className))
+        File target = new File(controllersDir, ClassUtils.classPath(className) + 'Controller.groovy')
+        generate(template, target, ClassUtils.toMap(className))
     }
 
     /**
@@ -43,18 +43,18 @@ class Generator {
      */
     static generateAll(String className) {
         Class entityClass = Class.forName(className)
-        String propName = ClassUtil.propertyName(className)
+        String propName = ClassUtils.propertyName(className)
 
         //生成增删改查的控制器和视图
         File template = new File(templateDir, 'curdcontroller')
-        File target = new File(controllersDir, ClassUtil.classPath(className) + 'Controller.groovy')
-        generate(template, target, ClassUtil.toMap(entityClass))
+        File target = new File(controllersDir, ClassUtils.classPath(className) + 'Controller.groovy')
+        generate(template, target, ClassUtils.toMap(entityClass))
 
         List files = ['index.html', 'show.html', 'create.html', 'edit.html']
         files.each {
             File viewTemplate = new File(templateDir, it)
             File viewTarget = new File(viewsDir, "${propName}/${it}")
-            generate(viewTemplate, viewTarget, ClassUtil.toMap(entityClass))
+            generate(viewTemplate, viewTarget, ClassUtils.toMap(entityClass))
         }
     }
 
@@ -65,10 +65,10 @@ class Generator {
      */
     static generateService(String className) {
         Class entityClass = Class.forName(className)
-        String propName = ClassUtil.propertyName(className)
+        String propName = ClassUtils.propertyName(className)
         File template = new File(templateDir, 'servicecontroller')
-        File target = new File(controllersDir, ClassUtil.classPath(className) + 'ServiceController.groovy')
-        generate(template, target, ClassUtil.toMap(entityClass))
+        File target = new File(controllersDir, ClassUtils.classPath(className) + 'ServiceController.groovy')
+        generate(template, target, ClassUtils.toMap(entityClass))
     }
 
     /**
@@ -106,7 +106,7 @@ class Generator {
      * @return
      */
     static File getTemplateDir() {
-        new File(GunApp.instance.appDir, 'templates')
+        new File(App.instance.appDir, 'templates')
     }
 
     /**
@@ -122,7 +122,7 @@ class Generator {
      * @return
      */
     static File getViewsDir() {
-        GunApp.instance.viewsDir
+        App.instance.viewsDir
     }
 
     /**
@@ -130,6 +130,6 @@ class Generator {
      * @return
      */
     static File getControllersDir() {
-        GunApp.instance.controllersDir
+        App.instance.controllersDir
     }
 }

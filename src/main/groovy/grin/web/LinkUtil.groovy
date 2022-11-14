@@ -1,7 +1,7 @@
 package grin.web
 
 
-import grin.app.GunApp;
+import grin.app.App;
 
 public class LinkUtil {
 
@@ -12,7 +12,7 @@ public class LinkUtil {
      */
     static String absolute(String file) {
         if (file && !(file.startsWith('http://') || file.startsWith('https://'))) {
-            return GunApp.instance.config.serverURL + file
+            return App.instance.config.serverURL + file
         } else {
             return file
         }

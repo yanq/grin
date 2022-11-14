@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServletResponse
  * 文件处理
  */
 @Slf4j
-class FileUtil {
+class FileUtils {
 
     /**
      * 文件服务，调用入口

@@ -38,9 +38,9 @@ class EntityTest extends GroovyTestCase {
     }
 
     void testGetConstraints() {
-        println(EntityUtils.getEntityConstraintValue(Book, 'title', 'Nullable'))
-        println(EntityUtils.getEntityConstraintValue(Book, 'author', 'MaxLength'))
-        println(EntityUtils.getEntityConstraintValue(Book, 'forPeople', 'InList'))
+        println(DBUtils.getEntityConstraintValue(Book, 'title', 'Nullable'))
+        println(DBUtils.getEntityConstraintValue(Book, 'author', 'MaxLength'))
+        println(DBUtils.getEntityConstraintValue(Book, 'forPeople', 'InList'))
     }
 
     void testDDL() {

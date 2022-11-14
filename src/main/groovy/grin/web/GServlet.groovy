@@ -1,6 +1,6 @@
 package grin.web
 
-import grin.app.GunApp
+import grin.app.App
 import groovy.util.logging.Slf4j
 
 import javax.servlet.GenericServlet
@@ -12,8 +12,8 @@ import javax.servlet.http.HttpServletResponse
 import java.lang.reflect.Method
 
 @Slf4j
-class GunServlet extends GenericServlet {
-    GunApp app = GunApp.instance
+class GServlet extends GenericServlet {
+    App app = App.instance
 
     @Override
     void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {
@@ -43,7 +43,7 @@ class GunServlet extends GenericServlet {
         actionName = route.actionName ?: pathParams.get('actionName') ?: 'index'
 
 
-        use(GunCategory.class) {
+        use(Category.class) {
             try {
                 Controller controller
                 Method method
