@@ -1,7 +1,7 @@
-# Gun
+# Grin
 
-A groovy web framework.
+A groovy web framework like grails.
 
 # How to use？
 
-Just use gun-example project。
+Just use grin-example project。
