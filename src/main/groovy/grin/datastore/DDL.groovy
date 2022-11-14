@@ -1,10 +1,13 @@
 package grin.datastore
 
+import groovy.util.logging.Slf4j
+
 import java.sql.Connection
 
 /**
  * 数据定义
  */
+@Slf4j
 class DDL {
     /**
      * 数据库状态
@@ -62,9 +65,30 @@ ${fields.collect { "        ${columnSql(entityClass, it, columnMap[it])}" }.join
         def type = ''
         def constraint = ''
 
+        // id
+        if (propertyName == 'id') {
+            if (cls in [int, Integer]) {
+                return "id serial primary key"
+            } else if (cls in [long, Long]) {
+                return "id bigserial primary key"
+            } else if (cls == String) {
+                return "id char[32] primary key"
+            } else {
+                throw new Exception("id 必须是 整数或者字符串")
+            }
+        }
+
+        def nullable = Utils.getEntityConstraintValue(entityClass, propertyName, 'Nullable')
+        constraint += nullable ? '' : 'not null'
+
         if (cls == String) {
+            def maxLength = Utils.getEntityConstraintValue(entityClass, propertyName, 'MaxLength')
+            type = maxLength ? "varchar(${maxLength})" : 'varchar'
+        }else {
             type = 'varchar'
         }
+
+        log.debug("${entityClass.name} ${propertyName} ${columnName} - ${cls.name}")
 
         return "${columnName ?: EntityImpl.toDbName(propertyName)} ${type} ${constraint}"
     }

@@ -1,7 +1,9 @@
 package grin.datastore
 
-
+import groovy.sql.Sql
 import org.h2.jdbcx.JdbcDataSource
+
+import java.time.LocalDateTime
 
 import static grin.datastore.validate.Validators.*
 
@@ -17,6 +19,9 @@ class EntityTest extends GroovyTestCase {
         String description = ''
         double price
         String forPeople = '青少年'
+        Date publishAt = new Date()
+        LocalDateTime dateCreated
+        LocalDateTime lastUpdated
 
         static transients = []
         static constraints = [
@@ -38,14 +43,18 @@ class EntityTest extends GroovyTestCase {
     }
 
     void testGetConstraints() {
-        println(DBUtils.getEntityConstraintValue(Book, 'title', 'Nullable'))
-        println(DBUtils.getEntityConstraintValue(Book, 'author', 'MaxLength'))
-        println(DBUtils.getEntityConstraintValue(Book, 'forPeople', 'InList'))
+        println(Utils.getEntityConstraintValue(Book, 'title', 'Nullable'))
+        println(Utils.getEntityConstraintValue(Book, 'author', 'MaxLength'))
+        println(Utils.getEntityConstraintValue(Book, 'forPeople', 'InList'))
     }
 
     void testDDL() {
         DB.dataSource = new JdbcDataSource(url: "jdbc:h2:./src/test/groovy/grin/datastore/test;MODE=PostgreSQL", user: 'sa', password: '')
         println DDL.dbStatus()
-        println DDL.entityCreateSql(Book)
+        def s = DDL.entityCreateSql(Book)
+        println s
+        DB.withSql { Sql sql ->
+            sql.executeUpdate(s)
+        }
     }
 }
