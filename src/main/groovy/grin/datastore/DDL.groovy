@@ -10,11 +10,65 @@ import java.sql.Connection
 @Slf4j
 class DDL {
     /**
+     * 数据库表信息
+     * @return
+     */
+    static List tablesMetaData() {
+        Connection connection = DB.dataSource.connection
+        def tables = connection.metaData.getTables(connection.catalog, connection.schema, null, 'TABLE')
+        def meta = tables.metaData
+        def columnNames = []
+        def rows = []
+
+        meta.columnCount.times {
+            def index = it + 1
+            columnNames << meta.getColumnName(index)
+        }
+
+        while (tables.next()) {
+            def row = [:]
+            columnNames.each {
+                row[it] = tables.getString(it)
+            }
+            rows << row
+        }
+
+        return rows
+    }
+
+    /**
+     * 数据库列信息
+     * @return
+     */
+    static List columnsMetaData() {
+        Connection connection = DB.dataSource.connection
+        def columns = connection.metaData.getColumns(connection.catalog, connection.schema, null, null)
+        def meta = columns.metaData
+        def names = []
+        def rows = []
+
+        meta.columnCount.times {
+            def index = it + 1
+            names << meta.getColumnName(index)
+        }
+
+        while (columns.next()) {
+            def row = [:]
+            names.each {
+                row[it] = columns.getString(it)
+            }
+            rows << row
+        }
+
+        return rows
+    }
+
+    /**
      * 数据库状态
      * 获取表和列的数据
      * @return
      */
-    static Map<String, List<String>> dbStatus() {
+    static Map<String, List<String>> tables() {
         Connection connection = DB.dataSource.connection
         def resultSet = connection.metaData.getColumns(connection.catalog, connection.schema, null, null)
         def metaData = resultSet.metaData
@@ -84,7 +138,7 @@ ${fields.collect { "        ${columnSql(entityClass, it, columnMap[it])}" }.join
         if (cls == String) {
             def maxLength = Utils.getEntityConstraintValue(entityClass, propertyName, 'MaxLength')
             type = maxLength ? "varchar(${maxLength})" : 'varchar'
-        }else {
+        } else {
             type = 'varchar'
         }
 
