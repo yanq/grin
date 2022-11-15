@@ -79,7 +79,8 @@ class EntityTest extends GroovyTestCase {
 
         DDL.dropTables([Book, Author])
         DDL.createTables([Book, Author])
+        // DDL.checkForeignKey([Book, Author])
         println(DDL.tables())
-        DDL.columnsMetaData().each { println(it) }
+        // DDL.columnsMetaData().each { println(it) }
     }
 }

@@ -187,6 +187,16 @@ class EntityImpl {
     }
 
     /**
+     * 获取列名
+     * @param target
+     * @return
+     */
+    static String findColumnName(Class target, String propertyName) {
+        target[MAPPING]?.columns?."${propertyName}" ?:
+                "${toDbName(propertyName)}${target.getDeclaredField(propertyName).type.interfaces.contains(Entity) ? '_id' : ''}"
+    }
+
+    /**
      * 获取列映射
      * @param target
      * @return

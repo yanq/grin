@@ -207,6 +207,24 @@ ${fields.collect { "        ${columnSql(entityClass, it, columnMap[it])}" }.join
     }
 
     /**
+     * 外键
+     * @param entityClassList
+     * @return
+     */
+    static checkForeignKey(List<Class<Entity>> entityClassList) {
+        entityClassList.each {
+            def entity = it
+            EntityImpl.findPropertiesToPersist(entity).each {
+                def propertyType = entity.getDeclaredField(it).type
+                if (propertyType.interfaces.contains(Entity)) {
+                    executeSql("alter table ${EntityImpl.findTableName(entity)} add foreign key (${EntityImpl.findColumnName(entity, it)}) " +
+                            "references ${EntityImpl.findTableName(propertyType)}")
+                }
+            }
+        }
+    }
+
+    /**
      * 表的创建与删除
      * @param entityClass
      */
@@ -218,6 +236,7 @@ ${fields.collect { "        ${columnSql(entityClass, it, columnMap[it])}" }.join
         entityClassList.each {
             executeSql(entityCreateSql(it))
         }
+        checkForeignKey(entityClassList)
     }
 
     static dropTable(Class<Entity> entityClass) {
