@@ -51,15 +51,14 @@ class EntityTest extends GroovyTestCase {
     void testDDL() {
         DB.dataSource = new JdbcDataSource(url: "jdbc:h2:~/h2db/test;MODE=PostgreSQL", user: 'sa', password: '')
 
-        println("Tables")
-        DDL.tablesMetaData().each { println(it) }
-        println("Columns")
-        DDL.columnsMetaData().each {println(it)}
+        // println("Tables")
+        // DDL.tablesMetaData().each { println(it) }
+        // println("Columns")
+        // DDL.columnsMetaData().each {println(it)}
 
-        // println DDL.dbTables()
-        // def s = DDL.entityCreateSql(Book)
-        // DB.withSql { Sql sql ->
-        //     sql.executeUpdate(s)
-        // }
+        println(DDL.tables())
+        DDL.executeSql(DDL.entityCreateSql(Book))
+        println(DDL.tables())
+        DDL.executeSql(DDL.entityDropSql(Book))
     }
 }

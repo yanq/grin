@@ -1,5 +1,6 @@
 package grin.datastore
 
+import groovy.sql.Sql
 import groovy.util.logging.Slf4j
 
 import java.sql.Connection
@@ -64,8 +65,7 @@ class DDL {
     }
 
     /**
-     * 数据库状态
-     * 获取表和列的数据
+     * 表信息，主要是表及其列名
      * @return
      */
     static Map<String, List<String>> tables() {
@@ -126,14 +126,14 @@ ${fields.collect { "        ${columnSql(entityClass, it, columnMap[it])}" }.join
             } else if (cls in [long, Long]) {
                 return "id bigserial primary key"
             } else if (cls == String) {
-                return "id char[32] primary key"
+                return "id varchar[32] primary key"
             } else {
                 throw new Exception("id 必须是 整数或者字符串")
             }
         }
 
         def nullable = Utils.getEntityConstraintValue(entityClass, propertyName, 'Nullable')
-        constraint += nullable ? '' : 'not null'
+        constraint += nullable ? 'default null' : 'not null'
 
         if (cls == String) {
             def maxLength = Utils.getEntityConstraintValue(entityClass, propertyName, 'MaxLength')
@@ -145,5 +145,26 @@ ${fields.collect { "        ${columnSql(entityClass, it, columnMap[it])}" }.join
         log.debug("${entityClass.name} ${propertyName} ${columnName} - ${cls.name}")
 
         return "${columnName ?: EntityImpl.toDbName(propertyName)} ${type} ${constraint}"
+    }
+
+    /**
+     * 删除表
+     * @param entityClass
+     * @return
+     */
+    static String entityDropSql(Class<Entity> entityClass) {
+        return "drop table if exists ${EntityImpl.findTableName(entityClass)} cascade"
+    }
+
+    /**
+     * 执行 sql
+     * @param sqlString
+     */
+    static void executeSql(String sqlString) {
+        println("执行：\n${sqlString}")
+        def start = System.currentTimeMillis()
+        Sql sql = DB.sql
+        def r = sql.execute(sqlString)
+        println("完成，${r ? '': "影响了 ${sql.updateCount} 行，"}耗时 ${(System.currentTimeMillis() - start) / 1000000}ms")
     }
 }
