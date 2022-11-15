@@ -1,5 +1,6 @@
 package grin.datastore
 
+import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlUpdateTableSource
 import groovy.sql.Sql
 import groovy.util.logging.Slf4j
 
@@ -135,7 +136,7 @@ ${fields.collect { "        ${columnSql(entityClass, it, columnMap[it])}" }.join
             }
         }
 
-        log.debug("列类型 ${entityClass.name} ${propertyName} ${columnName} - ${cls.name}")
+        // log.debug("列类型 ${entityClass.name} ${propertyName} ${columnName} - ${cls.name}")
 
         def nullable = Utils.getEntityConstraintValue(entityClass, propertyName, 'Nullable')
         constraint += nullable ? 'default null' : 'not null'
@@ -247,5 +248,33 @@ ${fields.collect { "        ${columnSql(entityClass, it, columnMap[it])}" }.join
         entityClassList.each {
             executeSql(entityDropSql(it))
         }
+    }
+
+    /**
+     * 更新表
+     * 缺少的表或者列，补齐，并不删除内容，只提醒。
+     * @param entityClassList
+     * @return
+     */
+    static updateTables(List<Class<Entity>> entityClassList) {
+        def tablesMeta = tables()
+        def tablesNow = tablesMeta.keySet().collect { it.toLowerCase() }
+        def tablesWill = entityClassList.collect { EntityImpl.findTableName(it) }
+        if (tablesNow - tablesWill) log.warn("多余的表 ${tablesNow - tablesWill}")
+        entityClassList.each {
+            def entity = it
+            def tableName = EntityImpl.findTableName(entity)
+            if (tableName in tablesNow) {
+                def columnsNow = tablesMeta[tableName.toUpperCase()].collect { it.toLowerCase() }
+                def columnsWill = EntityImpl.findPropertiesToPersist(entity).collect { EntityImpl.findColumnName(entity, it) }
+                if (columnsNow - columnsWill) log.warn("多余的列 ${columnsNow - columnsWill}")
+                (columnsWill - columnsNow).each {
+                    executeSql("alter table ${tableName} add column ${columnSql(entity, it, EntityImpl.findColumnName(entity, it))}")
+                }
+            } else {
+                createTable(it)
+            }
+        }
+        checkForeignKey(entityClassList)
     }
 }

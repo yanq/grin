@@ -32,7 +32,7 @@ class EntityTest extends GroovyTestCase {
         LocalTime timePublished
         LocalDateTime dateCreated
         LocalDateTime lastUpdated
-        boolean isDeleted
+        // boolean isDeleted
 
         static transients = []
         static constraints = [
@@ -55,6 +55,7 @@ class EntityTest extends GroovyTestCase {
     class Author implements Entity<Author> {
         Long id
         String name
+        String description
     }
 
     void testValidator() {
@@ -77,10 +78,10 @@ class EntityTest extends GroovyTestCase {
         // println("Columns")
         // DDL.columnsMetaData().each {println(it)}
 
-        DDL.dropTables([Book, Author])
-        DDL.createTables([Book, Author])
-        // DDL.checkForeignKey([Book, Author])
-        println(DDL.tables())
+        // DDL.dropTables([Book, Author])
+        // DDL.createTables([Book, Author])
+        DDL.updateTables([Book, Author])
+        DDL.tables().each { println(it) }
         // DDL.columnsMetaData().each { println(it) }
     }
 }
