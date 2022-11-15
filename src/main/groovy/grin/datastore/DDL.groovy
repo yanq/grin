@@ -4,6 +4,9 @@ import groovy.sql.Sql
 import groovy.util.logging.Slf4j
 
 import java.sql.Connection
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
 
 /**
  * 数据定义
@@ -116,7 +119,7 @@ ${fields.collect { "        ${columnSql(entityClass, it, columnMap[it])}" }.join
      */
     static String columnSql(Class<Entity> entityClass, String propertyName, String columnName) {
         def cls = entityClass.getDeclaredField(propertyName).type
-        def type = ''
+        def type = '未知类型'
         def constraint = ''
 
         // id
@@ -132,17 +135,52 @@ ${fields.collect { "        ${columnSql(entityClass, it, columnMap[it])}" }.join
             }
         }
 
+        log.debug("列类型 ${entityClass.name} ${propertyName} ${columnName} - ${cls.name}")
+
         def nullable = Utils.getEntityConstraintValue(entityClass, propertyName, 'Nullable')
         constraint += nullable ? 'default null' : 'not null'
 
         if (cls == String) {
             def maxLength = Utils.getEntityConstraintValue(entityClass, propertyName, 'MaxLength')
             type = maxLength ? "varchar(${maxLength})" : 'varchar'
-        } else {
+        } else if (cls in [boolean, Boolean]) {
+            type = 'boolean'
+        } else if (cls in [byte, Byte, short, Short, int, Integer]) {
+            type = 'integer'
+        } else if (cls in [long, Long]) {
+            type = 'bigint'
+        } else if (cls in [float, Float]) {
+            type = 'real'
+        } else if (cls in [double, Double]) {
+            type = 'double precision'
+        } else if (cls == BigDecimal) {
+            type = 'decimal'
+        } else if (cls == Date) {
+            type = 'timestamp'
+        } else if (cls == LocalDate) {
+            type = 'date'
+        } else if (cls == LocalTime) {
+            type = 'time'
+        } else if (cls == LocalDateTime) {
+            type = 'timestamp'
+        } else if (cls in [List, Map]) {
             type = 'varchar'
+        } else if (cls.interfaces.contains(Entity)) {
+            columnName = columnName ?: "${EntityImpl.toDbName(propertyName)}_id"
+            def c = cls.getDeclaredField('id').type
+            if (c in [int, Integer]) {
+                type = 'integer'
+            } else if (c in [long, Long]) {
+                type = 'bigint'
+            } else if (c == String) {
+                type = 'varchar(32)'
+            } else {
+                throw new Exception("${propertyName} 的 id 必须是 整数或者字符串")
+            }
+        } else {
+            throw new Exception("未支持的 Java 类型 ${cls.name}")
         }
 
-        log.debug("${entityClass.name} ${propertyName} ${columnName} - ${cls.name}")
 
         return "${columnName ?: EntityImpl.toDbName(propertyName)} ${type} ${constraint}"
     }
@@ -165,6 +203,30 @@ ${fields.collect { "        ${columnSql(entityClass, it, columnMap[it])}" }.join
         def start = System.currentTimeMillis()
         Sql sql = DB.sql
         def r = sql.execute(sqlString)
-        println("完成，${r ? '': "影响了 ${sql.updateCount} 行，"}耗时 ${(System.currentTimeMillis() - start) / 1000000}ms")
+        println("完成，${r ? '' : "影响了 ${sql.updateCount} 行，"}耗时 ${(System.currentTimeMillis() - start) / 1000000}ms")
+    }
+
+    /**
+     * 表的创建与删除
+     * @param entityClass
+     */
+    static createTable(Class<Entity> entityClass) {
+        executeSql(entityCreateSql(entityClass))
+    }
+
+    static createTables(List<Class<Entity>> entityClassList) {
+        entityClassList.each {
+            executeSql(entityCreateSql(it))
+        }
+    }
+
+    static dropTable(Class<Entity> entityClass) {
+        executeSql(entityDropSql(entityClass))
+    }
+
+    static dropTables(List<Class<Entity>> entityClassList) {
+        entityClassList.each {
+            executeSql(entityDropSql(it))
+        }
     }
 }

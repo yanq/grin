@@ -3,7 +3,9 @@ package grin.datastore
 import groovy.sql.Sql
 import org.h2.jdbcx.JdbcDataSource
 
+import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.LocalTime
 
 import static grin.datastore.validate.Validators.*
 
@@ -13,27 +15,46 @@ class EntityTest extends GroovyTestCase {
      * 书
      */
     class Book implements Entity<Book> {
-        Long id
+        Integer id
+        Author author
         String title
-        String author = 'Yan'
-        String description = ''
-        double price
+        String description
+        int pageCount
+        long wordCount
+        float weight
+        double weightDouble
+        BigDecimal price
         String forPeople = '青少年'
-        Date publishAt = new Date()
+        Date publishAt
+        List<String> tags
+        Map<String, Object> metaData
+        LocalDate datePublished
+        LocalTime timePublished
         LocalDateTime dateCreated
         LocalDateTime lastUpdated
+        boolean isDeleted
 
         static transients = []
         static constraints = [
-                title      : [grin.datastore.validate.Validators.nullable(), grin.datastore.validate.Validators.blank(),],
-                author     : [minLength(3), maxLength(5, '太长了'), matches('Y.{2}')],
-                description: [grin.datastore.validate.Validators.nullable(false), grin.datastore.validate.Validators.blank(false),],
-                price      : [max(5.5), min(1.0),
-                              validator('就是不通') { String fieldName, Object fieldValue, Entity<?> entity ->
-                                  return false
-                              }],
-                forPeople  : [inList(['儿童', '青少年', '成年人'])]
+                title       : [minLength(3), maxLength(5, '太长了'), matches('Y.{2}')],
+                description : [nullable(), blank(), maxLength(10000)],
+                pageCount   : [min(1)],
+                wordCount   : [min(1),
+                               validator('超过 100 字，太长了') { String fieldName, Object fieldValue, Entity<?> entity ->
+                                   fieldValue < 100
+                               }],
+                weight      : [nullable()],
+                weightDouble: [nullable()],
+                price       : [max(5.5), min(1.0)],
+                forPeople   : [inList(['儿童', '青少年', '成年人'])],
+                tags        : [nullable()],
+                metaData    : [nullable()],
         ]
+    }
+
+    class Author implements Entity<Author> {
+        Long id
+        String name
     }
 
     void testValidator() {
@@ -56,9 +77,9 @@ class EntityTest extends GroovyTestCase {
         // println("Columns")
         // DDL.columnsMetaData().each {println(it)}
 
+        DDL.dropTables([Book, Author])
+        DDL.createTables([Book, Author])
         println(DDL.tables())
-        DDL.executeSql(DDL.entityCreateSql(Book))
-        println(DDL.tables())
-        DDL.executeSql(DDL.entityDropSql(Book))
+        DDL.columnsMetaData().each { println(it) }
     }
 }
