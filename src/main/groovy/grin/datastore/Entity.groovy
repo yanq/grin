@@ -93,7 +93,7 @@ trait Entity<D> {
     }
 
     static EntityImpl.Where<D> where(Map kvs) {
-        where(kvs.keySet().collect { "${EntityImpl.toDbName(it)}=?" }.join(' and '), kvs.values().toList())
+        where(kvs.keySet().collect { "${Utils.toDBStyle(it)}=?" }.join(' and '), kvs.values().toList())
     }
 
     /**
@@ -109,7 +109,7 @@ trait Entity<D> {
      * @return
      */
     static List<String> getProps() {
-        EntityImpl.findPropertiesToPersist(this)
+        Utils.findPropertiesToPersist(this)
     }
 
     /**
@@ -117,7 +117,7 @@ trait Entity<D> {
      * @return
      */
     Map toMap(List<String> excludes) {
-        EntityImpl.toMap(excludes, this)
+        Utils.toMap(excludes, this)
     }
 
     /**

@@ -1,7 +1,7 @@
 package grin.generate
 
 import grin.datastore.Entity
-import grin.datastore.EntityImpl
+import grin.datastore.Utils
 
 /**
  * 产生表单
@@ -10,7 +10,7 @@ class FormGenerator extends Generator {
     static types = [(String.name): 'text', (Long.name): 'number', (Integer.name): 'number', (Date.name): 'datetime']
 
     static String generateForm(Class entityClass) {
-        List<String> props = EntityImpl.findPropertiesToPersist(entityClass) - 'id'
+        List<String> props = Utils.findPropertiesToPersist(entityClass) - 'id'
         Map constraints = entityClass.constraints
 
         List<String> result = []

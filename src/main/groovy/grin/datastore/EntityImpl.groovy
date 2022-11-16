@@ -10,7 +10,6 @@ import groovy.sql.GroovyRowResult
 import groovy.sql.Sql
 import groovy.util.logging.Slf4j
 
-import java.lang.reflect.Modifier
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -39,7 +38,7 @@ class EntityImpl {
         if (id == null) return null
 
         DB.withSql { Sql sql ->
-            String table = findTableName(target)
+            String table = Utils.findTableName(target)
             def tid = Transformer.toType(target, 'id', id) // pg must transform；mysql not need。
             def result = sql.firstRow("select ${selects} from ${table} where id=?", tid)
             def entity = bindResultToEntity(result, target)
@@ -56,7 +55,7 @@ class EntityImpl {
     static list(Class target, Map params, String selects = '*') {
         DB.withSql { Sql sql ->
             List list = []
-            List rows = sql.rows("select ${selects} from ${findTableName(target)} ${dealParams(params)}".toString())
+            List rows = sql.rows("select ${selects} from ${Utils.findTableName(target)} ${dealParams(params)}".toString())
             rows.each { row ->
                 list << bindResultToEntity(row, target)
             }
@@ -70,11 +69,11 @@ class EntityImpl {
      * @return
      */
     static int count(Class target, String selects = '*') {
-        return DB.withSql { Sql sql -> sql.firstRow("select count(${selects}) as num from ${findTableName(target)}".toString()).num }
+        return DB.withSql { Sql sql -> sql.firstRow("select count(${selects}) as num from ${Utils.findTableName(target)}".toString()).num }
     }
 
     static int countDistinct(Class target, String selects = '*') {
-        return DB.withSql { Sql sql -> sql.firstRow("select count(distinct ${selects}) as num from ${findTableName(target)}".toString()).num }
+        return DB.withSql { Sql sql -> sql.firstRow("select count(distinct ${selects}) as num from ${Utils.findTableName(target)}".toString()).num }
     }
 
 
@@ -87,7 +86,7 @@ class EntityImpl {
         DB.withSql { Sql sql ->
             // kvs
             Map columnMap = columnMap(entity.class)
-            List ps = findPropertiesToPersist(entity.class)
+            List ps = Utils.findPropertiesToPersist(entity.class)
             Map kvs = [:]
             ps.each {
                 def propertyValue = entity[it]
@@ -100,15 +99,15 @@ class EntityImpl {
                     kvs << [(columnMap[it]): propertyValue]
                 } else {
                     if (propertyClass.interfaces.contains(Entity)) {
-                        kvs << [(toDbName(it) + '_id'): propertyValue?.id]
+                        kvs << [(Utils.toDBStyle(it) + '_id'): propertyValue?.id]
                     } else {
-                        kvs << [(toDbName(it)): propertyValue]
+                        kvs << [(Utils.toDBStyle(it)): propertyValue]
                     }
                 }
             }
             kvs.remove('id')
 
-            String table = findTableName(entity.class)
+            String table = Utils.findTableName(entity.class)
             if (entity.hasProperty('id') && entity['id']) {
                 // to update
                 def sets = kvs.keySet().collect { "${it} = ?" }.join(',').toString()
@@ -133,7 +132,7 @@ class EntityImpl {
      * @return
      */
     static boolean delete(Object entity) {
-        return DB.withSql { Sql sql -> sql.execute "delete from ${findTableName(entity.class)} where id = ?".toString(), [entity.id] }
+        return DB.withSql { Sql sql -> sql.execute "delete from ${Utils.findTableName(entity.class)} where id = ?".toString(), [entity.id] }
     }
 
     /**
@@ -143,66 +142,33 @@ class EntityImpl {
      */
     static refresh(Object entity) {
         DB.withSql { Sql sql ->
-            def row = sql.firstRow "select * from ${findTableName(entity.class)} where id = ?".toString(), [entity.id]
+            def row = sql.firstRow "select * from ${Utils.findTableName(entity.class)} where id = ?".toString(), [entity.id]
             bindResultToEntityInstance(row, entity)
         }
     }
 
     /**
-     * 获取持久化属性列表
-     * @param target
+     * 验证约束
+     * @param entity
      * @return
      */
-    static List<String> findPropertiesToPersist(Class target) {
-        List fields = target.declaredFields.findAll { !Modifier.isStatic(it.modifiers) && !it.name.contains('$') }*.name
-        fields - excludeProperties - target[TRANSIENTS] ?: []
-    }
+    static boolean validate(Entity entity) {
+        if (!entity.hasProperty('id')) throw new Exception("实体类缺少 id 属性")
+        entity.errors.clear()
+        Utils.findPropertiesToPersist(entity.class).each { String name ->
+            if (name == 'id') return
+            Object value = entity[name]
+            List<Validator> constraints = entity.constraints[name]
+            if (!constraints) constraints = [Validators.nullable(false), Validators.blank(false)]
 
-    /**
-     * 转换成 Map
-     * @return
-     */
-    static Map toMap(List<String> excludes, Object entity) {
-        def list = findPropertiesToPersist(entity.class) - excludes
-        def result = [:]
-        list.each {
-            def value = entity[it]
-            if (value instanceof Entity) {
-                def prefix = it + '.'
-                def subExcludes = excludes.findAll { it.startsWith(prefix) }.collect { it.replaceFirst(prefix, '') }
-                value = value.toMap(subExcludes)
-            }
-            result.put(it, value)
+            if (value == null && constraints.find { it instanceof Nullable && it.value }) return true
+            if (value instanceof String && value.trim() == '' && constraints.find { it instanceof Blank && it.value }) return true
+
+            def v = constraints.find { !it.validate(name, value, entity) }
+            if (v) entity.errors[(name)] = v.message
         }
-        return result
-    }
 
-    /**
-     * 获取表名
-     * @param target
-     * @return
-     */
-    static String findTableName(Class<Entity> target) {
-        target[MAPPING]?.table ?: toDbName(target.simpleName)
-    }
-
-    /**
-     * 获取列名
-     * @param target
-     * @return
-     */
-    static String findColumnName(Class<Entity> target, String propertyName) {
-        target[MAPPING]?.columns?."${propertyName}" ?:
-                "${toDbName(propertyName)}${target.getDeclaredField(propertyName).type.interfaces.contains(Entity) ? '_id' : ''}"
-    }
-
-    /**
-     * 获取列映射
-     * @param target
-     * @return
-     */
-    static Map columnMap(Class<Entity> target) {
-        target[MAPPING]?.columns ?: [:]
+        entity.errors ? false : true
     }
 
     /**
@@ -229,7 +195,7 @@ class EntityImpl {
 
         def clasz = entity.class
         def columnMap = columnMap(clasz)
-        List<String> properties = findPropertiesToPersist(clasz)
+        List<String> properties = Utils.findPropertiesToPersist(clasz)
         properties.each {
             String key = it
             Class propClass = clasz.getDeclaredField(it)?.type
@@ -237,7 +203,7 @@ class EntityImpl {
             if (columnMap.containsKey(key)) {
                 key = columnMap[key]
             } else {
-                key = toDbName(key)
+                key = Utils.toDBStyle(key)
                 if (propClass.interfaces.contains(Entity)) {
                     key = key + "_id"
                 }
@@ -272,74 +238,6 @@ class EntityImpl {
     }
 
     /**
-     * where 查询
-     */
-    static class Where<D> {
-        String whereSql
-        List params
-        Class entityClass
-
-        D get() {
-            List list = list([offset: 0, max: 1])
-            if (list) return list[0]
-            return null
-        }
-
-        List<D> list(Map pageParams = [:], String selects = '*') {
-            preDealParams()
-            return DB.withSql { Sql sql ->
-                List list = []
-                List rows = sql.rows("select ${selects} from ${findTableName(entityClass)} ${whereSql ? 'where ' + whereSql : ''} ${dealParams(pageParams)}".toString(), params)
-                rows.each { row ->
-                    list << bindResultToEntity(row, entityClass)
-                }
-                sql.close()
-                return list
-            }
-        }
-
-        int count(String selects = '*') {
-            preDealParams()
-            DB.withSql { Sql sql -> sql.firstRow("select count(${selects}) as num from ${findTableName(entityClass)} ${whereSql ? 'where ' + whereSql : ''}".toString(), params).num }
-        }
-
-        int countDistinct(String selects = '*') {
-            preDealParams()
-            DB.withSql { Sql sql -> sql.firstRow("select count(distinct ${selects}) as num from ${findTableName(entityClass)} ${whereSql ? 'where ' + whereSql : ''}".toString(), params).num }
-        }
-
-        private preDealParams() {
-            for (int i = 0; i < params.size(); i++) {
-                if (params[i] instanceof Date) params[i] = java.time.LocalDateTime.ofInstant(params[i].toInstant(), ZoneId.systemDefault())
-            }
-        }
-    }
-
-    /**
-     * 验证约束
-     * @param entity
-     * @return
-     */
-    static boolean validate(Entity entity) {
-        if (!entity.hasProperty('id')) throw new Exception("实体类缺少 id 属性")
-        entity.errors.clear()
-        findPropertiesToPersist(entity.class).each { String name ->
-            if (name == 'id') return
-            Object value = entity[name]
-            List<Validator> constraints = entity.constraints[name]
-            if (!constraints) constraints = [Validators.nullable(false), Validators.blank(false)]
-
-            if (value == null && constraints.find { it instanceof Nullable && it.value }) return true
-            if (value instanceof String && value.trim() == '' && constraints.find { it instanceof Blank && it.value }) return true
-
-            def v = constraints.find { !it.validate(name, value, entity) }
-            if (v) entity.errors[(name)] = v.message
-        }
-
-        entity.errors ? false : true
-    }
-
-    /**
      * 绑定参数到实体
      * @param entityClass
      * @param params
@@ -353,12 +251,12 @@ class EntityImpl {
 
     static bind(Object entity, Map params) {
         Class entityClass = entity.class
-        List props = findPropertiesToPersist(entityClass) - 'id'
+        List props = Utils.findPropertiesToPersist(entityClass) - 'id'
         props.each {
             def propClass = entity.class.getDeclaredField(it).type
             def key = it
             if (propClass.interfaces.contains(Entity)) key = key + "Id"
-            def keys = [it, toDbName(it)]
+            def keys = [it, Utils.toDBStyle(it)]
             def value = params.find { it.key in keys }?.value
             if (params.keySet().intersect(keys)) {
                 // 绑定实体和其他是不一样的
@@ -378,21 +276,12 @@ class EntityImpl {
     }
 
     /**
-     * 将属性名称编程数据库风格名称
-     * @param propName
+     * 获取列映射
+     * @param target
      * @return
      */
-    static String toDbName(String propName) {
-        propName = propName.uncapitalize()
-        String result = ''
-        propName.toCharArray().each {
-            if (Character.isUpperCase(it)) {
-                result += '_' + Character.toLowerCase(it)
-            } else {
-                result += it
-            }
-        }
-        return result.toString()
+    static Map columnMap(Class<Entity> target) {
+        target[EntityImpl.MAPPING]?.columns ?: [:]
     }
 
     /**
@@ -404,5 +293,49 @@ class EntityImpl {
     static String dealParams(Map params) {
         if (!params) return ''
         return "${params.order ? 'order by ' + params.order : ''} ${params.limit ? 'limit ' + params.limit : ''} ${(params.limit && params.offset) ? 'offset ' + params.offset : ''}"
+    }
+
+    /**
+     * where 查询
+     */
+    static class Where<D> {
+        String whereSql
+        List params
+        Class entityClass
+
+        D get() {
+            List list = list([offset: 0, max: 1])
+            if (list) return list[0]
+            return null
+        }
+
+        List<D> list(Map pageParams = [:], String selects = '*') {
+            preDealParams()
+            return DB.withSql { Sql sql ->
+                List list = []
+                List rows = sql.rows("select ${selects} from ${Utils.findTableName(entityClass)} ${whereSql ? 'where ' + whereSql : ''} ${dealParams(pageParams)}".toString(), params)
+                rows.each { row ->
+                    list << bindResultToEntity(row, entityClass)
+                }
+                sql.close()
+                return list
+            }
+        }
+
+        int count(String selects = '*') {
+            preDealParams()
+            DB.withSql { Sql sql -> sql.firstRow("select count(${selects}) as num from ${Utils.findTableName(entityClass)} ${whereSql ? 'where ' + whereSql : ''}".toString(), params).num }
+        }
+
+        int countDistinct(String selects = '*') {
+            preDealParams()
+            DB.withSql { Sql sql -> sql.firstRow("select count(distinct ${selects}) as num from ${Utils.findTableName(entityClass)} ${whereSql ? 'where ' + whereSql : ''}".toString(), params).num }
+        }
+
+        private preDealParams() {
+            for (int i = 0; i < params.size(); i++) {
+                if (params[i] instanceof Date) params[i] = java.time.LocalDateTime.ofInstant(params[i].toInstant(), ZoneId.systemDefault())
+            }
+        }
     }
 }

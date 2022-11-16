@@ -78,7 +78,7 @@ class EntityTest extends GroovyTestCase {
         // println("Columns")
         // DDL.columnsMetaData().each {println(it)}
 
-        // DDL.dropTables([Book, Author])
+        DDL.dropTables([Book, Author])
         // DDL.createTables([Book, Author])
         DDL.updateTables([Book, Author])
         DDL.tablesStatus().each { println(it) }

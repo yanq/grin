@@ -1,7 +1,6 @@
 package grin.datastore
 
 
-import groovy.sql.Sql
 import groovy.util.logging.Slf4j
 
 import java.sql.Connection
@@ -100,13 +99,12 @@ class DDL {
      * @return
      */
     static String entityCreateSql(Class<Entity> entityClass) {
-        def fields = EntityImpl.findPropertiesToPersist(entityClass)
-        def tableName = EntityImpl.findTableName(entityClass)
-        def columnMap = EntityImpl.columnMap(entityClass)
+        def fields = Utils.findPropertiesToPersist(entityClass)
+        def tableName = Utils.findTableName(entityClass)
 
         return """
 create table ${tableName}(
-${fields.collect { "        ${columnSql(entityClass, it, columnMap[it])}" }.join(',\n')}
+${fields.collect { "        ${columnSql(entityClass, it, Utils.findColumnName(entityClass,it))}" }.join(',\n')}
 )
 """
     }
@@ -167,7 +165,6 @@ ${fields.collect { "        ${columnSql(entityClass, it, columnMap[it])}" }.join
         } else if (cls in [List, Map]) {
             type = 'varchar'
         } else if (cls.interfaces.contains(Entity)) {
-            columnName = columnName ?: "${EntityImpl.toDbName(propertyName)}_id"
             def c = cls.getDeclaredField('id').type
             if (c in [int, Integer]) {
                 type = 'integer'
@@ -183,7 +180,7 @@ ${fields.collect { "        ${columnSql(entityClass, it, columnMap[it])}" }.join
         }
 
 
-        return "${columnName ?: EntityImpl.toDbName(propertyName)} ${type} ${constraint}"
+        return "${columnName} ${type} ${constraint}"
     }
 
     /**
@@ -192,19 +189,7 @@ ${fields.collect { "        ${columnSql(entityClass, it, columnMap[it])}" }.join
      * @return
      */
     static String entityDropSql(Class<Entity> entityClass) {
-        return "drop table if exists ${EntityImpl.findTableName(entityClass)} cascade"
-    }
-
-    /**
-     * 执行 sql
-     * @param sqlString
-     */
-    static void executeSql(String sqlString) {
-        println("执行：\n${sqlString}")
-        def start = System.currentTimeMillis()
-        Sql sql = DB.sql
-        def r = sql.execute(sqlString)
-        println("完成，${r ? '' : "影响了 ${sql.updateCount} 行，"}耗时 ${(System.currentTimeMillis() - start) / 1000000}ms")
+        return "drop table if exists ${Utils.findTableName(entityClass)} cascade"
     }
 
     /**
@@ -215,11 +200,11 @@ ${fields.collect { "        ${columnSql(entityClass, it, columnMap[it])}" }.join
     static checkForeignKey(List<Class<Entity>> entityClassList) {
         entityClassList.each {
             def entity = it
-            EntityImpl.findPropertiesToPersist(entity).each {
+            Utils.findPropertiesToPersist(entity).each {
                 def propertyType = entity.getDeclaredField(it).type
                 if (propertyType.interfaces.contains(Entity)) {
-                    executeSql("alter table ${EntityImpl.findTableName(entity)} add foreign key (${EntityImpl.findColumnName(entity, it)}) " +
-                            "references ${EntityImpl.findTableName(propertyType)}")
+                    Utils.executeSql("alter table ${Utils.findTableName(entity)} add foreign key (${Utils.findColumnName(entity, it)}) " +
+                            "references ${Utils.findTableName(propertyType)}")
                 }
             }
         }
@@ -230,23 +215,23 @@ ${fields.collect { "        ${columnSql(entityClass, it, columnMap[it])}" }.join
      * @param entityClass
      */
     static createTable(Class<Entity> entityClass) {
-        executeSql(entityCreateSql(entityClass))
+        Utils.executeSql(entityCreateSql(entityClass))
     }
 
     static createTables(List<Class<Entity>> entityClassList) {
         entityClassList.each {
-            executeSql(entityCreateSql(it))
+            Utils.executeSql(entityCreateSql(it))
         }
         checkForeignKey(entityClassList)
     }
 
     static dropTable(Class<Entity> entityClass) {
-        executeSql(entityDropSql(entityClass))
+        Utils.executeSql(entityDropSql(entityClass))
     }
 
     static dropTables(List<Class<Entity>> entityClassList) {
         entityClassList.each {
-            executeSql(entityDropSql(it))
+            Utils.executeSql(entityDropSql(it))
         }
     }
 
@@ -257,17 +242,17 @@ ${fields.collect { "        ${columnSql(entityClass, it, columnMap[it])}" }.join
      * @return
      */
     static updateTable(Class<Entity> entity, Map<String, List<String>> tables = []) {
-        def tableName = EntityImpl.findTableName(entity)
+        def tableName = Utils.findTableName(entity)
         log.info("update table ${tableName}")
         if (tables.containsKey(tableName.toUpperCase())) {
             def columnsNow = tables[tableName.toUpperCase()].collect { it.toLowerCase() }
-            def properties = EntityImpl.findPropertiesToPersist(entity)
-            def columnsWill = properties.collect { EntityImpl.findColumnName(entity, it) }
+            def properties = Utils.findPropertiesToPersist(entity)
+            def columnsWill = properties.collect { Utils.findColumnName(entity, it) }
             if (columnsNow - columnsWill) log.warn("多余的列 ${columnsNow - columnsWill}")
             properties.each {
-                def columnName = EntityImpl.findColumnName(entity, it)
+                def columnName = Utils.findColumnName(entity, it)
                 if (!(columnName in columnsNow)) {
-                    executeSql("alter table ${tableName} add column ${columnSql(entity, it, columnName)}")
+                    Utils.executeSql("alter table ${tableName} add column ${columnSql(entity, it, columnName)}")
                 }
             }
         } else {
@@ -278,7 +263,7 @@ ${fields.collect { "        ${columnSql(entityClass, it, columnMap[it])}" }.join
     static updateTables(List<Class<Entity>> entityClassList) {
         def tablesMeta = tablesStatus()
         def tablesNow = tablesMeta.keySet().collect { it.toLowerCase() }
-        def tablesWill = entityClassList.collect { EntityImpl.findTableName(it) }
+        def tablesWill = entityClassList.collect { Utils.findTableName(it) }
         if (tablesNow - tablesWill) log.warn("多余的表 ${tablesNow - tablesWill}")
         entityClassList.each { updateTable(it, tablesMeta) }
         checkForeignKey(entityClassList)
