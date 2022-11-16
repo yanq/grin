@@ -158,11 +158,19 @@ class EntityImpl {
         Utils.findPropertiesToPersist(entity.class).each { String name ->
             if (name == 'id') return
             Object value = entity[name]
-            List<Validator> constraints = entity.constraints[name]
-            if (!constraints) constraints = [Validators.nullable(false), Validators.blank(false)]
+            List<Validator> constraints = entity.constraints[name] ?: []
 
-            if (value == null && constraints.find { it instanceof Nullable && it.value }) return true
-            if (value instanceof String && value.trim() == '' && constraints.find { it instanceof Blank && it.value }) return true
+            if (value == null) {
+                Validator nullable = constraints.find { it instanceof Nullable } ?: Validators.nullable(false)
+                if (!nullable.value) entity.errors[(name)] = nullable.message
+                return
+            }
+
+            if (value instanceof String && value.trim() == '') {
+                Blank blank = constraints.find { it instanceof Blank } ?: Validators.blank(false)
+                if (!blank.value) entity.errors[(name)] = blank.message
+                return
+            }
 
             def v = constraints.find { !it.validate(name, value, entity) }
             if (v) entity.errors[(name)] = v.message
