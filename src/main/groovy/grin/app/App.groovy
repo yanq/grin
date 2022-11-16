@@ -6,6 +6,7 @@ import com.alibaba.druid.filter.stat.StatFilter
 import com.alibaba.druid.pool.DruidDataSource
 import com.alibaba.druid.sql.SQLUtils
 import grin.datastore.DB
+import grin.datastore.DDL
 import grin.web.Controller
 import grin.web.WebUtils
 import grin.web.Interceptor
@@ -88,6 +89,8 @@ class App {
         config = loadConfig()
         // 初始化数据库，控制器，错误处理
         DB.dataSource = getDataSource()
+        if (config.dbCreate=='create-drop') DDL.dropAndCreateTables(WebUtils.loadEntities(domainsDir))
+        if (config.dbCreate=='update') DDL.updateTables(WebUtils.loadEntities(domainsDir))
         if (config.dbSql) DB.executeSqlFile(new File(scriptDir, config.dbSql as String))
         // web 组件
         routes = WebUtils.loadRoutes(config.urlMapping)

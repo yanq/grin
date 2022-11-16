@@ -71,7 +71,7 @@ class EntityTest extends GroovyTestCase {
     }
 
     void testDDL() {
-        DB.dataSource = new JdbcDataSource(url: "jdbc:h2:~/h2db/test;MODE=PostgreSQL", user: 'sa', password: '')
+        DB.dataSource = new JdbcDataSource(url: "jdbc:h2:~/h2db/grin-test;MODE=PostgreSQL", user: 'sa', password: '')
 
         // println("Tables")
         // DDL.tablesMetaData().each { println(it) }

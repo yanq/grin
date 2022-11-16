@@ -235,6 +235,11 @@ ${fields.collect { "        ${columnSql(entityClass, it, Utils.findColumnName(en
         }
     }
 
+    static dropAndCreateTables(List<Class<Entity>> entityClassList){
+        dropTables(entityClassList)
+        createTables(entityClassList)
+    }
+
     /**
      * 更新表
      * 缺少的表或者列，补齐，并不删除内容，只提醒。

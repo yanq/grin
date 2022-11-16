@@ -1,5 +1,6 @@
 package grin.web
 
+import grin.datastore.Entity
 import groovy.util.logging.Slf4j
 
 import java.lang.reflect.Method
@@ -11,6 +12,20 @@ import java.lang.reflect.Modifier
  */
 @Slf4j
 class WebUtils {
+    /**
+     * 实体类列表
+     * @param dir
+     */
+    static List<Class<Entity>> loadEntities(File dir) {
+        List<Class> list = []
+        if (dir.exists())
+            dir.eachFileRecurse {
+                String className = fileToClassName(it, dir, '.groovy')
+                if (className) list.add(Class.forName(className))
+            }
+        return list
+    }
+
     /**
      * 加载所有的控制器
      * @param dir
