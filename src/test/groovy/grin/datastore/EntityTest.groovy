@@ -1,6 +1,6 @@
 package grin.datastore
 
-import groovy.sql.Sql
+
 import org.h2.jdbcx.JdbcDataSource
 
 import java.time.LocalDate
@@ -55,7 +55,7 @@ class EntityTest extends GroovyTestCase {
     class Author implements Entity<Author> {
         Long id
         String name
-        String description
+        // String description
     }
 
     void testValidator() {
@@ -81,7 +81,6 @@ class EntityTest extends GroovyTestCase {
         // DDL.dropTables([Book, Author])
         // DDL.createTables([Book, Author])
         DDL.updateTables([Book, Author])
-        DDL.tables().each { println(it) }
-        // DDL.columnsMetaData().each { println(it) }
+        DDL.tablesStatus().each { println(it) }
     }
 }

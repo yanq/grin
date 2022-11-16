@@ -1,6 +1,6 @@
 package grin.datastore
 
-import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlUpdateTableSource
+
 import groovy.sql.Sql
 import groovy.util.logging.Slf4j
 
@@ -72,7 +72,7 @@ class DDL {
      * 表信息，主要是表及其列名
      * @return
      */
-    static Map<String, List<String>> tables() {
+    static Map<String, List<String>> tablesStatus() {
         Connection connection = DB.dataSource.connection
         def resultSet = connection.metaData.getColumns(connection.catalog, connection.schema, null, null)
         def metaData = resultSet.metaData
@@ -256,25 +256,31 @@ ${fields.collect { "        ${columnSql(entityClass, it, columnMap[it])}" }.join
      * @param entityClassList
      * @return
      */
+    static updateTable(Class<Entity> entity, Map<String, List<String>> tables = []) {
+        def tableName = EntityImpl.findTableName(entity)
+        log.info("update table ${tableName}")
+        if (tables.containsKey(tableName.toUpperCase())) {
+            def columnsNow = tables[tableName.toUpperCase()].collect { it.toLowerCase() }
+            def properties = EntityImpl.findPropertiesToPersist(entity)
+            def columnsWill = properties.collect { EntityImpl.findColumnName(entity, it) }
+            if (columnsNow - columnsWill) log.warn("多余的列 ${columnsNow - columnsWill}")
+            properties.each {
+                def columnName = EntityImpl.findColumnName(entity, it)
+                if (!(columnName in columnsNow)) {
+                    executeSql("alter table ${tableName} add column ${columnSql(entity, it, columnName)}")
+                }
+            }
+        } else {
+            createTable(entity)
+        }
+    }
+
     static updateTables(List<Class<Entity>> entityClassList) {
-        def tablesMeta = tables()
+        def tablesMeta = tablesStatus()
         def tablesNow = tablesMeta.keySet().collect { it.toLowerCase() }
         def tablesWill = entityClassList.collect { EntityImpl.findTableName(it) }
         if (tablesNow - tablesWill) log.warn("多余的表 ${tablesNow - tablesWill}")
-        entityClassList.each {
-            def entity = it
-            def tableName = EntityImpl.findTableName(entity)
-            if (tableName in tablesNow) {
-                def columnsNow = tablesMeta[tableName.toUpperCase()].collect { it.toLowerCase() }
-                def columnsWill = EntityImpl.findPropertiesToPersist(entity).collect { EntityImpl.findColumnName(entity, it) }
-                if (columnsNow - columnsWill) log.warn("多余的列 ${columnsNow - columnsWill}")
-                (columnsWill - columnsNow).each {
-                    executeSql("alter table ${tableName} add column ${columnSql(entity, it, EntityImpl.findColumnName(entity, it))}")
-                }
-            } else {
-                createTable(it)
-            }
-        }
+        entityClassList.each { updateTable(it, tablesMeta) }
         checkForeignKey(entityClassList)
     }
 }

@@ -182,7 +182,7 @@ class EntityImpl {
      * @param target
      * @return
      */
-    static String findTableName(Class target) {
+    static String findTableName(Class<Entity> target) {
         target[MAPPING]?.table ?: toDbName(target.simpleName)
     }
 
@@ -191,7 +191,7 @@ class EntityImpl {
      * @param target
      * @return
      */
-    static String findColumnName(Class target, String propertyName) {
+    static String findColumnName(Class<Entity> target, String propertyName) {
         target[MAPPING]?.columns?."${propertyName}" ?:
                 "${toDbName(propertyName)}${target.getDeclaredField(propertyName).type.interfaces.contains(Entity) ? '_id' : ''}"
     }
@@ -201,7 +201,7 @@ class EntityImpl {
      * @param target
      * @return
      */
-    static Map columnMap(Class target) {
+    static Map columnMap(Class<Entity> target) {
         target[MAPPING]?.columns ?: [:]
     }
 
