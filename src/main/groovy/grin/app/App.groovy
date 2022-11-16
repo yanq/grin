@@ -91,7 +91,8 @@ class App {
         DB.dataSource = getDataSource()
         if (config.dbCreate=='create-drop') DDL.dropAndCreateTables(WebUtils.loadEntities(domainsDir))
         if (config.dbCreate=='update') DDL.updateTables(WebUtils.loadEntities(domainsDir))
-        if (config.dbSql) DB.executeSqlFile(new File(scriptDir, config.dbSql as String))
+        if (config.dbSql) DDL.executeSqlFile(new File(scriptDir, config.dbSql as String))
+        log.info("Tables：${DDL.tablesStatus().keySet()}")
         // web 组件
         routes = WebUtils.loadRoutes(config.urlMapping)
         controllers = WebUtils.loadControllers(controllersDir)

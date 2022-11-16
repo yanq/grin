@@ -1,6 +1,6 @@
 package grin.datastore
 
-
+import groovy.sql.Sql
 import groovy.util.logging.Slf4j
 
 import java.sql.Connection
@@ -104,7 +104,7 @@ class DDL {
 
         return """
 create table ${tableName}(
-${fields.collect { "        ${columnSql(entityClass, it, Utils.findColumnName(entityClass,it))}" }.join(',\n')}
+${fields.collect { "        ${columnSql(entityClass, it, Utils.findColumnName(entityClass, it))}" }.join(',\n')}
 )
 """
     }
@@ -235,7 +235,7 @@ ${fields.collect { "        ${columnSql(entityClass, it, Utils.findColumnName(en
         }
     }
 
-    static dropAndCreateTables(List<Class<Entity>> entityClassList){
+    static dropAndCreateTables(List<Class<Entity>> entityClassList) {
         dropTables(entityClassList)
         createTables(entityClassList)
     }
@@ -272,5 +272,20 @@ ${fields.collect { "        ${columnSql(entityClass, it, Utils.findColumnName(en
         if (tablesNow - tablesWill) log.warn("多余的表 ${tablesNow - tablesWill}")
         entityClassList.each { updateTable(it, tablesMeta) }
         checkForeignKey(entityClassList)
+    }
+
+    /**
+     * 执行 sql 文件
+     * 有些 entity 处理不了的问题，需要用一些 sql 来解决。可通过配置，启动时自动执行一下。
+     * @param sqlFile
+     */
+    static void executeSqlFile(File sqlFile) {
+        log.info("exec sql file ${sqlFile.name}")
+        String s = sqlFile.text.trim()
+        if (s) {
+            s.split(';').each {
+                Utils.executeSql(it)
+            }
+        }
     }
 }

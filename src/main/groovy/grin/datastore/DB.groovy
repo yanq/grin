@@ -39,14 +39,4 @@ class DB {
     static class SQL {
         Sql sql
     }
-
-    /**
-     * 执行 sql 文件
-     * 创建及修改表，不会返回任何有用的结果，都是 false 0。
-     * @param sql
-     */
-    static void executeSqlFile(File sql) {
-        log.info("exec sql file ${sql.name}")
-        getSql().execute(sql.text)
-    }
 }
