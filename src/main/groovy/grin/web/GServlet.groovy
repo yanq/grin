@@ -19,7 +19,7 @@ class GServlet extends GenericServlet {
     void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {
         long startAt = System.nanoTime()
 
-        //设置默认编码
+        // 设置默认编码
         req.setCharacterEncoding('utf-8')
         res.setCharacterEncoding('utf-8')
         res.setContentType('text/html;charset=UTF-8')
@@ -50,7 +50,7 @@ class GServlet extends GenericServlet {
                 if (app.isDev()) {
                     if (app.controllers.get(controllerName)) {
                         controller = (Controller) app.scriptEngine.loadScriptByName(app.controllers.get(controllerName).replaceAll('\\.', '/') + ".groovy").newInstance()
-                        method = controller.class.getDeclaredMethod(actionName)
+                        method = controller.class.getDeclaredMethods().find { it.name == actionName }
                     }
                 } else {
                     method = app.actions.get("${controllerName}-${actionName}")
