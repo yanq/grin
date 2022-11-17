@@ -121,13 +121,11 @@ class Controller {
         if (pathParams) params.putAll(pathParams)
         for (Enumeration names = request.getParameterNames(); names.hasMoreElements();) {
             String name = (String) names.nextElement();
-            if (!params.containsKey(name)) {
-                String[] values = request.getParameterValues(name);
-                if (values.length == 1) {
-                    params.put(name, values[0]);
-                } else {
-                    params.put(name, values);
-                }
+            String[] values = request.getParameterValues(name);
+            if (values.length == 1) {
+                params.put(name, values[0]);
+            } else {
+                params.put(name, values);
             }
         }
 
