@@ -12,6 +12,7 @@ import groovy.util.logging.Slf4j
 
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.LocalTime
 import java.time.ZoneId
 
 /**
@@ -222,6 +223,9 @@ class EntityImpl {
                     case LocalDate:
                         entity[(it)] = result[key].toLocalDate()
                         break
+                    case LocalTime:
+                        entity[(it)] = result[key].toLocalTime()
+                        break
                     case LocalDateTime:
                         entity[(it)] = result[key].toLocalDateTime()
                         break
@@ -264,7 +268,7 @@ class EntityImpl {
             def propClass = entity.class.getDeclaredField(it).type
             def key = it
             if (propClass.interfaces.contains(Entity)) key = key + "Id"
-            def keys = [it, Utils.toDBStyle(it)]
+            def keys = [key, Utils.toDBStyle(key)]
             def value = params.find { it.key in keys }?.value
             try {
                 if (params.keySet().intersect(keys)) {
@@ -272,7 +276,7 @@ class EntityImpl {
                     if (propClass.interfaces.contains(Entity)) {
                         if (value) {
                             entity[(it)] = propClass.newInstance()
-                            entity[(it)]['id'] = Transformer.toType(propClass, 'id', params[k])
+                            entity[(it)]['id'] = Transformer.toType(propClass, 'id', value)
                         } else {
                             entity[(it)] = null
                         }
