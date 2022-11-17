@@ -66,7 +66,7 @@ class GServlet extends GenericServlet {
                     log.warn("页面不存在 ${clearedURI}(${controllerName}.${actionName})")
                     Controller instance = getErrorController()
                     instance.init(request, response, controllerName, actionName, pathParams)
-                    instance.notFound()
+                    instance.notFound("请求的地址不存在 ${clearedURI}")
                 }
             } catch (Exception e) {
                 e.printStackTrace()

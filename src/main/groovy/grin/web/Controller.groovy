@@ -22,23 +22,23 @@ import javax.servlet.http.HttpSession
  */
 @Slf4j
 class Controller {
-    static int ONE_DAY = 24 * 60 * 60 //second
-    static TemplateEngine templateEngine //静态全局变量，thymeleaf 模板引擎
-    //servlet
+    static int ONE_DAY = 24 * 60 * 60 // second
+    static TemplateEngine templateEngine // 静态全局变量，thymeleaf 模板引擎
+    // servlet
     HttpServletRequest request
     HttpServletResponse response
     Map<String, Object> pathParams
     Params params
     Map<String, String> headers
-    //app
+    // app
     App app = App.instance
     @Lazy
     GExpression g = new GExpression()
-    //html json
+    // html json
     MarkupBuilder html
     StreamingJsonBuilder json
 
-    //控制器三大要素
+    // 控制器三大要素
     String controllerName
     String actionName
 
@@ -255,13 +255,13 @@ class Controller {
     /**
      * 不存在页面
      */
-    void notFound() {
+    void notFound(String message = "请求的内容不存在") {
         response.status = 404
 
         if (app.config.views.notFound) {
-            render(app.config.views.notFound, [:])
+            render(app.config.views.notFound, [message: message])
         } else {
-            response.writer.write("No page found for ${request.requestURI}")
+            response.writer.write(message)
         }
     }
 
