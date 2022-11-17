@@ -257,7 +257,7 @@ class EntityImpl {
         return entity
     }
 
-    static bind(Object entity, Map params) {
+    static bind(Entity entity, Map params) {
         Class entityClass = entity.class
         List props = Utils.findPropertiesToPersist(entityClass) - 'id'
         props.each {
@@ -266,18 +266,24 @@ class EntityImpl {
             if (propClass.interfaces.contains(Entity)) key = key + "Id"
             def keys = [it, Utils.toDBStyle(it)]
             def value = params.find { it.key in keys }?.value
-            if (params.keySet().intersect(keys)) {
-                // 绑定实体和其他是不一样的
-                if (propClass.interfaces.contains(Entity)) {
-                    if (value) {
-                        entity[(it)] = propClass.newInstance()
-                        entity[(it)]['id'] = Transformer.toType(propClass, 'id', params[k])
+            try {
+                if (params.keySet().intersect(keys)) {
+                    // 绑定实体和其他是不一样的
+                    if (propClass.interfaces.contains(Entity)) {
+                        if (value) {
+                            entity[(it)] = propClass.newInstance()
+                            entity[(it)]['id'] = Transformer.toType(propClass, 'id', params[k])
+                        } else {
+                            entity[(it)] = null
+                        }
                     } else {
-                        entity[(it)] = null
+                        entity[it] = Transformer.toType(entityClass, it, value)
                     }
-                } else {
-                    entity[it] = Transformer.toType(entityClass, it, value)
                 }
+            } catch (Exception exception) {
+                entity.errors[it] = "数据格式错误，无法正确转换为适当类型"
+                log.warn("转换数据错误(${it},${value})，${exception.getMessage()}")
+                // exception.printStackTrace()
             }
         }
         return entity

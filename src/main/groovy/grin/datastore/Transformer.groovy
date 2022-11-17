@@ -7,6 +7,7 @@ import java.sql.Timestamp
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
 /**
@@ -78,6 +79,8 @@ class Transformer {
                 return toDate(propValue, formats)
             case LocalDate:
                 return toLoaclDate(propValue, formats)
+            case LocalTime:
+                return LocalTime.parse(propValue)
             case LocalDateTime:
                 return toLocalDateTime(propValue, formats)
             case List:
@@ -85,7 +88,7 @@ class Transformer {
             case Map:
                 return (propValue instanceof Map) ? propValue : new JsonSlurper().parseText(propValue.toString() ?: '{}')
         }
-        //如果不是上述情况，返回原值
+        // 如果不是上述情况，返回原值
         return propValue
     }
 
@@ -104,7 +107,7 @@ class Transformer {
         Date date = null
         for (int i = 0; i < list.size(); i++) {
             try {
-                //这里有个诡异的问题。如果没有 locale，脚本测试都可以，但 web 下就不行了。web 下会默认当前的 locale，如含中文，常规格式解析不了了
+                // 这里有个诡异的问题。如果没有 locale，脚本测试都可以，但 web 下就不行了。web 下会默认当前的 locale，如含中文，常规格式解析不了了
                 date = new SimpleDateFormat(list[i], Locale.ENGLISH).parse(propValue)
             } catch (Exception e) {
                 log.debug("Exception :${e.getMessage()}，format：${list[i]}")

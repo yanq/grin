@@ -101,6 +101,7 @@ trait Entity<D> {
      * @return
      */
     boolean validate() {
+        if(errors) return false //已经有错误了，可能来自数据绑定时的类型转换错误
         EntityImpl.validate(this)
     }
 
