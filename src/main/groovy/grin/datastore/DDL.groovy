@@ -1,6 +1,6 @@
 package grin.datastore
 
-import groovy.sql.Sql
+
 import groovy.util.logging.Slf4j
 
 import java.sql.Connection
@@ -71,21 +71,14 @@ class DDL {
      * 表信息，主要是表及其列名
      * @return
      */
-    static Map<String, List<String>> tablesStatus() {
+    static Map<String, List<String>> tableColumns() {
         Connection connection = DB.dataSource.connection
         def resultSet = connection.metaData.getColumns(connection.catalog, connection.schema, null, null)
-        def metaData = resultSet.metaData
-        def columnNames = []
         def result = [:]
 
-        metaData.columnCount.times {
-            def index = it + 1
-            columnNames << metaData.getColumnName(index)
-        }
-
         while (resultSet.next()) {
-            def tableName = resultSet.getString('TABLE_NAME')
-            def columnName = resultSet.getString('COLUMN_NAME')
+            def tableName = resultSet.getString('TABLE_NAME').toLowerCase()
+            def columnName = resultSet.getString('COLUMN_NAME').toLowerCase()
             if (!result[tableName]) result[tableName] = []
             result[tableName] << columnName
         }
@@ -249,8 +242,8 @@ ${fields.collect { "        ${columnSql(entityClass, it, Utils.findColumnName(en
     static updateTable(Class<Entity> entity, Map<String, List<String>> tables = []) {
         def tableName = Utils.findTableName(entity)
         log.info("update table ${tableName}")
-        if (tables.containsKey(tableName.toUpperCase())) {
-            def columnsNow = tables[tableName.toUpperCase()].collect { it.toLowerCase() }
+        if (tables.containsKey(tableName)) {
+            def columnsNow = tables[tableName]
             def properties = Utils.findPropertiesToPersist(entity)
             def columnsWill = properties.collect { Utils.findColumnName(entity, it) }
             if (columnsNow - columnsWill) log.warn("多余的列 ${columnsNow - columnsWill}")
@@ -266,8 +259,8 @@ ${fields.collect { "        ${columnSql(entityClass, it, Utils.findColumnName(en
     }
 
     static updateTables(List<Class<Entity>> entityClassList) {
-        def tablesMeta = tablesStatus()
-        def tablesNow = tablesMeta.keySet().collect { it.toLowerCase() }
+        def tablesMeta = tableColumns()
+        def tablesNow = tablesMeta.keySet()
         def tablesWill = entityClassList.collect { Utils.findTableName(it) }
         if (tablesNow - tablesWill) log.warn("多余的表 ${tablesNow - tablesWill}")
         entityClassList.each { updateTable(it, tablesMeta) }
