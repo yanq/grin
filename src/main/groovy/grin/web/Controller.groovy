@@ -7,6 +7,7 @@ import groovy.util.logging.Slf4j
 import groovy.xml.MarkupBuilder
 import org.thymeleaf.TemplateEngine
 import org.thymeleaf.context.Context
+import org.thymeleaf.context.WebContext
 import org.thymeleaf.templateresolver.FileTemplateResolver
 
 import javax.servlet.RequestDispatcher
@@ -176,9 +177,12 @@ class Controller {
      * @param model
      */
     void render(String view, Map model) {
-        Context ctx = new Context()
-        model.putAll(toMap())
-        ctx.setVariables(model)
+        WebContext ctx = new WebContext(request, response, context, request.getLocale())
+        Map map = [app    : app, controllerName: controllerName, actionName: actionName,
+                   context: context, request: request, response: response, session: session,
+                   flash  : flash, params: params, headers: headers, g: g]
+        map.putAll(model)
+        ctx.setVariables(map)
         String path = view.startsWith('/') ? view : "/${controllerName}/${view}"
         templateEngine().process(path, ctx, response.getWriter())
     }
@@ -294,16 +298,5 @@ class Controller {
         resolver.setCacheable(!app.isDev())
         templateEngine.setTemplateResolver(resolver)
         return templateEngine
-    }
-
-    /**
-     * 转成 Map ，方便其他地方注入使用，如注入到模板绑定中
-     * @return
-     */
-    Map toMap() {
-        return [app           : app,
-                context       : context, request: request, response: response, session: session,
-                flash         : flash, params: params, headers: headers, g: g,
-                controllerName: controllerName, actionName: actionName,]
     }
 }
