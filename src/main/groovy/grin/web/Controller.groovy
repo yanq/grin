@@ -30,11 +30,8 @@ class Controller {
     HttpServletResponse response
     Map<String, Object> pathParams
     Params params
-    Map<String, String> headers
     // app
     App app = App.instance
-    @Lazy
-    GExpression g = new GExpression()
     // html json
     MarkupBuilder html
     StreamingJsonBuilder json
@@ -52,7 +49,6 @@ class Controller {
         this.controllerName = controllerName
         this.actionName = actionName
         this.pathParams = pathParams
-        this.g.request = request
     }
 
     /**
@@ -92,23 +88,6 @@ class Controller {
      */
     ServletContext getContext() {
         request.getServletContext()
-    }
-
-    /**
-     * headers 延时加载
-     * @return
-     */
-    Map<String, String> getHeaders() {
-        if (headers) return headers
-
-        headers = new LinkedHashMap<String, String>();
-        for (Enumeration names = request.getHeaderNames(); names.hasMoreElements();) {
-            String headerName = (String) names.nextElement();
-            String headerValue = request.getHeader(headerName);
-            headers.put(headerName, headerValue);
-        }
-
-        return headers
     }
 
     /**
@@ -179,8 +158,7 @@ class Controller {
     void render(String view, Map model) {
         WebContext ctx = new WebContext(request, response, context, request.getLocale())
         Map map = [app    : app, controllerName: controllerName, actionName: actionName,
-                   context: context, request: request, response: response, session: session,
-                   flash  : flash, params: params, headers: headers, g: g]
+                   context: context, request: request, response: response, session: session, flash: flash, params: params]
         map.putAll(model)
         ctx.setVariables(map)
         String path = view.startsWith('/') ? view : "/${controllerName}/${view}"

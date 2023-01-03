@@ -52,7 +52,7 @@ class App {
 
     Class<Controller> errorControllerClass = Controller
 
-    File projectDir, appDir, domainsDir, controllersDir, websocketsDir, viewsDir, configDir, initDir, assetDir, assetBuildDir, staticDir, scriptDir
+    File projectDir, appDir, domainsDir, controllersDir, websocketsDir, viewsDir, configDir, initDir, assetDir, staticDir, scriptDir
     List<File> allDirs
 
     // web 组件
@@ -79,7 +79,6 @@ class App {
         configDir = new File(appDir, APP_CONFIG)
         initDir = new File(appDir, APP_INIT)
         assetDir = new File(appDir, APP_ASSETS)
-        assetBuildDir = new File(projectDir, 'build/assets')
         staticDir = new File(appDir, APP_STATIC)
         scriptDir = new File(appDir, APP_SCRIPTS)
         allDirs = [appDir, domainsDir, controllersDir, websocketsDir, viewsDir, configDir, initDir, assetDir, staticDir, scriptDir]
@@ -89,8 +88,8 @@ class App {
         config = loadConfig()
         // 初始化数据库，控制器，错误处理
         DB.dataSource = getDataSource()
-        if (config.dbCreate=='create-drop') DDL.dropAndCreateTables(WebUtils.loadEntities(domainsDir))
-        if (config.dbCreate=='update') DDL.updateTables(WebUtils.loadEntities(domainsDir))
+        if (config.dbCreate == 'create-drop') DDL.dropAndCreateTables(WebUtils.loadEntities(domainsDir))
+        if (config.dbCreate == 'update') DDL.updateTables(WebUtils.loadEntities(domainsDir))
         if (config.dbSql) DDL.executeSqlFile(new File(scriptDir, config.dbSql as String))
         log.info("Tables：${DDL.tableColumns().keySet()}")
         // web 组件
