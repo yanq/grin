@@ -29,7 +29,7 @@ class GServlet extends GenericServlet {
 
         // 路由
         String controllerName, actionName
-        String clearedURI = toURI(request.requestURI, request.getContextPath())
+        String clearedURI = clearURI(request.requestURI, request.getContextPath())
         Route route = app.routes.find { it.matches(clearedURI) }
         if (!route) {
             log.warn("找不到匹配的路由：${clearedURI}")
@@ -78,21 +78,8 @@ class GServlet extends GenericServlet {
      * @param context
      * @return
      */
-    static String toURI(String requestURI, String context = '') {
+    static String clearURI(String requestURI, String context = '') {
         if (context.size() > 1 && requestURI.startsWith(context)) requestURI = requestURI.substring(context.size())
-        return clearRequestURI(requestURI) ?: '/'
-    }
-
-    /**
-     * 整理URI后面的内容
-     * @param requestURI
-     * @return
-     */
-    static String clearRequestURI(String requestURI) {
-        if (requestURI.indexOf(';') > 0) return requestURI.substring(0, requestURI.indexOf(';'))
-        if (requestURI.indexOf('#') > 0) return requestURI.substring(0, requestURI.indexOf('#'))
-        if (requestURI.indexOf('?') > 0) return requestURI.substring(0, requestURI.indexOf('?'))
-        if (requestURI.endsWith('/')) return requestURI.substring(0, requestURI.length() - 1)
         return requestURI
     }
 }
