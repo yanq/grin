@@ -173,7 +173,7 @@ class Controller {
      * json builder
      * @return
      */
-    StreamingJsonBuilder getJson() {
+    private StreamingJsonBuilder getJson() {
         if (json) return json
         json = app.getJson(response)
         return json
