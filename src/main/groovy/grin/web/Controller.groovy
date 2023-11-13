@@ -75,14 +75,6 @@ class Controller {
     }
 
     /**
-     * flash
-     * @return
-     */
-    FlashScope.Flash getFlash() {
-        FlashScope.getFlash(getSession().id)
-    }
-
-    /**
      * context
      * @return
      */
@@ -158,7 +150,7 @@ class Controller {
     void render(String view, Map model) {
         WebContext ctx = new WebContext(request, response, context, request.getLocale())
         Map map = [app    : app, controllerName: controllerName, actionName: actionName,
-                   context: context, request: request, response: response, session: session, flash: flash, params: params]
+                   context: context, request: request, response: response, session: session,  params: params]
         map.putAll(model)
         ctx.setVariables(map)
         String path = view.startsWith('/') ? view : "/${controllerName}/${view}"

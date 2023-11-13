@@ -57,7 +57,6 @@ class GServlet extends GenericServlet {
                     controller = method?.declaringClass?.newInstance() as Controller
                 }
                 if (method) {
-                    FlashScope.next(request.getSession(false)?.getId())
                     if (!app.interceptor.before(request, response, controllerName, actionName)) return
                     controller.init(request, response, controllerName, actionName, pathParams)
                     method.invoke(controller)
