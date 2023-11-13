@@ -5,6 +5,7 @@ import groovy.util.logging.Slf4j
 
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
+import java.lang.reflect.InvocationTargetException
 
 /**
  * 拦截器
@@ -33,6 +34,7 @@ class Interceptor {
      * 处理异常
      */
     void dealException(HttpServletRequest request, HttpServletResponse response, Exception exception) {
+        if (exception instanceof InvocationTargetException) exception = exception.getTargetException()
         log.warn("Exception: ${exception.getMessage()}")
         int status = (exception instanceof HttpException) ? exception.status : 500
         String message = exception.message ?: statusCodeMessages[status] ?: '服务器出现错误，轻稍后再试'
