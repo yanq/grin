@@ -7,13 +7,12 @@ import com.alibaba.druid.pool.DruidDataSource
 import com.alibaba.druid.sql.SQLUtils
 import grin.datastore.DB
 import grin.datastore.DDL
-import grin.web.Controller
-import grin.web.WebUtils
-import grin.web.Interceptor
-import grin.web.Route
+import grin.web.*
 import groovy.json.JsonGenerator
+import groovy.json.StreamingJsonBuilder
 import groovy.util.logging.Slf4j
 
+import javax.servlet.http.HttpServletResponse
 import javax.sql.DataSource
 import java.lang.reflect.Method
 
@@ -51,6 +50,7 @@ class App {
     JsonGenerator jsonGenerator
 
     Class<Controller> errorControllerClass = Controller
+    Template template
 
     File projectDir, appDir, domainsDir, controllersDir, websocketsDir, viewsDir, configDir, initDir, assetDir, staticDir, scriptDir
     List<File> allDirs
@@ -93,13 +93,13 @@ class App {
         if (config.dbSql) DDL.executeSqlFile(new File(scriptDir, config.dbSql as String))
         log.info("Tables：${DDL.tableColumns().keySet()}")
         // web 组件
+        template = new Template(this)
         routes = WebUtils.loadRoutes(config.urlMapping)
         controllers = WebUtils.loadControllers(controllersDir)
         actions = WebUtils.loadActions(controllers)
         interceptor = WebUtils.findInterceptor(controllersDir) ?: new Interceptor()
         websockets = WebUtils.loadWebsockets(websocketsDir)
         log.info("初始化 web\nroutes:${routes}\ncontrollers:${controllers}\nactions:${actions}\nintercepter:${interceptor?.class}\nwebsockets:${websockets}")
-        if (config.errorClass) errorControllerClass = config.errorClass
         log.info("started app @ ${environment}")
     }
 
@@ -210,5 +210,10 @@ class App {
                 }
                 .build()
         return jsonGenerator
+    }
+
+    StreamingJsonBuilder getJson(HttpServletResponse response) {
+        response.setHeader("Content-Type", "application/json;charset=UTF-8")
+        return new StreamingJsonBuilder(response.getWriter(), getJsonGenerator())
     }
 }

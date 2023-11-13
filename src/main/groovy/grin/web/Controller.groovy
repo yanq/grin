@@ -6,9 +6,6 @@ import groovy.json.StreamingJsonBuilder
 import groovy.util.logging.Slf4j
 import groovy.xml.MarkupBuilder
 import org.thymeleaf.TemplateEngine
-import org.thymeleaf.context.Context
-import org.thymeleaf.context.WebContext
-import org.thymeleaf.templateresolver.FileTemplateResolver
 
 import javax.servlet.RequestDispatcher
 import javax.servlet.ServletContext
@@ -55,15 +52,15 @@ class Controller {
      * forward
      */
     void forward(String path) throws ServletException, IOException {
-        RequestDispatcher dispatcher = request.getRequestDispatcher(path);
-        dispatcher.forward(request, response);
+        RequestDispatcher dispatcher = request.getRequestDispatcher(path)
+        dispatcher.forward(request, response)
     }
 
     /**
      * redirect
      */
     void redirect(String location) throws IOException {
-        response.sendRedirect(location);
+        response.sendRedirect(location)
     }
 
     /**
@@ -89,15 +86,15 @@ class Controller {
     Params getParams() {
         if (params) return params
 
-        params = new Params();
+        params = new Params()
         if (pathParams) params.putAll(pathParams)
         for (Enumeration names = request.getParameterNames(); names.hasMoreElements();) {
-            String name = (String) names.nextElement();
-            String[] values = request.getParameterValues(name);
+            String name = (String) names.nextElement()
+            String[] values = request.getParameterValues(name)
             if (values.length == 1) {
-                params.put(name, values[0]);
+                params.put(name, values[0])
             } else {
-                params.put(name, values);
+                params.put(name, values)
             }
         }
 
@@ -122,7 +119,7 @@ class Controller {
             }
         }
 
-        return params;
+        return params
     }
 
     /**
@@ -148,13 +145,7 @@ class Controller {
      * @param model
      */
     void render(String view, Map model) {
-        WebContext ctx = new WebContext(request, response, context, request.getLocale())
-        Map map = [app    : app, controllerName: controllerName, actionName: actionName,
-                   context: context, request: request, response: response, session: session,  params: params]
-        map.putAll(model)
-        ctx.setVariables(map)
-        String path = view.startsWith('/') ? view : "/${controllerName}/${view}"
-        templateEngine().process(path, ctx, response.getWriter())
+        app.template.render(this, view, model)
     }
 
     /**
@@ -183,9 +174,8 @@ class Controller {
      * @return
      */
     StreamingJsonBuilder getJson() {
-        response.setHeader("Content-Type", "application/json;charset=UTF-8")
         if (json) return json
-        json = new StreamingJsonBuilder(response.getWriter(), app.jsonGenerator)
+        json = app.getJson(response)
         return json
     }
 
@@ -224,49 +214,5 @@ class Controller {
         if (html) return html
         html = new MarkupBuilder(response.getWriter())
         return html
-    }
-
-    /**
-     * 不存在页面
-     */
-    void notFound(String message = "请求的内容不存在") {
-        response.status = 404
-
-        if (app.config.views.notFound) {
-            render(app.config.views.notFound, [message: message])
-        } else {
-            response.writer.write(message)
-        }
-    }
-
-    /**
-     * 错误页面处理
-     * @param e
-     */
-    void error(Exception e) {
-        response.status = 500
-
-        if (app.config.views.error) {
-            render(app.config.views.error, [exception: e])
-        } else {
-            response.writer.write("Error: ${e.getMessage()}")
-        }
-    }
-
-    /**
-     * template engine by thymeleaf
-     * 默认是缓存的。
-     * @return
-     */
-    TemplateEngine templateEngine() {
-        if (templateEngine) return templateEngine
-        templateEngine = new TemplateEngine()
-        FileTemplateResolver resolver = new FileTemplateResolver()
-        resolver.setPrefix(app.viewsDir.canonicalPath)
-        resolver.setSuffix('.html')
-        resolver.setCharacterEncoding('utf-8')
-        resolver.setCacheable(!app.isDev())
-        templateEngine.setTemplateResolver(resolver)
-        return templateEngine
     }
 }

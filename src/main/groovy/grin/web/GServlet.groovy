@@ -33,9 +33,7 @@ class GServlet extends GenericServlet {
         Route route = app.routes.find { it.matches(clearedURI) }
         if (!route) {
             log.warn("找不到匹配的路由：${clearedURI}")
-            Controller instance = getErrorController()
-            instance.init(request, response, null, null, [:])
-            instance.notFound()
+            throw new HttpException(404, "请求的地址不存在 ${clearedURI}")
             return
         }
         Map<String, Object> pathParams = route.getPathParams(clearedURI)
@@ -63,24 +61,15 @@ class GServlet extends GenericServlet {
                     app.interceptor.after(request, response, controllerName, actionName)
                 } else {
                     log.warn("页面不存在 ${clearedURI}(${controllerName}.${actionName})")
-                    Controller instance = getErrorController()
-                    instance.init(request, response, controllerName, actionName, pathParams)
-                    instance.notFound("请求的地址不存在 ${clearedURI}")
+                    throw new HttpException(404, "请求的地址不存在 ${clearedURI}")
                 }
             } catch (Exception e) {
-                e.printStackTrace()
-                Controller instance = getErrorController()
-                instance.init(request, response, controllerName, actionName, pathParams)
-                instance.error(e)
+                app.interceptor.dealException(req, res, e)
             }
         }
 
         def ip = request.getHeader("X-Real-Ip") ?: request.getRemoteAddr()
         log.info("${response.status} ${ip} ${clearedURI}(${controllerName}.${actionName}) time ${(System.nanoTime() - startAt) / 1000000}ms")
-    }
-
-    Controller getErrorController() {
-        app.errorControllerClass.newInstance()
     }
 
     /**
