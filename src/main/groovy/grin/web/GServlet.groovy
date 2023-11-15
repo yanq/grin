@@ -13,7 +13,13 @@ import java.lang.reflect.Method
 
 @Slf4j
 class GServlet extends GenericServlet {
-    App app = App.instance
+    App app
+
+    void init() {
+        app = App.instance
+        app.initializeDB()
+        app.initializeWeb()
+    }
 
     @Override
     void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {
