@@ -5,7 +5,6 @@ import groovy.json.JsonSlurper
 import groovy.json.StreamingJsonBuilder
 import groovy.util.logging.Slf4j
 import groovy.xml.MarkupBuilder
-import org.thymeleaf.TemplateEngine
 
 import javax.servlet.RequestDispatcher
 import javax.servlet.ServletContext
@@ -21,17 +20,16 @@ import javax.servlet.http.HttpSession
 @Slf4j
 class Controller {
     static int ONE_DAY = 24 * 60 * 60 // second
-    static TemplateEngine templateEngine // 静态全局变量，thymeleaf 模板引擎
     // servlet
     HttpServletRequest request
     HttpServletResponse response
     Map<String, Object> pathParams
     Params params
+
     // app
     App app = App.instance
-    // html json
-    MarkupBuilder html
-    StreamingJsonBuilder json
+    // json
+    private StreamingJsonBuilder _json
 
     // 控制器三大要素
     String controllerName
@@ -174,9 +172,10 @@ class Controller {
      * @return
      */
     private StreamingJsonBuilder getJson() {
-        if (json) return json
-        json = app.getJson(response)
-        return json
+        response.reset()
+        if (_json) throw new HttpException(500, "服务器内部错误，不能重复调用 json()")
+        _json = app.getJson(response)
+        return _json
     }
 
     // json相关的方法
@@ -208,11 +207,10 @@ class Controller {
 
     /**
      * html builder
+     * 这里貌似也该限制只调用一次，但，第一次调用就向客户端提交了数据，抛出异常，无法正常显示异常信息。索性也就不限制了。
      * @return
      */
-    MarkupBuilder getHtml() {
-        if (html) return html
-        html = new MarkupBuilder(response.getWriter())
-        return html
+    MarkupBuilder getHtmlBuilder() {
+        new MarkupBuilder(response.getWriter())
     }
 }
