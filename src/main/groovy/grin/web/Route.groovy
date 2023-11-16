@@ -13,6 +13,7 @@ class Route {
     Pattern pattern
     String controllerName
     String actionName
+    String id
     List<String> pathParamNames
 
 
@@ -33,7 +34,8 @@ class Route {
             def l = resource.split('-')
             if (l.length > 0) controllerName = l[0]
             if (l.length > 1) actionName = l[1]
-            if (l.length > 2) throw new Exception("路由定义，内部资源格式错误：${pathReg} -> ${resource}")
+            if (l.length > 2) id = l[2]
+            if (l.length > 3) throw new Exception("路由定义，内部资源格式错误：${pathReg} -> ${resource}")
         }
 
         if (!controllerName && !pathReg.contains("@controllerName")) throw new Exception("路由定义，缺少 controllerName：${pathReg} -> ${resource}")

@@ -46,7 +46,6 @@ class GServlet extends GenericServlet {
         controllerName = route.controllerName ?: pathParams.get('controllerName')
         actionName = route.actionName ?: pathParams.get('actionName') ?: 'index'
 
-
         use(Category.class) {
             try {
                 Controller controller
@@ -62,7 +61,7 @@ class GServlet extends GenericServlet {
                 }
                 if (method) {
                     if (!app.interceptor.before(request, response, controllerName, actionName)) return
-                    controller.init(request, response, controllerName, actionName, pathParams)
+                    controller.init(request, response, controllerName, actionName, route.id, pathParams)
                     method.invoke(controller)
                     app.interceptor.after(request, response, controllerName, actionName)
                 } else {
@@ -75,7 +74,7 @@ class GServlet extends GenericServlet {
         }
 
         def ip = request.getHeader("X-Real-Ip") ?: request.getRemoteAddr()
-        log.info("${response.status} ${ip} ${clearedURI}(${controllerName}.${actionName}) time ${(System.nanoTime() - startAt) / 1000000}ms")
+        log.info("${response.status} ${ip} ${clearedURI}(${controllerName}.${actionName}${route.id ? '.' + route.id : ''}) time ${(System.nanoTime() - startAt) / 1000000}ms")
     }
 
     /**
