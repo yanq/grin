@@ -13,59 +13,6 @@ import java.time.LocalTime
  */
 @Slf4j
 class DDL {
-    /**
-     * 数据库表信息
-     * @return
-     */
-    static List tablesMetaData() {
-        Connection connection = DB.dataSource.connection
-        def tables = connection.metaData.getTables(connection.catalog, connection.schema, null, 'TABLE')
-        def meta = tables.metaData
-        def columnNames = []
-        def rows = []
-
-        meta.columnCount.times {
-            def index = it + 1
-            columnNames << meta.getColumnName(index)
-        }
-
-        while (tables.next()) {
-            def row = [:]
-            columnNames.each {
-                row[it] = tables.getString(it)
-            }
-            rows << row
-        }
-
-        return rows
-    }
-
-    /**
-     * 数据库列信息
-     * @return
-     */
-    static List columnsMetaData() {
-        Connection connection = DB.dataSource.connection
-        def columns = connection.metaData.getColumns(connection.catalog, connection.schema, null, null)
-        def meta = columns.metaData
-        def names = []
-        def rows = []
-
-        meta.columnCount.times {
-            def index = it + 1
-            names << meta.getColumnName(index)
-        }
-
-        while (columns.next()) {
-            def row = [:]
-            names.each {
-                row[it] = columns.getString(it)
-            }
-            rows << row
-        }
-
-        return rows
-    }
 
     /**
      * 表信息，主要是表及其列名
@@ -186,16 +133,22 @@ ${fields.collect { "        ${columnSql(entityClass, it, Utils.findColumnName(en
     }
 
     /**
-     * 外键
+     * 更新外键
      * @param entityClassList
      * @return
      */
-    static checkForeignKey(List<Class<Entity>> entityClassList) {
+    static updateForeignKey(List<Class<Entity>> entityClassList) {
+        Connection connection = DB.dataSource.connection
         entityClassList.each {
             def entity = it
+            def resultSet = connection.metaData.getImportedKeys(connection.catalog, connection.schema, Utils.findTableName(entity))
+            def columns = [] // 已经存在外键的列列表，避免重复添加。pg 重复添加会产生多个。
+            while (resultSet.next()) {
+                columns.add(resultSet.getString("FKCOLUMN_NAME"))
+            }
             Utils.findPropertiesToPersist(entity).each {
                 def propertyType = entity.getDeclaredField(it).type
-                if (propertyType.interfaces.contains(Entity)) {
+                if (propertyType.interfaces.contains(Entity) && !columns.contains(Utils.findColumnName(entity, it))) {
                     Utils.executeSql("alter table ${Utils.findTableName(entity)} add foreign key (${Utils.findColumnName(entity, it)}) " +
                             "references ${Utils.findTableName(propertyType)}")
                 }
@@ -215,7 +168,7 @@ ${fields.collect { "        ${columnSql(entityClass, it, Utils.findColumnName(en
         entityClassList.each {
             Utils.executeSql(entityCreateSql(it))
         }
-        checkForeignKey(entityClassList)
+        updateForeignKey(entityClassList)
     }
 
     static dropTable(Class<Entity> entityClass) {
@@ -224,7 +177,7 @@ ${fields.collect { "        ${columnSql(entityClass, it, Utils.findColumnName(en
 
     static dropTables(List<Class<Entity>> entityClassList) {
         entityClassList.each {
-            Utils.executeSql(entityDropSql(it))
+            dropTable(it)
         }
     }
 
@@ -264,7 +217,7 @@ ${fields.collect { "        ${columnSql(entityClass, it, Utils.findColumnName(en
         def tablesWill = entityClassList.collect { Utils.findTableName(it) }
         if (tablesNow - tablesWill) log.warn("多余的表 ${tablesNow - tablesWill}")
         entityClassList.each { updateTable(it, tablesMeta) }
-        checkForeignKey(entityClassList)
+        updateForeignKey(entityClassList)
     }
 
     /**

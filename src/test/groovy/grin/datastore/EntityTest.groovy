@@ -1,7 +1,6 @@
 package grin.datastore
 
-
-import org.h2.jdbcx.JdbcDataSource
+import com.alibaba.druid.pool.DruidDataSource
 
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -71,15 +70,16 @@ class EntityTest extends GroovyTestCase {
     }
 
     void testDDL() {
-        DB.dataSource = new JdbcDataSource(url: "jdbc:h2:~/h2db/grin-test;MODE=PostgreSQL", user: 'sa', password: '')
+        // DB.dataSource = new JdbcDataSource(url: "jdbc:h2:~/h2db/grin-test;MODE=PostgreSQL", user: 'sa', password: '')
+        DB.dataSource = new DruidDataSource(url: "jdbc:postgresql://localhost:5432/grin_dev", username: 'postgres', password: 'pg@local')
 
         // println("Tables")
         // DDL.tablesMetaData().each { println(it) }
         // println("Columns")
-        // DDL.columnsMetaData().each {println(it)}
+        // DDL.columnsMetaData().each { println(it) }
 
         DDL.dropTables([Book, Author])
-        // DDL.createTables([Book, Author])
+        DDL.createTables([Book, Author])
         DDL.updateTables([Book, Author])
         DDL.tableColumns().each { println(it) }
     }

@@ -18,6 +18,8 @@ dependencies {
     implementation 'io.undertow:undertow-websockets-jsr:2.2.21.Final'
     implementation 'javax.servlet:javax.servlet-api:4.0.1' // undertow included
     implementation 'org.thymeleaf:thymeleaf:3.0.15.RELEASE'
+
+    implementation 'org.postgresql:postgresql:42.5.1'
     implementation 'com.alibaba:druid:1.2.15'
 
     runtimeOnly 'org.slf4j:slf4j-api:2.0.4'
