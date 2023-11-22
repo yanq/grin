@@ -73,7 +73,7 @@ class GServlet extends GenericServlet {
             }
         }
 
-        def ip = request.getHeader("X-Real-Ip") ?: request.getRemoteAddr()
+        def ip = request.getHeader("X-Forwarded-For") ?: request.getRemoteAddr()
         log.info("${response.status} ${ip} ${clearedURI}(${controllerName}.${actionName}${route.id ? '.' + route.id : ''}) time ${(System.nanoTime() - startAt) / 1000000}ms")
     }
 
