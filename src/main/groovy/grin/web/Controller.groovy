@@ -124,6 +124,18 @@ class Controller {
     }
 
     /**
+     * headers
+     * @return
+     */
+    Map getHeaders() {
+        def headers = [:]
+        request.headerNames.each {
+            headers[it] = request.getHeader(it)
+        }
+        return headers
+    }
+
+    /**
      * 返回string
      * @param string
      */
