@@ -42,7 +42,7 @@ class Interceptor {
         response.status = status
         def accept = request.getHeader('Accept')
         App app = App.instance
-        if (accept.contains('json')) {
+        if (accept?.contains('json')) {
             app.getJson(response)([success: false, message: message])
         } else {
             String view = status == 404 ? app.config.views.notFound : app.config.views.error
