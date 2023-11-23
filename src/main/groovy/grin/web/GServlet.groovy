@@ -17,8 +17,6 @@ class GServlet extends GenericServlet {
 
     void init() {
         app = App.instance
-        app.initializeDB()
-        app.initializeWeb()
     }
 
     @Override
