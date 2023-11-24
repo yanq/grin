@@ -35,17 +35,15 @@ class GServlet extends GenericServlet {
         String controllerName, actionName
         String clearedURI = clearURI(request.requestURI, request.getContextPath())
         Route route = app.routes.find { it.matches(clearedURI) }
-        if (!route) {
-            log.warn("找不到匹配的路由：${clearedURI}")
-            throw new HttpException(404, "请求的地址不存在 ${clearedURI}")
-            return
-        }
-        Map<String, Object> pathParams = route.getPathParams(clearedURI)
-        controllerName = route.controllerName ?: pathParams.get('controllerName')
-        actionName = route.actionName ?: pathParams.get('actionName') ?: 'index'
 
         use(Category.class) {
             try {
+                if (!route) throw new HttpException(404, "请求的地址不存在 ${clearedURI}")
+
+                Map<String, Object> pathParams = route.getPathParams(clearedURI)
+                controllerName = route.controllerName ?: pathParams.get('controllerName')
+                actionName = route.actionName ?: pathParams.get('actionName') ?: 'index'
+
                 Controller controller
                 Method method
                 if (app.isDev()) {
@@ -57,22 +55,20 @@ class GServlet extends GenericServlet {
                     method = app.actions.get("${controllerName}-${actionName}")
                     controller = method?.declaringClass?.newInstance() as Controller
                 }
-                if (method) {
-                    if (!app.interceptor.before(request, response, controllerName, actionName)) return
-                    controller.init(request, response, controllerName, actionName, route.id, pathParams)
-                    method.invoke(controller)
-                    app.interceptor.after(request, response, controllerName, actionName)
-                } else {
-                    log.warn("页面不存在 ${clearedURI}(${controllerName}.${actionName})")
-                    throw new HttpException(404, "请求的地址不存在 ${clearedURI}")
-                }
+
+                if (!method) throw new HttpException(404, "请求的地址不存在 ${clearedURI}")
+
+                if (!app.interceptor.before(request, response, controllerName, actionName)) return
+                controller.init(request, response, controllerName, actionName, route.id, pathParams)
+                method.invoke(controller)
+                app.interceptor.after(request, response, controllerName, actionName)
             } catch (Exception e) {
                 app.interceptor.dealException(req, res, e)
             }
         }
 
         def ip = request.getHeader("X-Forwarded-For") ?: request.getRemoteAddr()
-        log.info("${response.status} ${ip} ${clearedURI}(${controllerName}.${actionName}${route.id ? '.' + route.id : ''}) time ${(System.nanoTime() - startAt) / 1000000}ms")
+        log.info("${response.status} ${ip} ${clearedURI}(${controllerName}.${actionName}${route?.id ? '.' + route.id : ''}) time ${(System.nanoTime() - startAt) / 1000000}ms")
     }
 
     /**
