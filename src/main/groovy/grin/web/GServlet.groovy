@@ -79,6 +79,7 @@ class GServlet extends GenericServlet {
      */
     static String clearURI(String requestURI, String context = '') {
         if (context.size() > 1 && requestURI.startsWith(context)) requestURI = requestURI.substring(context.size())
+        if (requestURI.indexOf(';') > 0) requestURI = requestURI.substring(0, requestURI.indexOf(';')) // j session id 情况处理
         return requestURI
     }
 }
