@@ -321,8 +321,8 @@ class EntityImpl {
         List params
         Class entityClass
 
-        D get() {
-            List list = list([offset: 0, max: 1])
+        D get(String selects = '*') {
+            List list = list([offset: 0, max: 1], selects)
             if (list) return list[0]
             return null
         }
