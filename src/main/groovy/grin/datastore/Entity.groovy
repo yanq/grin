@@ -131,8 +131,8 @@ trait Entity<D> {
      * 转换成 Map
      * @return
      */
-    Map toMap(List<String> excludes) {
-        Utils.toMap(excludes, this)
+    Map toMap(List<String> includes = []) {
+        Utils.toMap(includes, this)
     }
 
     /**

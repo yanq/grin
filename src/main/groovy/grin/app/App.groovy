@@ -7,6 +7,7 @@ import com.alibaba.druid.pool.DruidDataSource
 import com.alibaba.druid.sql.SQLUtils
 import grin.datastore.DB
 import grin.datastore.DDL
+import grin.datastore.Entity
 import grin.web.Interceptor
 import grin.web.Route
 import grin.web.Template
@@ -195,6 +196,7 @@ class App {
                 .addConverter(Date) { Date date ->
                     date.format(instance.config.json.dateFormat ?: 'yyyy-MM-dd HH:mm:ss')
                 }
+                .addConverter(Entity) { it.toMap() }
                 .build()
         return _jsonGenerator
     }

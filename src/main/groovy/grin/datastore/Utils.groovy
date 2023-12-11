@@ -75,14 +75,14 @@ class Utils {
      * 转换成 Map
      * @return
      */
-    static Map toMap(List<String> excludes, Object entity) {
-        def list = Utils.findPropertiesToPersist(entity.class) - excludes
+    static Map toMap(List<String> includes, Object entity) {
+        def list = includes ?: Utils.findPropertiesToPersist(entity.class)
         def result = [:]
         list.each {
             def value = entity[it]
             if (value instanceof Entity) {
                 def prefix = it + '.'
-                def subExcludes = excludes.findAll { it.startsWith(prefix) }.collect { it.replaceFirst(prefix, '') }
+                def subExcludes = includes.findAll { it.startsWith(prefix) }.collect { it.replaceFirst(prefix, '') }
                 value = value.toMap(subExcludes)
             }
             result.put(it, value)

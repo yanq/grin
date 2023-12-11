@@ -90,9 +90,10 @@ class EntityTest extends GroovyTestCase {
         // DB.dataSource = new JdbcDataSource(url: "jdbc:h2:~/h2db/grin-test;MODE=PostgreSQL", user: 'sa', password: '')
         DB.dataSource = new DruidDataSource(url: "jdbc:postgresql://localhost:5432/grin_dev", username: 'postgres', password: 'pg@local')
 
-        // Author author = new Author()
-        // author.name = "Tom"
+        Author author = new Author()
+        author.name = "Tom"
         // author.save()
+        println(author.toMap())
 
         // println(Author.get(1))
         // println(Author.get('1'))
