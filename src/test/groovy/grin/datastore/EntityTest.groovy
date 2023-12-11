@@ -90,10 +90,10 @@ class EntityTest extends GroovyTestCase {
         // DB.dataSource = new JdbcDataSource(url: "jdbc:h2:~/h2db/grin-test;MODE=PostgreSQL", user: 'sa', password: '')
         DB.dataSource = new DruidDataSource(url: "jdbc:postgresql://localhost:5432/grin_dev", username: 'postgres', password: 'pg@local')
 
-        Author author = new Author()
-        author.name = "Tom"
+        // Author author = new Author()
+        // author.name = "Tom"
         // author.save()
-        println(author.toMap())
+        // println(author.toMap())
 
         // println(Author.get(1))
         // println(Author.get('1'))
@@ -103,6 +103,9 @@ class EntityTest extends GroovyTestCase {
         // println(Author.where([name:'Jack']).get())
         // println(Author.where([id:1,name:'Jack']).get())
         // println(Author.where([id:[1,2,'3']]).list([order:[id:-1,name:1]]))
+
+        // Book book = new Book()
+        Book.list([order: 'wordCount asc,id desc'])
 
     }
 }

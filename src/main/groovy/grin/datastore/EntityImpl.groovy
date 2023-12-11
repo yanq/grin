@@ -305,16 +305,17 @@ class EntityImpl {
         /**
          * 处理参数，包括分页和排序
          * 貌似 pg 的 offset 是可以独立的，mysql 不可以。先以 mysql 为准。
-         * @param params [offset:0,limit:10,order:[id:1]] , 1 asc -1 desc
+         * @param params [offset:0,limit:10,order:'id desc,name asc']
          * @return
          */
         private String dealParams(Map params) {
             if (!params) return ''
-            def order = ''
-            if (params.order) {
-                if (!(params.order instanceof Map)) throw new Exception("order must a map, order: ${params.order}")
-                order = ((Map) (params.order)).collect {
-                    "${Utils.findColumnName(entityClass, it.key)} ${it.value == -1 ? 'desc' : 'asc'}"
+            String order = params.order
+            if (order) {
+                order = order.split(',').collect {
+                    def list = it.split(' ')
+                    list[0] = Utils.findColumnName(entityClass, list[0])
+                    return list.join(' ')
                 }.join(',')
             }
             return "${order ? 'order by ' + order : ''} ${params.limit ? 'limit ' + params.limit : ''} ${(params.limit && params.offset) ? 'offset ' + params.offset : ''}"
