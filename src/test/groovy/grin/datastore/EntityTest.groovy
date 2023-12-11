@@ -1,6 +1,7 @@
 package grin.datastore
 
 import com.alibaba.druid.pool.DruidDataSource
+import groovy.transform.ToString
 
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -51,6 +52,7 @@ class EntityTest extends GroovyTestCase {
         ]
     }
 
+    @ToString
     class Author implements Entity<Author> {
         Long id
         String name
@@ -82,5 +84,24 @@ class EntityTest extends GroovyTestCase {
         DDL.createTables([Book, Author])
         DDL.updateTables([Book, Author])
         DDL.tableColumns().each { println(it) }
+    }
+
+    void testAPI() {
+        // DB.dataSource = new JdbcDataSource(url: "jdbc:h2:~/h2db/grin-test;MODE=PostgreSQL", user: 'sa', password: '')
+        DB.dataSource = new DruidDataSource(url: "jdbc:postgresql://localhost:5432/grin_dev", username: 'postgres', password: 'pg@local')
+
+        // Author author = new Author()
+        // author.name = "Tom"
+        // author.save()
+
+        // println(Author.get(1))
+        // println(Author.get('1'))
+        // println(Author.getAll([1]))
+        // println(Author.getAll([1,'1']))
+        // println(Author.getAll([1,2,3],['id','name']))
+        // println(Author.where([name:'Jack']).get())
+        // println(Author.where([id:1,name:'Jack']).get())
+        // println(Author.where([id:[1,2,'3']]).list([order:[id:-1,name:1]]))
+
     }
 }

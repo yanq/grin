@@ -16,10 +16,11 @@ trait Entity<D> {
      * @param id
      * @return
      */
-    static D get(Serializable id, String selects = '*') {
+    static D get(Serializable id, List<String> selects = []) {
         if (!id) return null
-        EntityImpl.get(this, id, selects)
+        where([id: id]).get(selects)
     }
+
 
     /**
      * get all
@@ -27,14 +28,9 @@ trait Entity<D> {
      * @param ids
      * @return
      */
-    static List<D> getAll(List<Serializable> ids, String selects = '*') {
+    static List<D> getAll(List<Serializable> ids, List<String> selects = []) {
         if (!ids) return []
-        new EntityImpl.Where(whereSql: "id in (${ids.collect { '?' }.join(',')})", params: ids, entityClass: this).list([:], selects)
-    }
-
-    static List<D> getAll(Serializable... ids) {
-        if (!ids) return []
-        getAll(ids.toList())
+        where([id: ids]).list([:], selects)
     }
 
     /**
@@ -42,16 +38,20 @@ trait Entity<D> {
      * @param params
      * @return
      */
-    static List<D> list(Map params = null, String selects = '*') {
-        EntityImpl.list(this, params, selects)
+    static List<D> list(Map params = null, List<String> selects = []) {
+        where('').list(params, selects)
     }
 
     /**
      * 计数
      * @return
      */
-    static int count(String selects = '*') {
-        EntityImpl.count(this, selects)
+    static int count(List<String> selects = []) {
+        where('').count(selects)
+    }
+
+    static int countDistinct(List<String> selects = []) {
+        where('').countDistinct(selects)
     }
 
     /**
@@ -60,7 +60,7 @@ trait Entity<D> {
      */
     D save(boolean validate = false) {
         if (validate) this.validate()
-        if (this.errors) return null
+        if (this.errors) throw new Exception("entity save fail,errors: ${this.errors}")
         EntityImpl.save(this)
     }
 
@@ -93,7 +93,21 @@ trait Entity<D> {
     }
 
     static EntityImpl.Where<D> where(Map kvs) {
-        where(kvs.keySet().collect { "${Utils.toDBStyle(it)}=?" }.join(' and '), kvs.values().toList())
+        def params = []
+        def sql = kvs.keySet()
+                .collect {
+                    def k = it
+                    def v = kvs[it]
+                    if (v instanceof List) {
+                        params.addAll(v.collect { Transformer.toType(this, k, it) })
+                        return "${Utils.findColumnName(this, it)} in (${v.collect { '?' }.join(',')})"
+                    } else {
+                        params.add(Transformer.toType(this, k, v))
+                        return "${Utils.findColumnName(this, it)} = ?"
+                    }
+                }
+                .join(' and ')
+        where(sql, params)
     }
 
     /**
@@ -101,7 +115,7 @@ trait Entity<D> {
      * @return
      */
     boolean validate() {
-        if(errors) return false //已经有错误了，可能来自数据绑定时的类型转换错误
+        if (errors) return false // 已经有错误了，可能来自数据绑定时的类型转换错误
         EntityImpl.validate(this)
     }
 

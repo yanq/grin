@@ -29,56 +29,6 @@ class EntityImpl {
     public static final List<String> excludeProperties = ['metaClass', 'grin_datastore_Entity__errors']
 
     /**
-     * get
-     * 神一样的 get
-     * @param target
-     * @param id
-     * @return
-     */
-    static get(Class target, Serializable id, String selects) {
-        if (id == null) return null
-
-        DB.withSql { Sql sql ->
-            String table = Utils.findTableName(target)
-            def tid = Transformer.toType(target, 'id', id) // pg must transform；mysql not need。
-            def result = sql.firstRow("select ${selects} from ${table} where id=?", tid)
-            def entity = bindResultToEntity(result, target)
-            return entity
-        }
-    }
-
-    /**
-     * list
-     * @param target
-     * @param params
-     * @return
-     */
-    static list(Class target, Map params, String selects = '*') {
-        DB.withSql { Sql sql ->
-            List list = []
-            List rows = sql.rows("select ${selects} from ${Utils.findTableName(target)} ${dealParams(params)}".toString())
-            rows.each { row ->
-                list << bindResultToEntity(row, target)
-            }
-            return list
-        }
-    }
-
-    /**
-     * count
-     * @param target
-     * @return
-     */
-    static int count(Class target, String selects = '*') {
-        return DB.withSql { Sql sql -> sql.firstRow("select count(${selects}) as num from ${Utils.findTableName(target)}".toString()).num }
-    }
-
-    static int countDistinct(Class target, String selects = '*') {
-        return DB.withSql { Sql sql -> sql.firstRow("select count(distinct ${selects}) as num from ${Utils.findTableName(target)}".toString()).num }
-    }
-
-
-    /**
      * save
      * 插入或更新
      * @param entity
@@ -302,16 +252,6 @@ class EntityImpl {
         target[EntityImpl.MAPPING]?.columns ?: [:]
     }
 
-    /**
-     * 处理参数，包括分页和排序
-     * 貌似 pg 的 offset 是可以独立的，mysql 不可以。先以 mysql 为准。
-     * @param params [offset:0,limit:10,order:'id desc']
-     * @return
-     */
-    static String dealParams(Map params) {
-        if (!params) return ''
-        return "${params.order ? 'order by ' + params.order : ''} ${params.limit ? 'limit ' + params.limit : ''} ${(params.limit && params.offset) ? 'offset ' + params.offset : ''}"
-    }
 
     /**
      * where 查询
@@ -321,17 +261,17 @@ class EntityImpl {
         List params
         Class entityClass
 
-        D get(String selects = '*') {
+        D get(List<String> selects = []) {
             List list = list([offset: 0, max: 1], selects)
             if (list) return list[0]
             return null
         }
 
-        List<D> list(Map pageParams = [:], String selects = '*') {
+        List<D> list(Map pageParams = [:], List<String> selects = []) {
             preDealParams()
             return DB.withSql { Sql sql ->
                 List list = []
-                List rows = sql.rows("select ${selects} from ${Utils.findTableName(entityClass)} ${whereSql ? 'where ' + whereSql : ''} ${dealParams(pageParams)}".toString(), params)
+                List rows = sql.rows("select ${dealSelects(selects)} from ${Utils.findTableName(entityClass)} ${whereSql ? 'where ' + whereSql : ''} ${dealParams(pageParams)}".toString(), params)
                 rows.each { row ->
                     list << bindResultToEntity(row, entityClass)
                 }
@@ -340,20 +280,44 @@ class EntityImpl {
             }
         }
 
-        int count(String selects = '*') {
+        int count(List<String> selects = []) {
             preDealParams()
-            DB.withSql { Sql sql -> sql.firstRow("select count(${selects}) as num from ${Utils.findTableName(entityClass)} ${whereSql ? 'where ' + whereSql : ''}".toString(), params).num }
+            DB.withSql { Sql sql -> sql.firstRow("select count(${dealSelects(selects)}) as num from ${Utils.findTableName(entityClass)} ${whereSql ? 'where ' + whereSql : ''}".toString(), params).num }
         }
 
-        int countDistinct(String selects = '*') {
+        int countDistinct(List<String> selects = []) {
             preDealParams()
-            DB.withSql { Sql sql -> sql.firstRow("select count(distinct ${selects}) as num from ${Utils.findTableName(entityClass)} ${whereSql ? 'where ' + whereSql : ''}".toString(), params).num }
+            DB.withSql { Sql sql -> sql.firstRow("select count(distinct ${dealSelects(selects)}) as num from ${Utils.findTableName(entityClass)} ${whereSql ? 'where ' + whereSql : ''}".toString(), params).num }
         }
 
         private preDealParams() {
             for (int i = 0; i < params.size(); i++) {
                 if (params[i] instanceof Date) params[i] = java.time.LocalDateTime.ofInstant(params[i].toInstant(), ZoneId.systemDefault())
             }
+        }
+
+        private dealSelects(List<String> selects = []) {
+            if (!selects) return '*'
+            selects.collect { Utils.findColumnName(entityClass, it) }.join(',')
+        }
+
+
+        /**
+         * 处理参数，包括分页和排序
+         * 貌似 pg 的 offset 是可以独立的，mysql 不可以。先以 mysql 为准。
+         * @param params [offset:0,limit:10,order:[id:1]] , 1 asc -1 desc
+         * @return
+         */
+        private String dealParams(Map params) {
+            if (!params) return ''
+            def order = ''
+            if (params.order) {
+                if (!(params.order instanceof Map)) throw new Exception("order must a map, order: ${params.order}")
+                order = ((Map) (params.order)).collect {
+                    "${Utils.findColumnName(entityClass, it.key)} ${it.value == -1 ? 'desc' : 'asc'}"
+                }.join(',')
+            }
+            return "${order ? 'order by ' + order : ''} ${params.limit ? 'limit ' + params.limit : ''} ${(params.limit && params.offset) ? 'offset ' + params.offset : ''}"
         }
     }
 }
